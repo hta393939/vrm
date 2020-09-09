@@ -8,7 +8,7 @@
 'use strict';
 
 /** */
-class Pack {
+class Misc {
     constructor() {
         this.cl = this.constructor.name;
         this.NAME = 'Pack';
@@ -16,18 +16,24 @@ class Pack {
  * 共通名
  */
         this.STORAGE = 'gvrmn';
+/**
+ * 
+ */
         this.STORAGE_THUMB = 'gvrmthumb';
 
         this.baseTex = null;
         this.thumbTex = null;
-        this.Tex2 = null;
-        this.Tex3 = null;
+        this._tex02 = null;
+        this._tex03 = null;
 
         this.texs = [];
     }
 
+/**
+ * 
+ */
     save() {
-        console.log(`${this.NAME}#save called`);
+        console.log(this.cl, `save called`);
         this.gltf.makeData();
         const urlstr = this.gltf.save(true);
         if (urlstr) {
@@ -37,31 +43,41 @@ class Pack {
         }
     }
 
+/**
+ * 
+ */
     init() {
-        console.log(`${this.NAME}#init called`);
+        console.log(this.cl, `init called`);
 
-        const tex = [{cv: cv0, name: 'baseTex'},
-            {cv: cv1, name: 'thumbTex'},
-            {cv: cv2, name: 'Tex2'},
-            {cv: cv3, name: 'Tex3'},
-            {cv: cv4, name: '_tex4'},
-            {cv: cv5, name: '_tex5'},
-            {cv: cv06, name: '_tex6'},
-            {cv: cv07, name: '_tex07'}];
+        const tex = [
+            { cv: cv00, name: 'baseTex' },
+            { cv: cv01, name: 'thumbTex' },
+            { cv: cv02, name: '_tex02' },
+            { cv: cv03, name: '_tex03' },
+            { cv: cv04, name: '_tex04' },
+            { cv: cv05, name: '_tex05' },
+            { cv: cv06, name: '_tex06' },
+            { cv: cv07, name: '_tex07' }
+        ];
 
-        this.draw(cv0);
+        this.draw(cv00);
         {
-            const c = cv1.getContext('2d');
+            /**
+             * @type {HTMLCanvasElement}
+             */
+            const cv = window.cv01;
+
+            const c = cv.getContext('2d');
             let ratio = window.devicePixelRatio;
             ratio = 1;
             const w = imgthumb.naturalWidth;
             const h = imgthumb.naturalHeight;
 
-            cv1.width = w / ratio;
-            cv1.height = h / ratio;
+            cv.width = w / ratio;
+            cv.height = h / ratio;
             c.drawImage(imgthumb,
                 0,0, w, h, // src
-                0,0, cv1.width, cv1.height);
+                0,0, cv.width, cv.height);
 
             console.log(`natural`, w,h);
         }
@@ -82,18 +98,18 @@ class Pack {
             console.log(`natural`, w,h);
         }
 
-        this.draw2(cv2);
-        this.draw3(cv3);
-        this.draw4(cv4);
+        this.draw2(cv02);
+        this.draw3(cv03);
+        this.draw4(cv04);
         //this.drawColor(cv5, 128,128,255);
-        this.draw5(cv5);
+        this.draw5(cv05);
         this.draw6(cv06);
         this.draw7(cv07);
 
         tex.forEach(v => {
             v.cv.toBlob(blob => {
                 const reader = new FileReader();
-                reader.addEventListener('load', ev=>{
+                reader.addEventListener('load', ev => {
                     console.log(`${v.name} load fire`);
 
                     this.gltf[v.name] = ev.target.result;
@@ -114,10 +130,6 @@ class Pack {
 
             }
             this.threed = threed;
-        }
-
-        {
-
         }
 
     } // init
@@ -363,18 +375,33 @@ class Pack {
 
         for (let i = 0; i < h; ++i) {
             for (let j = 0; j < w; ++j) {
-                let x = 2.0 * j / (w - 1) - 1.0;
-                let y = 2.0 * i / (h - 1) - 1.0;
-
                 let ft = (w * i + j) * 4; // bgra
 
-                const ang = Math.PI * 2 * (x + y);
-                let lv = (Math.cos(ang) + 1) * 0.5;
-                lv = Math.floor(lv * 255);
+                let lv = 1;
+                let x = 2.0 * j / (w - 1) - 1.0;
+                let y = 2.0 * i / (h - 1) - 1.0;
+                let d = Math.sqrt(x ** 2 + y ** 2);
+                // 0 - 0 - 1 - 0 - 0
+                d = d * 2;
+                if (d > 1) {
+                    d = 1;
+                }
+                lv = 1 - Math.cos(d * Math.PI) * 0.2;
 
-                data.data[ft] = 255;
-                data.data[ft+1] = 255;
-                data.data[ft+2] = lv;
+                let r = 255;
+                let g = 204;
+                let b = 153;
+                r *= lv;
+                g *= lv;
+                b *= lv;
+
+                r = Math.max(0, Math.min(255, Math.floor(r)));
+                g = Math.max(0, Math.min(255, Math.floor(g)));
+                b = Math.max(0, Math.min(255, Math.floor(b)));
+
+                data.data[ft] = r;
+                data.data[ft+1] = g;
+                data.data[ft+2] = b;
                 data.data[ft+3] = 255;
             }
         }
@@ -400,9 +427,13 @@ class Pack {
 
                 let ft = (w * i + j) * 4; // bgra
 
-                const ang = Math.PI * 2 * (x + y);
-                let lv = (Math.cos(ang) + 1) * 0.5;
-                lv = 1;
+                let d = Math.abs(x);
+                d *= 2;
+                if (d > 1) {
+                    d = 1;
+                }
+                let lv = (Math.cos(d * Math.PI) + 1) * 0.5;
+                //lv = 1;
 
                 lv = Math.floor(lv * 255);
                 lv = Math.max(0, Math.min(255, lv));
@@ -547,9 +578,9 @@ class Pack {
         console.log(`leave`, this);
     }
 
-} // class Pack
+}
 
-const pack = new Pack();
+const pack = new Misc();
 
 const update = () => {
     requestAnimationFrame(update);
@@ -557,5 +588,7 @@ const update = () => {
     pack.threed.update();
 };
 
-window.addEventListener('load', pack.onload.bind(pack));
+window.addEventListener('load', () => {
+    pack.onload();
+});
 

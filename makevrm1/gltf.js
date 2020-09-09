@@ -91,6 +91,7 @@ class V2 {
 class Gltf {
     constructor(param) {
         this.cl = this.constructor.name;
+
         /**
          * 文字列
          */
@@ -104,26 +105,57 @@ class Gltf {
         /**
          * ボーンのところの材質インデックス
          * 光抑えめ
+         * @default 0
          */
         this.boneMatrixIndex = 0;
-
         /**
          * 丸いところの材質インデックス
          * 光を受ける
+         * @default 0
          */
-        this.spMatrixIndex = 1;
+        this.spMatrixIndex = 0;
+/**
+ * 目の材質
+ * @default 0
+ */
+        this.eyeMatrixIndex = 0;
+/**
+ * アンテナの材質
+ * @default 0
+ */
+        this.antennaMatrixIndex = 0;
+
+/**
+ * 材質数
+ * @default 1
+ */
+        this.materialNum = 1;
+
 
 /**
  * 
  */
         this.baseTex = null;
+        /** */
         this.thumbTex = null;
-        this.Tex2 = null;
-        this.Tex3 = null;
+        /** */
+        this.tex2 = null;
+        /** */
+        this.tex3 = null;
+        /** */
         this.tex4 = null;
+        /** */
         this.tex5 = null;
+        /** */
         this.tex6 = null;
+        /** */
         this.tex7 = null;
+
+/**
+ * 格納テクスチャ数
+ * @default 2
+ */
+        this.texNum = 2;
 
         this.BYTE = 5120;
         this.UNSIGNED_BYTE = 5121;
@@ -297,7 +329,7 @@ class Gltf {
         const ret = [];
 
         let strBin = new Blob([this.str],
-            {type: 'text/plain;charset=UTF-8'});
+            { type: 'text/plain;charset=UTF-8'});
         let strBinLen = strBin.size;
         strBinLen = Math.floor(strBinLen / 4) * 4;
         strBin = strBin.slice(0, strBinLen);
@@ -434,7 +466,7 @@ class Gltf {
      * メッシュと頂点を現状に追加する。obj パーツから
      * @param {Vtx[]} vts 点の配列
      * @param {{_global: number[], _sz: number[]}[]} nodes ノード配列 
-     * @param {{}[]} arr 材質8つまで。複数面。三段配列
+     * @param {{}[]} arr 複数面。三段配列
      * @param {number} ji ジョイントインデックス
      * @param {string} inpath パーツパス
      * @param {number} mi 材質インデックス
@@ -487,7 +519,7 @@ class Gltf {
      * メッシュと頂点を現状に追加する。ここ bookmark
      * @param {Vtx[]} vts 点の配列
      * @param {{_global: number[], _sz: number[]}[]} nodes ノード配列 
-     * @param {{}[]} arr 材質8つまで。複数面。三段配列。
+     * @param {{}[]} arr 複数面。三段配列。
      * @param {number} ji ジョイントインデックス
      * @param {string} inpath パーツパス
      * @param {number} mi 材質インデックス
@@ -551,7 +583,7 @@ class Gltf {
      * メッシュと頂点を現状に追加する。骨と関節追加する。
      * @param {Vtx[]} vts 点の配列
      * @param {{_global: number[], _sz: number[]}[]} nodes ノード配列 
-     * @param {{}[]} arr 材質8つまで。複数面。三段配列。
+     * @param {{}[]} arr 複数面。三段配列。
      */
     makeSubMesh(vts, nodes, arr) {
         console.log(this.cl, `makeSubMesh called`);
@@ -664,16 +696,20 @@ class Gltf {
                         return; // 裏返ったら追加しない
                     }
 
-                    const pts = [[-1,-1,-1], [1,-1,-1], [-1,1,-1], [1,1,-1],
-                        [-1,-1,1], [1,-1,1], [-1,1,1], [1,1,1]];
-                    const faces = [{is: [0,4,6,2], n: [-1,0,0]},
+                    const pts = [
+                        [-1,-1,-1], [1,-1,-1], [-1,1,-1], [1,1,-1],
+                        [-1,-1,1], [1,-1,1], [-1,1,1], [1,1,1]
+                    ];
+                    const faces = [
+                        {is: [0,4,6,2], n: [-1,0,0]},
                         {is: [3,7,5,1], n: [1,0,0]},
                         {is: [5,4,0,1], n: [0,-1,0]},
                         {is: [3,2,6,7], n: [0,1,0]},
                         {is: [1,0,2,3], n: [0,0,-1]},
-                        {is: [7,6,4,5], n: [0,0,1]}];
+                        {is: [7,6,4,5], n: [0,0,1]}
+                    ];
                     /**
-                     * 左下、右下、右上、左上
+                     * 左上、右上、右下、左下 コ
                      */
                     const uvs = [
                         [0.0, 0.0], [1.0, 0.0], [1.0, 1.0], [0.0, 1.0]
@@ -720,7 +756,7 @@ class Gltf {
                             }
 
                             // 全面で貼るタイプ
-                            uv.set(uvs[i5][0] * 0.5, uvs[i5][1] * 0.5);
+                            //uv.set(uvs[i5][0], uvs[i5][1]);
                             /*
                             if (true) {
                                 const u = 0;
@@ -789,6 +825,9 @@ class Gltf {
                     let ix = (cindex + 8) % 16;
                     let iy = Math.floor((cindex + 8) / 16);
                     let uv = new THREE.Vector2((ix * 4 + 2) / 64, (iy * 4 + 2) / 64);
+                    if (v.name.includes('EyeEnd')) {
+                        //uv.set(0.5, 0.5);
+                    }
 
                     // Y+ 上から Y- 下まで
                     for (let k = 0; k < belt + 1; ++k) {
@@ -836,7 +875,7 @@ class Gltf {
                             vtx.p.multiply(scale);
                             vtx.n.copy(vtx.p);
                             vtx.n.normalize();
-                            //vtx.calcStandardTan();
+
                             vtx.uv.copy(uv);
 
                             let boi = + i;
@@ -860,7 +899,7 @@ class Gltf {
                             let aindex = (k % 7) + 1;
                             aindex = this.spMatrixIndex;
                             if (v.name.includes('EyeEnd')) {
-                                aindex = 2;
+                                aindex = this.eyeMatrixIndex;
                             }
 
                             arr[aindex].push([v0, v2, v1]);
@@ -885,7 +924,7 @@ class Gltf {
         let found = null;
         arr.some((v, i)=>{
             if (inre.test(v.name)) {
-                found = { index: i | 0, node: v };
+                found = { index: + i, node: v };
                 return true;
             }
             return false;
@@ -900,7 +939,7 @@ class Gltf {
         console.log(this.cl, `createMaterials called`);
         const ret = {ms: [], props: []};
 
-        for (let i = 0; i < 8; ++i) {
+        for (let i = 0; i < this.materialNum; ++i) {
             const name = `m${pad(i, 3)}`; // 一致させる
             const m = {
                 name: name,
@@ -922,44 +961,44 @@ class Gltf {
                     prop = { // VRM/MToon シェーダー
                         name: name,
                         shader: 'VRM/MToon',
-                        renderQueue: 2000,
+                        renderQueue: 5000,
                         floatProperties: {
-"_UvAnimScrollX": 0.05,
-"_UvAnimScrollY": 0.05,
+//"_UvAnimScrollX": 0.5, // 0.5 だと動いてるの見える 2秒周期
+//"_UvAnimScrollY": 0.5, // 0.5 だと動いているの見える
 //"_UvAnimRotation": 0.05,
 //"_ReceiveShadowRate":1, "_ShadeShift":0,
 //"_ShadeToony": 0.9,
-"_LightColorAttenuation": 0.0,
-"_OutlineWidth": 0.5 * 10,
+//"_LightColorAttenuation": 0.0,
+//"_OutlineWidth": 0.5 * 10,
 //"_OutlineScaledMaxDistance": 1,
 //"_OutlineLightingMix": 1,
 //"_DebugMode": 0,
-"_BlendMode": 0,
-"_OutlineWidthMode": 1,
-"_OutlineColorMode": 0,
-"_CullMode": 2,
+//"_BlendMode": 0,
+//"_OutlineWidthMode": 0,
+//"_OutlineColorMode": 0,
+//"_CullMode": 2,
 //"_OutlineCullMode": 1,
-"_MToonVersion": 32,
-"_Mode": 0,
+//"_MToonVersion": 32,
+//"_Mode": 0,
 //"_SrcBlend": 1.0,
 //"_DstBlend": 0.0,
 //"_ZWrite": 1,
-"_IsFirstSetup": 0
+//"_IsFirstSetup": 0
                         },
-                        keywordMap: {},
-                        tagMap: { RenderType: 'Opaque' },
+keywordMap: {},
+tagMap: { RenderType: 'Opaque' },
                         textureProperties: {
-_MainTex: 0 + 6,
+_MainTex: 0,
 //_BumpMap: 2,
-_BumpMap: 5,
-_SphereAdd: 3
+//_BumpMap: 5,
+//_SphereAdd: 3
                         },
                         vectorProperties: {
-"_OutlineColor": [1,0,0, 1],
+//"_OutlineColor": [1,0,0, 1],
 //"_ShadeColor": [0.1, 0.9, 0.1, 1], // cluster で効いてる
 //"_MainTex": [0, 0, 0.5, 0.5], // オフセットと比率
 //_BumpMap: [0,0, 1,1],
-"_EmissionColor": [0.1, 0.1, 0.1, 1]
+//"_EmissionColor": [0.1, 0.1, 0.1, 1]
                         }
                 };
                 break;
@@ -968,35 +1007,35 @@ _SphereAdd: 3
                     prop = { // VRM/MToon シェーダー
                         name: name,
                         shader: 'VRM/MToon',
-                        renderQueue: 2000,
+                        renderQueue: 5000,
                         floatProperties: {
 //"_ReceiveShadowRate":1,
 //"_ShadeShift":0,
 //"_ShadeToony": 0.9,
-"_LightColorAttenuation": 0.0, // 丸いところ 光反映
-"_OutlineWidth": 0.5 * 10,
+//"_LightColorAttenuation": 0.0, // 丸いところ 光反映
+//"_OutlineWidth": 0.5 * 10,
 //"_OutlineScaledMaxDistance": 1,
 //"_OutlineLightingMix": 1,
 //"_DebugMode": 0,
-"_BlendMode": 0,
-"_OutlineWidthMode": 1,
-"_OutlineColorMode": 0,
-"_CullMode": 2,
+//"_BlendMode": 0,
+//"_OutlineWidthMode": 0,
+//"_OutlineColorMode": 0,
+//"_CullMode": 2,
 //"_OutlineCullMode": 1,
-"_MToonVersion": 32,
+//"_MToonVersion": 32,
 "_Mode": 0,
                         },
                         keywordMap: {},
                         tagMap: { RenderType: 'Opaque' },
                         textureProperties: {
                             _MainTex: 0,
-                            _SphereAdd: 3
+                            //_SphereAdd: 3
                         },
                         vectorProperties: {
-"_OutlineColor": [0,1,0, 1],
+//"_OutlineColor": [0,1,0, 1],
 //"_ShadeColor": [0.1, 0.9, 0.1, 1], // cluster で効いてる
 //_BumpMap: [0,0, 1,1],
-"_EmissionColor": [0.1, 0.1, 0.1, 1]
+//"_EmissionColor": [0.1, 0.1, 0.1, 1]
                         }
                 };
                 break;
@@ -1041,27 +1080,30 @@ _SphereAdd: 3
                         shader: 'VRM/MToon',
                         renderQueue: 2000,
                         floatProperties: {
-"_UvAnimScrollX": 0.1,
-"_ReceiveShadowRate":1,
-"_ShadeShift":0,
-"_ShadeToony": 0.9,
-"_LightColorAttenuation": 1,
-"_OutlineWidth": 0.5,
-"_OutlineScaledMaxDistance": 1,
-"_OutlineLightingMix": 1, "_DebugMode": 0,
-"_BlendMode": 0, "_OutlineWidthMode": 0,
-"_OutlineColorMode": 0, "_CullMode": 2,
-"_OutlineCullMode": 1,
+"_UvAnimScrollX": 0.25,
+//"_ReceiveShadowRate":1,
+//"_ShadeShift":0,
+//"_ShadeToony": 0.9,
+"_LightColorAttenuation": 1, // 光の影響を受けない
+//"_OutlineWidth": 0.5,
+//"_OutlineScaledMaxDistance": 1,
+//"_OutlineLightingMix": 1,
+//"_DebugMode": 0,
+"_BlendMode": 0,
+//"_OutlineWidthMode": 0,
+//"_OutlineColorMode": 0,
+"_CullMode": 2,
+//"_OutlineCullMode": 1,
 "_MToonVersion": 32,
 "_Mode": 0,
-"_SrcBlend": 1.0,
-"_DstBlend": 0.0,
-"_ZWrite": 1,
-"_IsFirstSetup": 0
+//"_SrcBlend": 1.0,
+//"_DstBlend": 0.0,
+//"_ZWrite": 1,
+//"_IsFirstSetup": 0
                         },
-                        keywordMap: {},
-                        tagMap: { RenderType: 'Opaque' },
-                        textureProperties: { _MainTex: 7 },
+keywordMap: {},
+tagMap: { RenderType: 'Opaque' },
+textureProperties: { _MainTex: 7 },
                         vectorProperties: {
 "_Color": [1,1,1, 1],
 //"_ShadeColor": [0.1, 0.9, 0.1, 1], // cluster で効いてる
@@ -1081,21 +1123,25 @@ _SphereAdd: 3
 //"_UvAnimScrollX": 0.01,
 //"_UvAnimScrollY": 0.01,
 //"_UvAnimRotation": 0.01,
-"_ReceiveShadowRate":1, "_ShadeShift":0,
-"_ShadeToony": 0.9,
-"_LightColorAttenuation": 0.5,
+//"_ReceiveShadowRate":1,
+//"_ShadeShift":0,
+//"_ShadeToony": 0.9,
+//"_LightColorAttenuation": 0.5,
 "_OutlineWidth": 0.5,
 "_OutlineScaledMaxDistance": 1,
-"_OutlineLightingMix": 1, "_DebugMode": 0,
-"_BlendMode": 0, "_OutlineWidthMode": 0,
-"_OutlineColorMode": 0, "_CullMode": 2,
+"_OutlineLightingMix": 1,
+//"_DebugMode": 0,
+"_BlendMode": 0,
+//"_OutlineWidthMode": 0,
+//"_OutlineColorMode": 0,
+"_CullMode": 2,
 "_OutlineCullMode": 1,
 "_MToonVersion": 32,
 "_Mode": 0,
-"_SrcBlend": 1.0,
-"_DstBlend": 0.0,
-"_ZWrite": 1,
-"_IsFirstSetup": 0
+//"_SrcBlend": 1.0,
+//"_DstBlend": 0.0,
+//"_ZWrite": 1,
+//"_IsFirstSetup": 0
                         },
                         keywordMap: {},
                         tagMap: { RenderType: 'Opaque' },
@@ -1310,7 +1356,7 @@ textureProperties: { _MainTex: 1 },
                 };
                 break;
 
-            default:
+            case 888:
                 prop = {
                         name: name,
                         shader: 'Standard',
@@ -1344,10 +1390,52 @@ textureProperties: { _MainTex: 1 },
                         }
                 };
                 break;
+
+                default:
+                    prop = {
+                        name: name,
+                        shader: 'VRM/MToon',
+                        renderQueue: 5000,
+                        floatProperties: {
+//"_UvAnimScrollX": 0.0,
+//"_UvAnimScrollY": 0.0,
+//"_UvAnimRotation": 0.01,
+//"_Cutoff": 0.5,
+//"_BumpScale": 1,
+//"_ReceiveShadowRate":1,
+//"_ShadeShift":0,
+//"_ShadeToony": 0.9,
+///"_LightColorAttenuation": 0.5,
+//"_OutlineWidth": 0.5,
+//"_OutlineScaledMaxDistance": 1,
+//"_OutlineLightingMix": 1,
+//"_DebugMode": 0,
+//"_BlendMode": 0,
+//"_OutlineWidthMode": 0,
+//"_OutlineColorMode": 0,
+//"_CullMode": 2,
+//"_OutlineCullMode": 1,
+//"_MToonVersion": 32,
+//"_Mode": 0,
+//"_SrcBlend": 1.0,
+//"_DstBlend": 0.0,
+//"_ZWrite": 1,
+//"_IsFirstSetup": 0
+                        },
+keywordMap: {},
+tagMap: { RenderType: 'Opaque' },
+textureProperties: { _MainTex: 0 },
+                        vectorProperties: {
+//"_Color": [1,1,1, 1],
+//"_ShadeColor": [0.1, 0.9, 0.1, 1], // cluster で効いてる
+//_MainTex: [0, 0, 0.5, 0.5], // オフセットと比率
+//_EmissionColor: [0.1, 0.1, 0.1, 1]
+                        }
+                };
             }
             ret.props.push(prop);
         }
-        console.log(this.cl, `#createMaterials leave`, ret);
+        console.log(this.cl, `createMaterials leave`, ret);
         return ret;
     }
 
@@ -1397,19 +1485,21 @@ textureProperties: { _MainTex: 1 },
         /**
          * TODO: ここを変更
          */
-        const modelVersion = `1.38.9`;
-        const modelTitle = 'polybbb';
+        const modelVersion = `1.38.10`;
+        const modelTitle = 'polybbb 図形人形';
 
-        const texs = [
+        let texs = [
             { tex: this.baseTex },
             { tex: this.thumbTex },
-            { tex: this.Tex2 },
-            { tex: this.Tex3 },
-            { tex: this._tex4 },
-            { tex: this._tex5 },
-            { tex: this._tex6 },
+            { tex: this._tex02 },
+            { tex: this._tex03 },
+            { tex: this._tex04 },
+            { tex: this._tex05 },
+            { tex: this._tex06 },
             { tex: this._tex07 }
         ];
+        texs = texs.slice(0, this.texNum);
+
         /**
          * 全テクスチャのバイナリ領域
          */
@@ -1434,8 +1524,10 @@ textureProperties: { _MainTex: 1 },
          * 材質ごとの面配列
          * @type {number[][][]}
          */
-        const arr = [[], [], [], [],
-            [], [], [], []];
+        const arr = [];
+        for (let i = 0; i < this.materialNum; ++i) {
+            arr.push([]);
+        }
 
         this.makeSubMesh(vts, treenodes, arr);
         this.paddingFace(vts, arr);
