@@ -775,8 +775,10 @@ class Gltf {
 
                             vtx.uv.copy(uv);
 
+                            // TODO: ボーンウエイトインデックス
                             let boi = + i;
-                            vtx.jnt.set(boi, boi, boi, boi);
+                            //vtx.jnt.set(boi, boi, boi, boi);
+                            vtx.jnt.set(boi, 0, 0, 0);
 
                             vtx.p.add(offsetVector);
 
@@ -878,8 +880,10 @@ class Gltf {
 
                             vtx.uv.copy(uv);
 
+                            // TODO: ボーンウエイトインデックス
                             let boi = + i;
-                            vtx.jnt.set(boi, boi, boi, boi);
+                            //vtx.jnt.set(boi, boi, boi, boi);
+                            vtx.jnt.set(boi, 0, 0, 0);
 
                             vtx.p.add(new THREE.Vector3(
                                 v._global[0], v._global[1], v._global[2]));
@@ -1485,7 +1489,7 @@ textureProperties: { _MainTex: 0 },
         /**
          * TODO: ここを変更
          */
-        const modelVersion = `1.38.10`;
+        const modelVersion = `1.38.11`;
         const modelTitle = 'polybbb 図形人形';
 
         let texs = [
