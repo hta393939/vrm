@@ -140,7 +140,6 @@ class Misc {
      * @param {HTMLCanvasElement} cv 
      */
     draw(cv) {
-        const _this = this;
         console.log(`draw called`);
         const w = cv.width;
         const h = cv.height;
@@ -205,7 +204,6 @@ class Misc {
  * @param {number} b 
  */
     drawColor(cv, r,g,b) {
-        const _this = this;
         const w = cv.width;
         const h = cv.height;
         const c = cv.getContext('2d');
@@ -215,6 +213,12 @@ class Misc {
         }  
     }
 
+/**
+ * 
+ * @param {*} x 
+ * @param {*} y 
+ * @param {*} z 
+ */
     tos(x,y,z) {
         let v3 = new THREE.Vector3(x,y,z);
         v3 = v3.normalize();
@@ -363,6 +367,7 @@ class Misc {
 
     /**
      * 面用通常用テクスチャ
+     * 
      * @param {HTMLCanvasElement} cv 
      */
     draw6(cv) {
@@ -387,6 +392,7 @@ class Misc {
                     d = 1;
                 }
                 lv = 1 - Math.cos(d * Math.PI) * 0.2;
+                //lv = 1; // TODO: 模様無し
 
                 let r = 255;
                 let g = 204;
@@ -452,8 +458,7 @@ class Misc {
      * @param {HTMLCanvasElement} cv 
      */
     drawInner(cv) {
-        const _this = this;
-        console.log(`${_this.NAME}#drawInner called add`);
+        console.log(this.cl, `drawInner called add`);
 
         const w = cv.width;
         const h = cv.height;
@@ -480,7 +485,7 @@ class Misc {
  * メイン
  */
     makeFile() {
-        console.log(this.NAME, `makeFile called`);
+        console.log(this.cl, `makeFile called`);
         { // バイナリ作る
             this.gltf.makeData2();
             const urlstr = this.gltf.save(true);
@@ -496,7 +501,7 @@ class Misc {
     }
 
     loadFile(inPath) {
-        console.log(`${this.NAME}#loadFile called`, inPath);
+        console.log(this.cl, `loadFile called`, inPath);
         {
             const xhr = new XMLHttpRequest();
             xhr.open('GET', inPath);
@@ -563,13 +568,13 @@ class Misc {
         }
     
         {
-            idvis.addEventListener('change', ev=>{
+            idvis.addEventListener('change', ev => {
                 this.threed.setVisible('model', ev.currentTarget.checked);
             });
-            idwire.addEventListener('change', ev=>{
+            idwire.addEventListener('change', ev => {
                 this.threed.setWire(ev.currentTarget.checked);
             });
-            idaxes.addEventListener('change', ev=>{
+            idaxes.addEventListener('change', ev => {
                 this.threed.setVisible('axes', ev.currentTarget.checked);
             });
         }

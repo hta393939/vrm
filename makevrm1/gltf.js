@@ -1489,8 +1489,8 @@ textureProperties: { _MainTex: 0 },
         /**
          * TODO: ここを変更
          */
-        const modelVersion = `1.38.11`;
-        const modelTitle = 'polybbb 図形人形';
+        const modelVersion = `1.38.13`;
+        const modelTitle = 'poly bbb 図形人形';
 
         let texs = [
             { tex: this.baseTex },
@@ -1853,7 +1853,7 @@ textureProperties: { _MainTex: 0 },
         }
     }
 
-    arr.forEach((v, i) => { // プリミを複数段にする
+    arr.forEach((v, i) => { // プリミを複数段にする。材質があるので
         let prim = {
             mode: 4,
             attributes: {
@@ -1864,13 +1864,18 @@ textureProperties: { _MainTex: 0 },
                 JOINTS_0: 4
             },
             indices: facetop + i, // 面構成頂点
-            material: +i, // 材質インデックス
-            /*
-            targets: [{
-                POSITION: 0,
-                NORMAL: 1
-            }] */
+            material: + i, // 材質インデックス
         };
+        if (i >= 0) {
+//        if (false) {
+            prim.targets = [
+                {
+                    POSITION: 0,
+                    NORMAL: 1
+                }
+            ];
+        }
+
         obj.meshes[0].primitives.push(prim);
     });
 
@@ -1922,12 +1927,12 @@ textureProperties: { _MainTex: 0 },
             console.log(`最大最小`, obj.accessors[0]);
         }
         { // normal
-            vts.forEach(v=>{
-                    p.setFloat32(c  , v.n.x, true);
-                    p.setFloat32(c+4, v.n.y, true);
-                    p.setFloat32(c+8, v.n.z, true);
-                    c += 3 * 4;
-            });
+            for (const v of vts) {
+                p.setFloat32(c  , v.n.x, true);
+                p.setFloat32(c+4, v.n.y, true);
+                p.setFloat32(c+8, v.n.z, true);
+                c += 3 * 4;
+            }
         }
         { // uv ここがメイン
             const rate = 1;
@@ -1994,7 +1999,7 @@ textureProperties: { _MainTex: 0 },
                 });
                 bvOffset += 1;
                 obj.textures.push({
-                    sampler: 0, source: +i
+                    sampler: 0, source: + i
                 });
 
                 const b8 = new Uint8Array(v.tex);
@@ -2034,13 +2039,14 @@ textureProperties: { _MainTex: 0 },
 
     /**
      * _foo のようなメンバを削除する
-     * @param {{nodes:any[]}} obj 
+     * @param {Object} obj 
+     * @param {{}[]} obj.nodes 
      */
     deleteExtra(obj) {
         let count = 0;
-        obj.nodes.forEach(node=>{
+        obj.nodes.forEach(node => {
             const keys = Object.keys(node);
-            keys.forEach(k=>{
+            keys.forEach(k => {
                 if (k.substr(0,1) === '_') {
                     delete node[k];
                     ++count;
