@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset='UTF-8' />
+        <title>.vrm 生成 Encoder</title>
+        <link rel='stylesheet' href='./index.css' />
+        <script src='./nodetemplate.js'></script>
+        <script src='./three.min.js'></script>
+        <script src='./OrbitControls.js'></script>
+        <script src='./LoaderSupport.js'></script>
+        <script src='./GLTFLoader.js'></script>
+        <script src='./VRMLoader.js'></script>
+        <script src='./objparse.js'></script>
+        <script src='./vtx.js'></script>
+        <script src='./threed.js'></script>
+        <script src='./gltf.js'></script>
+        <script src='./index.js'></script>
+    </head>
+    <body>
+        <div id='info0'></div>
+
+        <label class='pt'><input class='pt' type='checkbox' id='idvis' checked="checked" />表示</label>
+        <label class='pt'><input class='pt' type='checkbox' id='idwire' checked="checked" />ワイヤー</label>
+        <label class='pt'><input class='pt' type='checkbox' id='idaxes' />軸</label>        
+        <div id='idwebgl'></div>
+
+        <div>
+            <input type='button' id='idPre2' value='ぷり' />
+            <input type='button' id='idSave3' value='保存3 makeFile' />
+            背を低くした
+        </div>
+
+        <div id='idadd1'></div>
+
+        <div>
+            メインcv0
+            <canvas id='cv0' width='64' height='64'></canvas>
+            <img id='idthumb' src='./t16x16.png' />
+            <img id='imgthumb' />
+       </div>
+
+    </body>
+</html>

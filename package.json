@@ -1,0 +1,11 @@
+{
+    "name": "vrm",
+    "version": "0.1.0",
+    "scripts": {
+        "jsdoc": "jsdoc . -r -c ./jsdoc.json"
+    },
+    "devDependencies": {
+        "docdash": "^1.2.0",
+        "jsdoc": "^3.6.5"
+    }
+}
