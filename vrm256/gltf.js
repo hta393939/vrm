@@ -432,7 +432,7 @@ class Gltf {
              */
             const vtx = v.clone();
             let boi = + ji;
-            vtx.jnt.set(boi, boi, boi, boi);
+            vtx.jnt.set(boi, 0, 0, 0);
 
             vts.push(vtx);
         }
@@ -617,7 +617,7 @@ class Gltf {
                             vtx.uv.copy(uv);
 
                             let boi = +i;
-                            vtx.jnt.set(boi, boi, boi, boi);
+                            vtx.jnt.set(boi, 0, 0, 0);
 
                             vtx.p.add(offsetVector);
 
