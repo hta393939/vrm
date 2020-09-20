@@ -82,12 +82,16 @@ class V2 {
     }
 }
 
+/**
+ * パーサー
+ */
 class GltfParser {
     /**
      * コンストラクタ
      * @param {{}} param 
      */
     constructor(param) {
+        /** */
         this.cl = this.constructor.name;
 
         /**
@@ -107,9 +111,11 @@ class GltfParser {
  * json 側のルートからのオブジェクト
  */
         this._root = {};
-
+/** */
         this.BYTE = 5120;
+/** */
         this.UNSIGNED_BYTE = 5121;
+/** */
         this.SHORT = 5122;
         /**
          * 5123
@@ -140,9 +146,11 @@ class GltfParser {
  * 9729
  */
         this.LINEAR = 9729;
-
+/** */
         this.NEAREST_MIPMAP_NEAREST = 9984;
+/** */
         this.LINEAR_MIPMAP_NEAREST = 9985;
+/** */
         this.NEAREST_MIPMAP_LINEAR = 9986;
 /**
  * 9987 LL MIPMAP
@@ -153,6 +161,7 @@ class GltfParser {
  * 33071 wrap* 用
  */
         this.CLAMP_TO_EDGE = 33071;
+/** */
         this.MIRRORED_REPEAT = 33648;
 /**
  * 10497 wrap*用
@@ -163,9 +172,10 @@ class GltfParser {
  * for VRM
  */
         this.DIS = 'Disallow';
+/**
+ * 
+ */
         this.ALLOW = 'Allow';
-
-        this.NAME = this.constructor.name;
     }
 
 /**
@@ -225,7 +235,7 @@ class GltfParser {
      * @param {ArrayBuffer} ab 
      */
     parse(ab) {
-        console.log(this.NAME, `#parse called`, ab);
+        console.log(this.cl, `parse called`, ab);
 
         const decoder = new TextDecoder();
 
@@ -306,38 +316,41 @@ class GltfParser {
                 };
                 this.parseImage(obj, info);
             }
-            console.log(this.NAME, `#parse leave`, c, ab.byteLength);
+            console.log(this.cl, `parse leave`, c, ab.byteLength);
         }
     }
 
+/**
+ * 
+ */
     view() {
-        console.log(this.NAME, `view called`);
+        console.log(this.cl, `view called`);
         // TODO: 見やすくしたい
 
         const json = this._root;
 
         for (const v of json.bufferViews) {
-            console.log(v);
+            console.log('bufferView', v);
         }
 
         for (const v of json.accessors) {
-            console.log(v);
+            console.log('accessor', v);
         }
 
         for (const v of json.nodes) {
-            console.log(v);
+            console.log('node', v);
         }
 
         for (const v of json.skins) {
-            console.log(v);
+            console.log('skin', v);
         }
 
         for (const v of json.materials) {
-            console.log(v);
+            console.log('material', v);
         }
 
         for (const v of json.scenes) {
-            console.log(v);
+            console.log('scene', v);
         }
 
         {
@@ -345,11 +358,11 @@ class GltfParser {
             if (Array.isArray(mp)) {
                 for (const v of mp) {
                     console.log(v.name, v.shader, v.renderQueue);
-                    console.log(`float`, v.floatProperties);
-                    console.log(`vector`, v.vectorProperties);
-                    console.log(`tagMap`, v.tagMap);
-                    console.log(`keywordMap`, v.keywordMap);
-                    console.log(`texture`, v.textureProperties);
+                    console.log(v.name, `float`, v.floatProperties);
+                    console.log(v.name, `vector`, v.vectorProperties);
+                    console.log(v.name, `tagMap`, v.tagMap);
+                    console.log(v.name, `keywordMap`, v.keywordMap);
+                    console.log(v.name, `texture`, v.textureProperties);
                     //console.log();
                 }
             }

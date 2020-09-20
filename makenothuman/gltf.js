@@ -83,8 +83,12 @@ class V2 {
     }
 }
 
+/**
+ * 通常の足とか作るクラス
+ */
 class Gltf {
     constructor(param) {
+/** */
         this.cl = this.constructor.name;
 /**
  * 乱数じゃなくて順番に色が変わっていく場合
@@ -99,7 +103,7 @@ class Gltf {
          * 文字列
          */
         this.str = '{}';
-
+/** */
         this.parts = {};
 
         /**
@@ -115,11 +119,13 @@ class Gltf {
  * テクスチャ数 通常+サムネ
  */
         this.TEXNUM = 1;
-
+/** */
         this.baseTex = null;
-
+/** */
         this.BYTE = 5120;
+/** */
         this.UNSIGNED_BYTE = 5121;
+/** */
         this.SHORT = 5122;
         /**
          * 5123
@@ -150,9 +156,11 @@ class Gltf {
  * 9729 LINEAR
  */
         this.LINEAR = 9729;
-
+/** */
         this.NEAREST_MIPMAP_NEAREST = 9984;
+/** */
         this.LINEAR_MIPMAP_NEAREST = 9985;
+/** */
         this.NEAREST_MIPMAP_LINEAR = 9986;
 /**
  * 9987 LL MIPMAP
@@ -176,6 +184,7 @@ class Gltf {
  * for VRM
  */
         this.DIS = 'Disallow';
+/** */
         this.ALLOW = 'Allow';
     }
 
@@ -191,7 +200,7 @@ class Gltf {
         s += '_' + pad(d.getHours());
         s += pad(d.getMinutes());
         s += pad(d.getSeconds());
-        s += '_' + pad(d.getMilliseconds(), 3);
+        //s += '_' + pad(d.getMilliseconds(), 3);
         return s;
     }
 
@@ -291,7 +300,7 @@ class Gltf {
      * @param {boolean} inurl 
      */
     save(inurl) {
-        console.log(this.cl, `#save called`, inurl);
+        console.log(this.cl, `save called`, inurl);
 
         {
             const base = `a_${this.getTimeID(new Date())}`;
@@ -710,7 +719,7 @@ class Gltf {
  * 材質8つ
  */
     createMaterials() {
-        console.log(this.cl, `#createMaterials called`);
+        console.log(this.cl, `createMaterials called`);
         const ret = {ms: [], props: []};
 
         for (let i = 0; i < this.MTLNUM; ++i) {
@@ -753,15 +762,15 @@ class Gltf {
 "_OutlineWidthMode": 0,
 "_OutlineColorMode": 0,
 "_OutlineCullMode": 1,
-"_MToonVersion": 32,
 "_Mode": 0,
-"_SrcBlend": 1.0,
-"_DstBlend": 0.0,
-"_ZWrite": 1,
+"_MToonVersion": 34,
+//"_SrcBlend": 1.0,
+//"_DstBlend": 0.0,
+//"_ZWrite": 1,
                         },
-                        keywordMap: {},
-                        tagMap: { "RenderType": 'Opaque' },
-                        textureProperties: { "_MainTex": 0 },
+keywordMap: {},
+tagMap: { "RenderType": 'Opaque' },
+textureProperties: { "_MainTex": 0 },
                         vectorProperties: {
 "_Color": [1,1,1, 1],
 "_ShadeColor": [0.1, 0.1, 0.1, 0], // cluster, js で効いてる 多分これの影響
@@ -859,10 +868,10 @@ class Gltf {
         console.log(this.cl, `makeDate2 called`);
 
         /**
-         * ここを変更
+         * TODO: ここを変更
          */
-        const modelVersion = `0.1.0`;
-        const modelTitle = '図形人形プチ 色変更';
+        const modelVersion = `0.1.1`;
+        const modelTitle = 'nothuman';
 
         const texs = [
             { tex: this.baseTex }
@@ -994,8 +1003,7 @@ class Gltf {
 
             extensions: {
                 VRM: {
-                    exporterVersion: "usagiECMAScript-0.1.1",
-                    specVersion: "0.0",
+                    exporterVersion: "usagiECMAScript-0.1.0",
                     meta: {
                         title: modelTitle,
                         author: 'usagi',
@@ -1196,7 +1204,7 @@ class Gltf {
                     JOINTS_0: 4
                 },
                 indices: facetop + i, // 面構成頂点
-                material: +i, // 材質インデックス
+                material: + i, // 材質インデックス
                 targets: [{
                     POSITION: 0,
                     NORMAL: 1

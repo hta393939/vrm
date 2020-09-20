@@ -7,23 +7,26 @@
 
 'use strict';
 
+/** */
 class Pack {
     constructor() {
+/*
         this.cl = this.constructor.name;
 
 /**
  * 共通名
  */
         this.STORAGE_THUMB = 'gvrmthumb';
-
+/** */
         this.baseTex = null;
+/** */
         this.thumbTex = null;
-
+/** */
         this.texs = [];
     }
 
     save() {
-        console.log(this.cl, `#save called`);
+        console.log(this.cl, `save called`);
         this.gltf.makeData();
         const urlstr = this.gltf.save(true);
         if (urlstr) {
@@ -34,7 +37,7 @@ class Pack {
     }
 
     init() {
-        console.log(this.cl, `#init called`);
+        console.log(this.cl, `init called`);
 
         const cv0 = window.cv0;
         const tex = [
@@ -242,5 +245,7 @@ const update = () => {
     pack.threed.update();
 };
 
-window.addEventListener('load', pack.onload.bind(pack));
+window.addEventListener('load', () => {
+    pack.onload();
+});
 
