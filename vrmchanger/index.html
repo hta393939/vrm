@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="UTF-8" />
+        <title>vrm ファイル読み</title>
+        <link rel="stylesheet" href="./index.css" />
+        <script src="./three.min.js"></script>
+        <script src="./OrbitControls.js"></script>
+        <script src="./vtx.js"></script>
+        <script src="./threed.js"></script>
+        <script src="./gltfparser.js"></script>
+        <script src="./index.js"></script>
+    </head>
+    <body>
+
+        <h2>vrm チェンジャー</h2>
+
+<div>
+    vroid studio の特殊ファイルのみ有効。
+    <div id="iddrop" class="drop">ここに .vrm ファイルをドロップする</div>
+</div>
+
+<div>
+    <div id="idjson" class="drop">ここに .json ファイルをドロップ</div>
+</div>
+
+<div>
+    テキスト
+    <div></div>
+</div>
+<div>
+    バイナリ
+    <div></div>
+</div>
+
+        <div id="info0"></div>
+
+        <label class="pt"><input class="pt" type="checkbox" id="idvis" checked="checked" />表示</label>
+        <label class="pt"><input class="pt" type="checkbox" id="idwire" checked="checked" />ワイヤー</label>
+        <label class="pt"><input class="pt" type="checkbox" id="idaxes" />軸</label>        
+        <div id="idwebgl"></div>
+
+       <div>
+           <div id="idimgs"></div>
+       </div>
+
+       <hr />
+
+    </body>
+</html>
+

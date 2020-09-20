@@ -1,0 +1,40 @@
+
+canvas {
+    border: solid 1px black;
+}
+
+.pt {
+    cursor: pointer;
+}
+
+.texview {
+    border: solid black 1px;
+}
+
+.drop {
+    border: dashed 4px black;
+    border-radius: 1rem;
+    text-align: center;
+    padding: 1rem;
+    height: 100%;
+}
+
+.rowone {
+    display: flex;
+    flex-direction: row;
+}
+
+#iddrop {
+    height: 2rem;
+}
+
+#idimgs {
+    display: flex;
+    flex-direction: column;
+}
+
+#idwebgl {
+/*    border: solid 1px red;
+    width: 640px;
+    height: 360px;*/
+}
