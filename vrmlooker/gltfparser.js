@@ -91,7 +91,7 @@ class GltfParser {
      * @param {{}} param 
      */
     constructor(param) {
-        /** */
+/** */
         this.cl = this.constructor.name;
 
         /**

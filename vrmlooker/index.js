@@ -7,8 +7,11 @@
 
 'use strict';
 
-class Pack {
+class Misc {
     constructor() {
+/**
+ * 
+ */
         this.cl = this.constructor.name;
 /**
  * パーサ兼維持用
@@ -18,24 +21,14 @@ class Pack {
 
     init() {
         console.log(this.cl, `init called`);
-        {
-            const threed = new Threed();
-            const dom = threed.init(640,360, 30);
-            if (dom) {
-                idwebgl.appendChild(dom);
-                threed.makeControl(dom);
-
-
-            }
-            this.threed = threed;
-        }
 
         {
             const worker = new Worker(`./parser_ww.js`);
             this.worker = worker;
 
             worker.addEventListener('message', ev => {
-                console.log(`message fire`, ev.data);
+                console.log(`worker message fire`, ev.data);
+
 
             });
 
@@ -48,50 +41,18 @@ class Pack {
     }
 
     /**
-     * サーバのパスを指定する場合
-     * @param {string} inPath 
-     */
-    loadFile(inPath) {
-        console.log(this.cl, `loadFile called`, inPath);
-        {
-            const xhr = new XMLHttpRequest();
-            xhr.open('GET', inPath);
-            xhr.responseType = 'arraybuffer';
-            xhr.addEventListener('load', ev => {
-                this.parser.parse(ev.currentTarget.response);
-            });
-            xhr.send();
-        }
-    }
-
-    /**
      * .vrm をドロップしたとき
      * @param {File} file 
      */
     async readFile(file) {
+        console.log(this.cl, `readFile called`, file.name);
+
         const ab = await file.arrayBuffer();
         this.parser.parse(ab);
         this.parser.view();
     }
 
-    onload() {
-        {
-            this.init();
-            info0.textContent = `${new Date().toLocaleString()}`;
-        }
-    
-        {
-            idvis.addEventListener('change', ev => {
-                this.threed.setVisible('model', ev.currentTarget.checked);
-            });
-            idwire.addEventListener('change', ev => {
-                this.threed.setWire(ev.currentTarget.checked);
-            });
-            idaxes.addEventListener('change', ev => {
-                this.threed.setVisible('axes', ev.currentTarget.checked);
-            });
-        }
-    
+    onload() {    
         {
             document.body.addEventListener('dragover', ev => {
                 ev.preventDefault();
@@ -111,23 +72,14 @@ class Pack {
             });
         }
     
-        update();
         console.log(`leave`);
     }
 
-
-
 }
 
-const pack = new Pack();
-
-const update = () => {
-    requestAnimationFrame(update);
-
-    pack.threed.update();
-};
+const misc = new Misc();
 
 window.addEventListener('load', () => {
-    pack.onload();
+    misc.onload();
 });
 
