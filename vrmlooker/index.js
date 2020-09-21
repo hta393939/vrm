@@ -3,8 +3,6 @@
  */
 // MIT License (c) 2018- Usagi
 
-/// <reference path="./index.d.ts" />
-
 'use strict';
 
 class Misc {
