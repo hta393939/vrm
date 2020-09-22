@@ -235,12 +235,18 @@ class GltfParser {
         });
     }
 
-    /**
-     * API. バイナリを操作する
-     * @param {ArrayBuffer} ab 
-     */
+/**
+ * API. バイナリを操作する
+ * @param {ArrayBuffer} ab 
+ */
     parse(ab) {
         console.log(this.cl, `parse called`, ab);
+
+        this.chunk = {
+            whole: ab, // 参照
+            json: { byteOffset: 0, byteLength: 0 },
+            bin: { byteOffset: 0, byteLength: 0 }
+        };
 
         const decoder = new TextDecoder();
 
@@ -254,20 +260,14 @@ class GltfParser {
             c += 8;
 
             console.log(`先頭チャンク`, chunkByte, fourcc);
+            this.chunk.json.byteOffset = c;
+            this.chunk.json.byteLength = chunkByte;
 
             const sbuf = new Uint8Array(ab, c, chunkByte);
             const s8 = decoder.decode(sbuf);
             const obj = JSON.parse(s8);
             console.log(`json`, obj);
             this._root = obj;
-            if (false) {
-                try {
-                    const accindex = obj.skins[0].inverseBindMatrices;
-                    console.log('accindex', accindex);
-                } catch(ec) {
-                    console.warn(``, ec.message);
-                }
-            }
 
             c += chunkByte;
             chunkByte = p.getUint32(c, true);
@@ -275,27 +275,15 @@ class GltfParser {
             fourcc = decoder.decode(four);
             c += 8;
 
-            // bin の部分
-            const q = new DataView(ab, c, chunkByte);
+            this.chunk.bin.byteOffset = c;
+            this.chunk.bin.byteLength = chunkByte;
 
-            let d = 0;
-            let s = ``;
-            if (false) {
-                let bv8 = obj.bufferViews[8];
-                d = bv8.byteOffset;
-                let n = bv8.byteLength / 4 / 16;
-                for (let i = 0; i < n; ++i) {
-                    for (let j = 0; j < 4; ++j) {
-                        let ss = [];
-                        for (let k = 0; k < 4; ++k) {
-                            v = q.getFloat32(d, true);
-                            d += 4;
-                            ss.push(v);
-                        }
-                        //console.log(`${ss.join(', ')}`);
-                    }
-                }
-            }
+            // bin の部分
+            //const q = new DataView(ab, c, chunkByte);
+
+/**
+ * bin の先頭
+ */
             const chunkOffset = + c;
             c += chunkByte;
 
@@ -327,11 +315,10 @@ class GltfParser {
     }
 
 /**
- * 
+ * API. 見やすくしたい
  */
     view() {
         console.log(this.cl, `view called`);
-        // TODO: 見やすくしたい
 
         const json = this._root;
 
@@ -374,6 +361,32 @@ class GltfParser {
             }
         }
 
+    }
+
+/**
+ * API. バイト数を変更せずに値だけ変更する場合
+ * @param {Object} inopt 
+ * @param {Object} inopt.change 
+ * @param {{}[]} inopt.change.changes 
+ */
+    getChange(inopt) {
+        console.log(this.cl, `getChange called`);
+
+/**
+ * @type {ArrayBuffer}
+ */
+        const whole = this.chunks.whole.slice(0); // コピーを作る
+        const p = new DataView(whole);
+        let c = 0;
+
+        {
+            const changes = inopt?.change?.changes;
+            for (const v of changes) {
+                p.setFloat32(c, 0, true);
+            }
+        }
+
+        return whole;
     }
 
 } // class GltfParser

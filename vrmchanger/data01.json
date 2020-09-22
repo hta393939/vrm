@@ -1,0 +1,22 @@
+{
+    "formatversion": 100,
+    "comment": "",
+    "change": {
+        "changes": [
+            {
+                "target": {
+                    "accessor": 0,
+                    "offset": 0,
+                    "stride": 12
+                },
+                "rels": [
+                    {"k": 0, "v": [0, 0, 0]},
+                    {"k": 1, "v": [1, 0, 0]},
+                    {"k": 2, "v": [2, 0, 0]},
+                    {"k": 3, "v": [3, 0, 0]}
+                ]
+            }
+        ]
+    }
+}
+

@@ -3,22 +3,75 @@
  */
 // MIT License (c) 2018- Usagi
 
-/// <reference path="./index.d.ts" />
-
 'use strict';
+
+const GltfParser = require("./gltfparser");
+
+const pad = (v, n = 2) => {
+    return String(v).padStart(n, '0');
+};
+
+const datestr = (d = new Date()) => {
+    let s = '';
+    s += `${pad(d.getFullYear(), 4)}`;
+    s += `${pad(d.getMonth() + 1)}`;
+    s += `${pad(d.getDate())}`;
+    s += `_${pad(d.getHours())}`;
+    s += `${pad(d.getMinutes())}`;
+    s += `${pad(d.getSeconds())}`;
+    return s;
+};
 
 /**
  * 
  */
 class Changer {
     constructor() {
+/**
+ * 
+ */
         this.cl = this.constructor.name;
 /**
  * パーサ兼維持用
+ * @type {GltfParser}
  */
         this.parser = new GltfParser({});
     }
 
+/**
+ * サーバのパスを指定する場合
+ * @param {string} inPath 
+ */
+    loadFile(inPath) {
+        console.log(this.cl, `loadFile called`, inPath);
+        {
+            const xhr = new XMLHttpRequest();
+            xhr.open('GET', inPath);
+            xhr.responseType = 'arraybuffer';
+            xhr.addEventListener('load', ev => {
+                this.parser.parse(ev.currentTarget.response);
+            });
+            xhr.send();
+        }
+    }
+
+    /**
+     * .vrm をドロップしたとき
+     * @param {File} file 
+     */
+    async readFile(file) {
+        console.log(this.cl, `readFile called`);
+
+        window.idtextsame.value = file.name;
+
+        const ab = await file.arrayBuffer();
+        this.parser.parse(ab);
+        this.parser.view();
+    }
+
+/**
+ * 初期化する
+ */
     init() {
         console.log(this.cl, `init called`);
         {
@@ -48,38 +101,8 @@ class Changer {
             };
             worker.postMessage(obj);
         }
-    }
 
-/**
- * サーバのパスを指定する場合
- * @param {string} inPath 
- */
-    loadFile(inPath) {
-        console.log(this.cl, `loadFile called`, inPath);
         {
-            const xhr = new XMLHttpRequest();
-            xhr.open('GET', inPath);
-            xhr.responseType = 'arraybuffer';
-            xhr.addEventListener('load', ev => {
-                this.parser.parse(ev.currentTarget.response);
-            });
-            xhr.send();
-        }
-    }
-
-    /**
-     * .vrm をドロップしたとき
-     * @param {File} file 
-     */
-    async readFile(file) {
-        const ab = await file.arrayBuffer();
-        this.parser.parse(ab);
-        this.parser.view();
-    }
-
-    onload() {
-        {
-            this.init();
             info0.textContent = `${new Date().toLocaleString()}`;
         }
     
@@ -101,17 +124,20 @@ class Changer {
                 ev.stopPropagation();
                 ev.dataTransfer.dropEffect = 'none';
             });
-    
-            iddrop.addEventListener('dragover', ev => {
-                ev.preventDefault();
-                ev.stopPropagation();
-                ev.dataTransfer.dropEffect = 'link';
-            });
-            iddrop.addEventListener('drop', ev => {
-                ev.preventDefault();
-                ev.stopPropagation();
-                this.readFile(ev.dataTransfer.files[0]);
-            });
+
+            {
+                const el = window.iddrop;
+                el.addEventListener('dragover', ev => {
+                    ev.preventDefault();
+                    ev.stopPropagation();
+                    ev.dataTransfer.dropEffect = 'link';
+                });
+                el.addEventListener('drop', ev => {
+                    ev.preventDefault();
+                    ev.stopPropagation();
+                    this.readFile(ev.dataTransfer.files[0]);
+                });
+            }
 
             {
                 const el = window.idjson;
@@ -150,8 +176,18 @@ class Changer {
 
             console.log(`obj parse`, obj);
 
-            const whole = new ArrayBuffer(32);
-            this.download(whole, `a_${'1234'}.vrm`);
+            const whole = this.parser.getChange(obj);
+
+            let name = `tmp.vrm`;
+            if (window.idnamesame.checked) {
+                name = window.idtextsame.value;
+            } else if (window.idnametime.checked) {
+                name = `a_${datestr()}.vrm`;
+                window.idtexttime.value = name;
+            } else if (window.idnameany.checked) {
+                name = window.idtextany.value;
+            }
+            this.download(whole, name);
 
         } catch(ec) {
             console.warn(this.cl, `changeFile catch`, ec.message);
@@ -166,10 +202,12 @@ class Changer {
     download(ab, name) {
         console.log(this.cl, `download called`);
 
-        const a = document.createElement('a');
-        a.download = name;
-        a.href = URL.createObjectURL(new Blob([ab]));
-        a.dispatchEvent(new MouseEvent('click'));
+        {
+            const a = document.createElement('a');
+            a.download = `${name}`;
+            a.href = URL.createObjectURL(new Blob([ab]));
+            a.dispatchEvent(new MouseEvent('click'));
+        }
     }
 
 }
