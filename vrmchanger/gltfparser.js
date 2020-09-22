@@ -7,6 +7,94 @@
 // 20200520_01
 // 20200521_01
 
+/**
+ * @typeof {Object} OneInfo
+ * @property {number[]} v 値
+ * @property {number} k インデックス
+ */
+
+/**
+ * @typeof {Object} ChangeInfo
+ * @property {Object} target
+ * @property {number} target.accessor 
+ * @property {number} target.stride ストライドバイト 3*4
+ * @property {number} target.offset ストライドの中でのオフセット
+ * @property {OneInfo[]} rels 相対指定の場合
+ * @property {OneInfo[]} abss 絶対指定の場合
+ */
+
+/**
+ * 1つ分
+ */
+class OneInfo {
+    constructor() {
+        /**
+         * インデックス
+         * @type {number}
+         */
+        this.k = 0;
+        /**
+         * 値
+         * @type {number[]}
+         */
+        this.v = [];
+    }
+}
+
+class TargetInfo {
+    constructor() {
+/**
+ * アクセサのインデックス 
+ * @type {number} accessor
+ */
+        this.accessor = 0;
+/**
+ * バイトストライド
+ * @type {number} stride
+ */
+        this.stride = 12;
+/**
+ * ストライドの中のバイトオフセット
+ * @type {number}
+ */
+        this.offset = 0;
+    }
+}
+
+/**
+ * 変更情報
+ */
+class ChangeInfo {
+    constructor() {
+        this.cl = this.constructor.name;
+
+        /**
+         * 変更先
+         * @type {Object}
+         * @property {number} accessor アクセサのインデックス
+         * @property {number} offset ストライドのバイトオフセット
+         * @property {number} stride ストライドバイト数
+         */
+
+/**
+ * 書き換え先
+ * @type {TargetInfo}
+ */
+        this.target = {};
+        /**
+         * 各頂点などを補正する情報の配列
+         * @type {OneInfo[]}
+         */
+        this.rels = [];
+        /**
+         * @type {OneInfo[]}
+         */
+        this.abss = [];
+    }
+}
+
+
+
 (function(global_) {
 
 'use strict';
@@ -366,8 +454,8 @@ class GltfParser {
 /**
  * API. バイト数を変更せずに値だけ変更する場合
  * @param {Object} inopt 
- * @param {Object} inopt.change 
- * @param {{}[]} inopt.change.changes 
+ * @param {Object} inopt.change
+ * @param {ChangeInfo[]} inopt.change.changes 
  */
     getChange(inopt) {
         console.log(this.cl, `getChange called`);
@@ -375,18 +463,98 @@ class GltfParser {
 /**
  * @type {ArrayBuffer}
  */
-        const whole = this.chunks.whole.slice(0); // コピーを作る
+        const whole = this.chunk.whole.slice(0); // コピーを作る
         const p = new DataView(whole);
         let c = 0;
 
         {
+            /**
+             * @type {ChangeInfo[]}
+             */
             const changes = inopt?.change?.changes;
             for (const v of changes) {
-                p.setFloat32(c, 0, true);
+// アクセサーの指定する先頭を入手する
+                let accindex = v.target.accessor;
+
+                const acc = this?._root?.accessors[accindex];
+                console.log(`acc`, acc, accindex);
+                if (!acc) {
+                    continue;
+                }
+                let bvindex = acc.bufferView;
+                const bv = this?._root?.bufferViews[bvindex];
+                console.log(`bv`, bv, bvindex);
+                if (!bv) {
+                    continue;
+                }
+
+                let offset = this.chunk.bin.byteOffset + bv.byteOffset;
+                console.log(`offset`, `0x${offset.toString(16)}`, offset);
+
+                for (const v2 of v.rels) {
+                    c = offset + v.target.stride * v2.k + v.target.offset;
+                    for (const v3 of v2.v) {
+                        let val = p.getFloat32(c, true);
+                        p.setFloat32(c, val + v3, true);
+                        c += 4;
+                    }
+                }
+                for (const v2 of v.abss) {
+                    c = offset + v.target.stride * v2.k + v.target.offset;
+                    for (const v3 of v2.v) {
+                        p.setFloat32(c, v3, true);
+                        c += 4;
+                    }
+                }
             }
         }
 
         return whole;
+    }
+
+/**
+ * 座標値のあたりをつけたい
+ */
+    atari() {
+        {
+            const p = new DataView(this.chunk.whole);
+            let c = 0;
+                for (const k of [0]) {
+/**
+ * アクセサーの指定する先頭を入手する
+ */
+                    let accindex = 97;
+    
+                    const acc = this?._root?.accessors[accindex];
+                    console.log(`acc`, acc, accindex);
+                    if (!acc) {
+                        continue;
+                    }
+                    let bvindex = acc.bufferView;
+                    const bv = this?._root?.bufferViews[bvindex];
+                    console.log(`bv`, bv, bvindex);
+                    if (!bv) {
+                        continue;
+                    }
+
+                    let offset = this.chunk.bin.byteOffset + bv.byteOffset;
+                    console.log(`offset`, `0x${offset.toString(16)}`, offset);
+
+                    for (let i = 0; i < acc.count; ++i) {
+                        c = offset + i * 12;
+                        let vs = [];
+                        for (let j = 0; j < 3; ++j) {
+                            let val = p.getFloat32(c, true);
+                            vs.push(val);
+                            c += 4;
+                        }
+
+                        if (0.7 <= vs[1] && vs[1] <= 1.0) {
+                            console.log(i, vs[0].toFixed(3), vs[1].toFixed(3));
+                        }
+                    }
+                }
+        }
     }
 
 } // class GltfParser

@@ -5,12 +5,12 @@
 
 'use strict';
 
-const GltfParser = require("./gltfparser");
-
+/** */
 const pad = (v, n = 2) => {
     return String(v).padStart(n, '0');
 };
 
+/** */
 const datestr = (d = new Date()) => {
     let s = '';
     s += `${pad(d.getFullYear(), 4)}`;
@@ -67,6 +67,7 @@ class Changer {
         const ab = await file.arrayBuffer();
         this.parser.parse(ab);
         this.parser.view();
+        this.parser.atari();
     }
 
 /**
@@ -154,7 +155,18 @@ class Changer {
             }
         }
     
-        update();
+        {
+            const el = document.getElementById('idpreset');
+            if (el) {
+                el.addEventListener('click', async ev => {
+                    const res = await fetch('./data01.json');
+                    const blob = await res.blob();
+                    this.changeFile(blob);
+                });
+            }
+        }
+
+        this.update();
         console.log(`leave`);
     }
 
@@ -215,6 +227,6 @@ class Changer {
 const misc = new Changer();
 
 window.addEventListener('load', () => {
-    misc.onload();
+    misc.init();
 });
 

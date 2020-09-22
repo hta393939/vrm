@@ -5,10 +5,11 @@
         "changes": [
             {
                 "target": {
-                    "accessor": 0,
+                    "accessor": 97,
                     "offset": 0,
                     "stride": 12
                 },
+                "abss": [],
                 "rels": [
                     {"k": 0, "v": [0, 0, 0]},
                     {"k": 1, "v": [1, 0, 0]},
