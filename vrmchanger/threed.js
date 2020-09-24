@@ -92,11 +92,15 @@ class Packing {
 
 }
 
+/**
+ * 
+ */
 class Threed {
     constructor() {
         this.packing = new Packing();
 
-        this.NAME = 'Threed';
+        this.cl = this.constructor.name;
+        this.NAME = this.cl;
 
         this.baseTex = null;
         this.normalTex = null;
@@ -110,11 +114,9 @@ class Threed {
     }
 
     makeControl(dom) {
-        const _this = this;
+        const control = new THREE.OrbitControls(this.camera, dom);
 
-        const control = new THREE.OrbitControls(_this.camera, dom);
-
-        _this.control = control;
+        this.control = control;
     }
 
     /**
@@ -508,37 +510,36 @@ class Threed {
 
 
     update() {
-        const _this = this;
-
-        if (_this.control) {
-            _this.control.update();
+        if (this.control) {
+            this.control.update();
         }
-        _this.renderer.render(_this.scene, _this.camera);
+        this.renderer.render(this.scene, this.camera);
     }
 
     init(vieww, viewh, viewfov) {
         const _this = this;
-        console.log(`${_this.NAME}#init called`);
-        _this.vieww = vieww;
-        _this.viewh = viewh;
-        _this.viewfov = viewfov;
+        console.log(`${this.cl}`, `init called`);
+        this.vieww = vieww;
+        this.viewh = viewh;
+        this.viewfov = viewfov;
 
         {
             const renderer = new THREE.WebGLRenderer({
+                preserveBuffer: true,
                 alpha: true
             });
             renderer.setClearColor(new THREE.Color(0x000000), 1);
             renderer.setSize(vieww, viewh);
 
             const camera = new THREE.PerspectiveCamera(viewfov, vieww/viewh,
-                0.01, 10000);
+                0.001, 1000);
             camera.position.set(0.1, 1.6, 10);
             camera.up.set(0,1,0);
             camera.lookAt(new THREE.Vector3(0, 1.7, 0));
-            _this.camera = camera;
+            this.camera = camera;
 
             const scene = new THREE.Scene();
-            _this.scene = scene;
+            this.scene = scene;
 
             {
                 const light = new THREE.DirectionalLight(0x999999);
@@ -562,7 +563,7 @@ class Threed {
 //            m.name = 'model';
 //            scene.add(m);
 
-            _this.renderer = renderer;
+            this.renderer = renderer;
 
             return renderer.domElement;
         }
@@ -570,19 +571,18 @@ class Threed {
     }
 
     setWire(wire) {
-        const _this = this;
-        const obj = _this.scene.getObjectByName('model');
+        const obj = this.scene.getObjectByName('model');
         if (obj) {
             obj.material.wireframe = wire;
         }
     }
 
     setVisible(name, visible) {
-        const _this = this;
-        const obj = _this.scene.getObjectByName(name);
+        const obj = this.scene.getObjectByName(name);
         if (obj) {
             obj.visible = visible;
         }
     }
 
 }
+

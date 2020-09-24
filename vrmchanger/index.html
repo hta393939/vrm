@@ -2,7 +2,7 @@
 <html>
     <head>
         <meta charset="UTF-8" />
-        <title>vrm ファイル読み</title>
+        <title>vrm changer</title>
         <link rel="stylesheet" href="./index.css" />
         <script src="./three.min.js"></script>
         <script src="./OrbitControls.js"></script>
@@ -19,6 +19,8 @@
     vroid studio の特殊ファイルのみ有効。
     <div id="iddrop" class="drop">ここに .vrm ファイルをドロップする</div>
 </div>
+
+<hr />
 
 <div>
     <div>
@@ -43,14 +45,26 @@
 
         <div id="info0"></div>
 
+<div>
         <label class="pt"><input class="pt" type="checkbox" id="idvis" checked="checked" />表示</label>
         <label class="pt"><input class="pt" type="checkbox" id="idwire" checked="checked" />ワイヤー</label>
         <label class="pt"><input class="pt" type="checkbox" id="idaxes" />軸</label>        
         <div id="idwebgl"></div>
+</div>
 
-       <div>
+<div class="twocol">
+    <input class="width4" id="idx" type="number" value="0" />
+    <div id="idxview"></div>
+    <input class="width4" id="idy" type="number" value="0" />
+    <div id="idyview"></div>
+    <input class="width4" id="idz" type="number" value="0" />
+    <div id="idzview"></div>
+</div>
+
+       <details>
+           <summary>テクスチャ</summary>
            <div id="idimgs"></div>
-       </div>
+       </details>
 
        <hr />
 

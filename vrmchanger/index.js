@@ -166,8 +166,22 @@ class Changer {
             }
         }
 
+        this.setListener();
+
         this.update();
         console.log(`leave`);
+    }
+
+    setListener() {
+        for (const k of ['x', 'y', 'z']) {
+            const el = document.getElementById(`id${k}`);
+            if (el) {
+                el.addEventListener('input', () => {
+                    const q = window[`id${k}view`];
+                    q.textContent = `${(el.value / 1000).toFixed(3)}`;
+                });
+            }
+        }
     }
 
     update() {
