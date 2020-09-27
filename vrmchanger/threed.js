@@ -517,7 +517,6 @@ class Threed {
     }
 
     init(vieww, viewh, viewfov) {
-        const _this = this;
         console.log(`${this.cl}`, `init called`);
         this.vieww = vieww;
         this.viewh = viewh;
@@ -533,7 +532,7 @@ class Threed {
 
             const camera = new THREE.PerspectiveCamera(viewfov, vieww/viewh,
                 0.001, 1000);
-            camera.position.set(0.1, 1.6, 10);
+            camera.position.set(0.1, 1.6, 5);
             camera.up.set(0,1,0);
             camera.lookAt(new THREE.Vector3(0, 1.7, 0));
             this.camera = camera;
@@ -556,12 +555,33 @@ class Threed {
             }
 
             // bookmark TODO: プリビューどうしよう
-//            _this.makeVertex();
+//            this.makeVertex();
 
-            //_this.packing.makeBuffer();
-//            const m = _this.makeMesh();
+            //this.packing.makeBuffer();
+//            const m = this.makeMesh();
 //            m.name = 'model';
 //            scene.add(m);
+
+{
+    const geo = new THREE.PlaneBufferGeometry(1, 1);
+    const mtl = new THREE.MeshBasicMaterial({
+        color: 0xff0000,
+        wireframe: true
+    });
+    const m = new THREE.Mesh(geo, mtl);
+    m.name = 'frame';
+    m.rotation.x = Math.PI * 0.5;
+    this.scene.add(m);
+}
+
+            {
+                const num = 10;
+                const ps = new Float32Array(num * 3);
+                for (let i = 0; i < num * 3; ++i) {
+                    ps[i] = Math.random();
+                }
+                this.makePoint(ps);
+            }
 
             this.renderer = renderer;
 
@@ -581,6 +601,59 @@ class Threed {
         const obj = this.scene.getObjectByName(name);
         if (obj) {
             obj.visible = visible;
+        }
+    }
+
+/**
+ * 足す
+ * @param {string} name 
+ * @param {THREE.Vector3} rel 
+ */
+    addPosition(name, rel) {
+        const obj = this.scene.getObjectByName(name);
+        if (obj) {
+            obj.position.add(rel);
+        }
+    }
+
+/**
+ * セットする
+ * @param {string} name 
+ * @param {THREE.Vector3} v3 
+ */
+    setPosition(name, v3) {
+        console.log(this.cl, name, v3);
+        const obj = this.scene.getObjectByName(name);
+        if (obj) {
+            obj.position.copy(v3);
+        }
+    }
+
+/**
+ * ポイントで作成する
+ * @param {Float32Array} ps 3つずつ位置情報
+ */
+    makePoint(ps) {
+        console.log(this.cl, `makePoint called`);
+        {
+            const geo = new THREE.BufferGeometry();
+            if ('setAttribute' in geo) {
+                geo.setAttribute('position',
+                    new THREE.Float32BufferAttribute(ps, 3));
+            } else {
+                geo.addAttribute('position',
+                    new THREE.Float32BufferAttribute(ps, 3));
+            }
+            const mtl = new THREE.PointsMaterial({
+                transparent: true,
+                blending: THREE.AdditiveBlending,
+                size: 2.0,
+                color: 0x11ff11,
+                sizeAttenuation: false,
+            });
+            const m = new THREE.Points(geo, mtl);
+            m.name = 'point';
+            this.scene.add(m);
         }
     }
 

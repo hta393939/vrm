@@ -452,6 +452,40 @@ class GltfParser {
     }
 
 /**
+ * 
+ * @param {string} intype 'point'
+ */
+    getView(intype) {
+
+/**
+ * アクセサーの指定する先頭を入手する
+ */
+        let accindex = 97;
+            
+        const acc = this?._root?.accessors[accindex];
+        console.log(`acc`, acc, accindex);
+        if (!acc) {
+            return null;
+        }
+        let bvindex = acc.bufferView;
+        const bv = this?._root?.bufferViews[bvindex];
+        console.log(`bv`, bv, bvindex);
+        if (!bv) {
+            return null;
+        }
+
+/**
+ * バイトオフセット
+ */
+        let offset = this.chunk.bin.byteOffset + bv.byteOffset;
+        console.log(`offset`, `0x${offset.toString(16)}`, offset, acc.count);
+
+        const fa = new Float32Array(this.chunk.whole,
+            offset, acc.count * 3);
+        return fa;
+    }
+
+/**
  * API. バイト数を変更せずに値だけ変更する場合
  * @param {Object} inopt 
  * @param {Object} inopt.change

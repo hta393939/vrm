@@ -64,10 +64,23 @@ class Changer {
 
         window.idtextsame.value = file.name;
 
+        let type = 'none';
+        {
+            const el = document.getElementById('id3dpoint');
+            if (el && el.checked) {
+                type = 'point';
+            }
+        }
+
         const ab = await file.arrayBuffer();
         this.parser.parse(ab);
         this.parser.view();
         this.parser.atari();
+
+        const fa = this.parser.getView('point');
+        if (fa) {
+            this.threed.makePoint(fa);
+        }
     }
 
 /**
@@ -179,8 +192,23 @@ class Changer {
                 el.addEventListener('input', () => {
                     const q = window[`id${k}view`];
                     q.textContent = `${(el.value / 1000).toFixed(3)}`;
+
+                    if (this.threed) {
+                        const v3 = [];
+                        for (const l of ['x', 'y', 'z']) {
+                            const el2 = document.getElementById(`id${l}`);
+                            v3.push((+ el2.value) / 1000);
+                        }
+                        this.threed.setPosition('frame',
+                            //THREE.Vector3.fromArray(v3));
+                            new THREE.Vector3(v3[0], v3[1], v3[2]));
+                    }
                 });
             }
+        }
+
+        {
+            const el = document.getElementById('id');
         }
     }
 
