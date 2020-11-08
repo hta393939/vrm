@@ -8,14 +8,17 @@
 
 'use strict';
 
+/** */
 const pad = (v, n = 2) => {
     return String(v).padStart(n, '0');
 };
 
+/** */
 const log = (...args) => {
     console.log(`%cgltf`, 'color:#3333ff', ...args);
 };
 
+/** */
 class V4 {
     constructor(inX = 0, inY = 0, inZ = 0, inW = 0) {
         this.x = inX;
@@ -87,6 +90,7 @@ class V2 {
  * 通常の足とか作るクラス
  */
 class Gltf {
+/** */
     constructor(param) {
 /** */
         this.cl = this.constructor.name;
