@@ -636,13 +636,16 @@ class Gltf {
 
                             vts.push(vtx);
                     }
+
+                    // TODO: ここで追加しないとどうなるのか?
+
                     faces.forEach((v4, i4) => {
                         let v0 = v4.is[0] + vioffset;
                         let v1 = v4.is[1] + vioffset;
                         let v2 = v4.is[2] + vioffset;
 
                         let aindex = this.innerMatrixIndex;
-                        arr[aindex].push([v0, v1, v2]);
+                        //arr[aindex].push([v0, v1, v2]); // TODO: 
                     });
 /*
                     faces.forEach((v4, i4) => {

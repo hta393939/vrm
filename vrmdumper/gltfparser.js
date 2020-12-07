@@ -109,6 +109,7 @@ class GltfParser {
         this._bvs = [];
 /**
  * json 側のルートからのオブジェクト
+ * @type {Object}
  */
         this._root = {};
 /** */

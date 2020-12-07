@@ -69,8 +69,27 @@ class Misc {
                 this.readFile(ev.dataTransfer.files[0]);
             });
         }
+
+        {
+            const el = document.getElementById('idmorphtarget');
+            if (el) {
+                el.addEventListener('click', ev => {
+                    this.morphtarget();
+                });
+            }
+        }
+
     
         console.log(`leave`);
+    }
+
+/**
+ * 
+ */
+    morphtarget() {
+        console.log(`morphtarget not implemented`);
+
+        
     }
 
 }
