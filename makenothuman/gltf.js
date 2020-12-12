@@ -469,40 +469,92 @@ class Gltf {
         //    vts, arr[mi]);
     }
 
-    /**
-     * メッシュと頂点を現状に追加する。骨と関節追加する。
-     * @param {Vtx[]} vts 点の配列
-     * @param {{_global: number[], _sz: number[]}[]} nodes ノード配列 
-     * @param {{}[]} arr 材質8つまで。複数面。三段配列。
-     */
+/**
+ * メッシュと頂点を現状に追加する。骨と関節追加する。
+ * @param {Vtx[]} vts 点の配列
+ * @param {{_global: number[], _sz: number[]}[]} nodes ノード配列 
+ * @param {{}[]} arr 材質8つまで。複数面。三段配列。
+ */
     makeSubMesh(vts, nodes, arr) {
         console.log(this.cl, `makeSubMesh called`);
 
         nodes.forEach((v, i) => {
             for (let j = 0; j < 1; ++j) {
-                if (v.name === 'leftHand'
-                    || v.name == 'chest'
-                    || v.name == 'leftFoot'
-                    || v.name == 'leftShoulder'
-                    || v.name === 'spine'
-                    || v.name === 'head') {
+                if (v.name === 'leftHand') {
                         // 再有効化してみる
-                    this.addObjPart(vts, nodes, arr, i, v.name, 0);
+                    //this.addObjPart(vts, nodes, arr, i, v.name, 0);
                 }
 
                 /**
-                 * 骨の方
+                 * 骨Iの方
+                 * @param {Object} arg2.from 
+                 * @param {Object} arg2.to 
                  */
                 const addSubBone = arg2 => {
+                    /**
+                     * 頂点の最後尾インデックス
+                     */
+                    let vioffset = vts.length;
+
+                    // もとに戻って球追加すっか...
+                    const div = 16;
+                    let rr = 0.04;
+                    let from = new THREE.Vector3(
+                        arg2.from._global[0],
+                        arg2.from._global[1],
+                        arg2.from._global[2]);
+                    let offsetVector = from.clone();
+
+                    const sz = arg2.from._sz ?? [];
+                    if (sz.length === 0 || sz[0] > 0) {
+                        for (let k = 0; k <= div / 2; ++k) {
+                            const hang = Math.PI * k / (div / 2);
+                            const csh = Math.cos(hang);
+                            const snh = Math.sin(hang);
+                            for (let l = 0; l <= div; ++l) {
+                                const ang = Math.PI * 2 * (l % div) / div;
+                                const cs = Math.cos(ang);
+                                const sn = Math.sin(ang);
+
+                                let x = snh * sn;
+                                let y = csh; // +1.0 から小さくなる
+                                let z = snh * cs;
+
+    // 頂点
+                                const vtx = new Vtx();
+                                vtx.p.set(x * rr, y * rr, z * rr);
+                                vtx.n.set(x, y, z);
+                                vtx.uv.set(0.5, 0.5);
+                                let boi = +i;
+                                vtx.jnt.set(boi, 0, 0, 0);
+                                vtx.wei.set(1, 0, 0, 0);
+
+                                vtx.p.add(offsetVector);
+                                vts.push(vtx);
+                            }
+                        }
+
+                        for (let k = 0; k < div / 2; ++k) {
+                            for (let l = 0; l < div; ++l) {
+                                let v0 = (div + 1) * k + l + vioffset;
+                                let v1 = v0 + 1;
+                                let v2 = v0 + (div + 1);
+                                let v3 = v2 + 1;
+        
+                                let aindex = this.innerMatrixIndex;
+                                arr[aindex].push([v0, v1, v2]);
+                                arr[aindex].push([v2, v1, v3]);
+                            }
+                        }
+
+                    }
+
                     if ('_bo' in arg2.to && arg2.to._bo === 0) {
                         console.log('skip bone');
                         return;
                     }
 
-                    /**
-                     * 頂点の最後尾
-                     */
-                    let vioffset = vts.length;
+
 
                     let uv = new THREE.Vector2(5 / 16, 11 / 16); // 白
                     let ix = Math.floor(Math.random() * (10 + 1 + 1));
@@ -526,7 +578,7 @@ class Gltf {
                         //uv = new THREE.Vector2(5 / 16, 11 / 16);
                     }
 
-                    let from = new THREE.Vector3(arg2.from._global[0],
+                    from = new THREE.Vector3(arg2.from._global[0],
                         arg2.from._global[1],
                         arg2.from._global[2]);
                     let to = new THREE.Vector3(arg2.to._global[0],
@@ -534,7 +586,7 @@ class Gltf {
                             arg2.to._global[2]);
                     let diff = new THREE.Vector3().subVectors(to, from);
                     let dist = diff.length();
-                    let offsetVector = diff.clone().multiplyScalar(0.5).add(from);
+                    offsetVector = diff.clone().multiplyScalar(0.5).add(from);
 
                     // 横? 上? 前? を判定する
                     let bx = new THREE.Vector3(1,0,0);
@@ -604,49 +656,49 @@ class Gltf {
 
                     // 頂点
                     for (let index = 0; index < 4; ++index) {
-                            let pt = pts[index];
-                            const ptv = new THREE.Vector3(pt[0], pt[1], pt[2]);
+                        let pt = pts[index];
+                        const ptv = new THREE.Vector3(pt[0], pt[1], pt[2]);
 
-                            if (ptv.y > 0) {
-                                ptv.x *= topR;
-                                ptv.y *= topLen;
-                                ptv.z *= topR;
-                            } else {
-                                ptv.x *= bottomR;
-                                ptv.y *= bottomLen;
-                                ptv.z *= bottomR;
-                            }
+                        if (ptv.y > 0) {
+                            ptv.x *= topR;
+                            ptv.y *= topLen;
+                            ptv.z *= topR;
+                        } else {
+                            ptv.x *= bottomR;
+                            ptv.y *= bottomLen;
+                            ptv.z *= bottomR;
+                        }
 
-                            let nt = ns[index];
-                            const nv = new THREE.Vector3(nt[0], nt[1], nt[2]);
-                            ptv.applyMatrix3(rot);
-                            nv.applyMatrix3(rot);
+                        let nt = ns[index];
+                        const nv = new THREE.Vector3(nt[0], nt[1], nt[2]);
+                        ptv.applyMatrix3(rot);
+                        nv.applyMatrix3(rot);
 
-                            const vtx = new Vtx();
-                            vtx.p.copy(ptv);
-                            vtx.n.copy(nv);
-                            vtx.n.normalize();
+                        const vtx = new Vtx();
+                        vtx.p.copy(ptv);
+                        vtx.n.copy(nv);
+                        vtx.n.normalize();
 
-                            vtx.uv.copy(uv);
+                        vtx.uv.copy(uv);
 
-                            let boi = +i;
-                            vtx.jnt.set(boi, 0, 0, 0);
+                        let boi = +i;
+                        vtx.jnt.set(boi, 0, 0, 0);
 
-                            vtx.p.add(offsetVector);
+                        vtx.p.add(offsetVector);
 
-                            vts.push(vtx);
+                        vts.push(vtx);
                     }
 
                     // TODO: ここで追加しないとどうなるのか?
 
-                    faces.forEach((v4, i4) => {
+                    for (const v4 of faces) {
                         let v0 = v4.is[0] + vioffset;
                         let v1 = v4.is[1] + vioffset;
                         let v2 = v4.is[2] + vioffset;
 
                         let aindex = this.innerMatrixIndex;
-                        //arr[aindex].push([v0, v1, v2]); // TODO: 
-                    });
+                        //arr[aindex].push([v0, v1, v2]); // TODO: 三角での骨 
+                    }
 /*
                     faces.forEach((v4, i4) => {
                         // 1面の1頂点ごと
@@ -694,7 +746,7 @@ class Gltf {
       
                 };
 
-                if ('children' in v) {
+                if (Array.isArray(v.children)) {
                     for (const vi2 of v.children) {
                         addSubBone({ from: v, to: nodes[vi2] });
                     }

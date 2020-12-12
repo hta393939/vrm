@@ -8,9 +8,9 @@
 'use strict';
 
 /** */
-class Pack {
+class Misc {
     constructor() {
-/*
+/** */
         this.cl = this.constructor.name;
 
 /**
@@ -51,10 +51,14 @@ class Pack {
         this.draw(cv0);
 
         for (const v of tex) {
-            v.cv.toBlob(async blob => {
-                console.log(`${v.name} load fire`, blob);
-                this.gltf[v.name] = await blob.arrayBuffer();
-            }, 'image/png');
+            try {
+                v.cv.toBlob(async blob => {
+                    console.log(`${v.name} load fire`, blob);
+                    this.gltf[v.name] = await blob.arrayBuffer();
+                }, 'image/png');
+            } catch(ec) {
+                console.warn(this.cl, `toBlob catch`, ec.message);
+            }
         }
 
         {
@@ -205,7 +209,7 @@ class Pack {
         {
             const gltf = new Gltf();
             this.gltf = gltf;
-            gltf.loadObj('obj11_6.obj');
+            //gltf.loadObj('obj11_6.obj');
         }
     
         {
@@ -235,9 +239,9 @@ class Pack {
         console.log(`leave`, this);
     }
 
-} // class Pack
+}
 
-const pack = new Pack();
+const pack = new Misc();
 
 const update = () => {
     requestAnimationFrame(update);
