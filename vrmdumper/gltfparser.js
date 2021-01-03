@@ -4,9 +4,6 @@
  * MIT License (c) 2018- Usagi
  */
 
-// 20200520_01
-// 20200521_01
-
 (function(global_) {
 
 'use strict';
@@ -180,11 +177,15 @@ class GltfParser {
     }
 
 /**
- * 
+ * 画像部分
  * @param {{}} obj 
  * @param {{buffer:ArrayBuffer, byteOffset: number, byteLength: number}} bin
  */
     parseImage(obj, bin) {
+        if (!Array.isArray(obj.images)) {
+            console.log(this.cl, `parseImage, no images`);
+            return;
+        }
         console.log(this.cl, `parseImage called`, obj.images.length);
         obj.images.forEach(async (v, i) => {
             //console.log(v);
@@ -227,14 +228,14 @@ class GltfParser {
 
             idimgs.appendChild(div);
 
-            console.log(this.cl, `image`, i);
+            console.log(this.cl, `parseImage leave`, i);
         });
     }
 
-    /**
-     * API
-     * @param {ArrayBuffer} ab 
-     */
+/**
+ * API
+ * @param {ArrayBuffer} ab 
+ */
     parse(ab) {
         console.log(this.cl, `parse called`, ab);
 

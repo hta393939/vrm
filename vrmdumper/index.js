@@ -5,7 +5,13 @@
 
 'use strict';
 
+/**
+ * 
+ */
 class Misc {
+/**
+ * 
+ */
     constructor() {
 /**
  * 
