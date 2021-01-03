@@ -343,8 +343,10 @@ class GltfParser {
             console.log('node', v);
         }
 
-        for (const v of json.skins) {
-            console.log('skin', v);
+        if (Array.isArray(json.skins)) {
+            for (const v of json.skins) {
+                console.log('skin', v);
+            }
         }
 
         for (const v of json.materials) {
