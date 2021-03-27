@@ -6,9 +6,22 @@
 
 // これは短くしたやつ
 
+/**
+ * @type {NodeInfo}
+ */
         const _tree =
-    {"name": "Armature", "k": ["exc"], "pts":[], "r": [0,0,0], "sz": [0.0], "c":[
+    {"name": "Armature", "k": ["exc"], "pts":[], "r": [0,0,0], "sz": [0], "c":[
         {"name": "hips", "r": [0, 0.5, 0], "sz": [0.08], "c":[
+            {"name":"antenna0", "bo": 0, "k": ["exc"], "pts":[], "r": [0, 0.1, 0], "sz":[0], "c":
+                [
+                    {"name":"antenna1", "k": ["exc"], "pts":[], "r": [0, 0.1, 0], "sz": [0], "c":
+                        [
+                            {"name":"antenna2", "k": ["exc", "only"], "pts": [], "r":[0, 0.1, 0], "sz": [0.2], "c": [
+                                {"name":"antennatop", "k": ["exc"], "pts": [], "r":[0, 0.1, 0], "sz": [0]}
+                            ]}
+                        ]
+                    }
+                ]},
             { "name": "leftUpperLeg" , "bo": 0, "r": [-0.1, -0.06, -0.01], "c": [
                 { "name": "leftLowerLeg", "r": [0, -0.2, 0], "c": [
                     { "name": "leftFoot", "r": [0, -0.16, 0], "sz": [0.03], "c": [
@@ -35,11 +48,6 @@
                         ]},
                         {"name":"rightEye", "bo": 0, "pts":[], "r": [0.04, 0, -0.01], "sz": [0.01], "c": [
                             {"name":"rightEyeEnd", "k": ["exc"], "pts": [], "r": [0,0, -0.1], "sz": [0.02]}
-                        ]},
-                        {"name":"antenna0", "bo": 0, "k": ["exc"], "pts":[], "r": [-0.04, 0.04, 0.05], "sz":[0.02], "c":[
-                            {"name":"antenna1", "k": ["exc"], "pts":[], "r": [0, 0.04, 0.05], "sz": [0.01], "c":[
-                                {"name":"antenna2", "k": ["exc"], "pts": [], "r":[0, 0.04, 0.05], "sz": [0.01]}
-                            ]}
                         ]}
                     ]} // 頭
                 ]},

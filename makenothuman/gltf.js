@@ -8,7 +8,16 @@
 
 'use strict';
 
-/** */
+/**
+ * @typedef {Object} NodeInfo 
+ * @property {string} name 名称
+ * @property {string[]} k キーワード 
+ * @property {NodeInfo[]} c 配列 
+ */
+
+/**
+ * padding 
+ */
 const pad = (v, n = 2) => {
     return String(v).padStart(n, '0');
 };
@@ -91,7 +100,7 @@ class V2 {
  */
 class Gltf {
 /** */
-    constructor(param) {
+    constructor() {
 /** */
         this.cl = this.constructor.name;
 /**
@@ -99,25 +108,29 @@ class Gltf {
  */
         this.rnd = 0;
 /**
- * 指定色にする場合
+ * 指定色にする場合<br />
+ * _ShadeColor に指定する
+ * @default 1
  */
         this.fixcolor = 1;
 
-        /**
-         * 文字列
-         */
+/**
+ * 文字列
+ */
         this.str = '{}';
 /** */
         this.parts = {};
 
-        /**
-         * 材質数
-         */
+/**
+ * 材質数
+ * @default 1
+ */
         this.MTLNUM = 1;
 
-        /**
-         * arr のどこに足すか
-         */
+/**
+ * arr のどこに足すか
+ * @default 0
+ */
         this.innerMatrixIndex = 0;
 /**
  * テクスチャ数 通常+サムネ
@@ -131,17 +144,17 @@ class Gltf {
         this.UNSIGNED_BYTE = 5121;
 /** */
         this.SHORT = 5122;
-        /**
-         * 5123
-         */
+/**
+ * 5123
+ */
         this.UNSIGNED_SHORT = 5123;
-        /**
-         * 5125
-         */
+/**
+ * 5125
+ */
         this.UNSIGNED_INT = 5125;
-        /**
-         * 5126
-         */
+/**
+ * 5126
+ */
         this.FLOAT = 5126;
 /**
  * 34962 bufferView.target 用
@@ -153,11 +166,12 @@ class Gltf {
         this.ELEMENT_ARRAY_BUFFER = 34963;
 
 /**
- * 9728
+ * @default 9728
  */
         this.NEAREST = 9728
 /**
- * 9729 LINEAR
+ * LINEAR
+ * @default 9729
  */
         this.LINEAR = 9729;
 /** */
@@ -186,6 +200,7 @@ class Gltf {
 
 /**
  * for VRM
+ * @default 'Disallow'
  */
         this.DIS = 'Disallow';
 /** */
@@ -228,11 +243,11 @@ class Gltf {
         console.log(`%c${this.cl}`, `color:deepskyblue`, `loadObj leave, obj`, obj, this.objpart);
     }
 
-    /**
-     * ダウンロードする
-     * @param {Blob} blob バイナリ
-     * @param {string[]} ファイル名の配列 
-     */
+/**
+ * ダウンロードする
+ * @param {Blob} blob バイナリ
+ * @param {string[]} names ファイル名の配列 
+ */
     download(blob, names) {
         for (const v of names) {
             const a = document.createElement('a');
@@ -242,10 +257,10 @@ class Gltf {
         }
     }
 
-    /**
-     * fourcc 4バイトを生成する u8
-     * @param {string} f 4文字まで
-     */
+/**
+ * fourcc 4バイトを生成する u8
+ * @param {string} f 4文字まで
+ */
     fourcc(f) {
         const buf = new Uint8Array(4);
         for (let i = 0; i < 4; ++i) {
@@ -254,10 +269,10 @@ class Gltf {
         return buf;
     }
 
-    /**
-     * Typed Array を返す u8
-     * @param {number} v 整数
-     */
+/**
+ * Typed Array を返す u8
+ * @param {number} v 整数
+ */
     u32(v) {
         const ab = new ArrayBuffer(4);
         const p = new DataView(ab);
@@ -266,11 +281,11 @@ class Gltf {
     }
 
 
-    /**
-     * ファイル全体作る
-     * str と bin はすでに準備できていること。
-     * @returns {Blob} 1つの Blob 
-     */
+/**
+ * ファイル全体作る
+ * str と bin はすでに準備できていること。
+ * @returns {Blob} 1つの Blob 
+ */
     wholeBlob() {
         console.log(this.cl, `wholeBlob called`);
 
@@ -299,10 +314,11 @@ class Gltf {
         return new Blob([...ret]);
     }
 
-    /**
-     * ファイルとして保存する
-     * @param {boolean} inurl 
-     */
+/**
+ * ファイルとして保存する
+ * @param {boolean} inurl url も返すときは true
+ * @returns {null|string} inurl true のときは string
+ */
     save(inurl) {
         console.log(this.cl, `save called`, inurl);
 
@@ -325,13 +341,13 @@ class Gltf {
     }
 
 
-    /**
-     * リカーシブツリーを平たくする
-     * @param {{}[]} ns この配列のインデックスとしてみなす
-     * @param {{c?:[]}} cur 今の対象 in tree
-     * @param {{}} parent 親 obj
-     * @returns {{recur: boolean, index: number}} cur の結果。自分のインデックス
-     */
+/**
+ * リカーシブツリーを平たくする
+ * @param {{}[]} ns この配列のインデックスとしてみなす
+ * @param {{c?:[]}} cur 今の対象 in tree
+ * @param {{}} parent 親 obj
+ * @returns {{recur: boolean, index: number}} cur の結果。自分のインデックス
+ */
     recurTree(ns, cur, parent) {
 
         const glopos = [0,0,0];
@@ -398,26 +414,26 @@ class Gltf {
         return { recur, index };
     }
 
-    /**
-     * ツリーからノード配列を作成する
-     * @param {{}[]} nodes 保存先
-     */
+/**
+ * ツリーからノード配列を作成する
+ * @param {{}[]} nodes 保存先
+ */
     makeTree(nodes) {
         console.log(this.cl, `makeTree called`);
         this.recurTree(nodes, _tree, null);
         console.log(this.cl, `makeTree leave`, nodes);
     }
 
-    /**
-     * bookmark: bookmark: 
-     * "obj パーツから" メッシュと頂点を現状に追加する
-     * @param {Vtx[]} vts 点の配列
-     * @param {{_global: number[], _sz: number[]}[]} nodes ノード配列 
-     * @param {{}[]} arr 材質8つまで。複数面。三段配列
-     * @param {number} ji ジョイントインデックス
-     * @param {string} inpath パーツパス
-     * @param {number} mi 材質インデックス
-     */
+/**
+ * bookmark: bookmark: 
+ * "obj パーツから" メッシュと頂点を現状に追加する
+ * @param {Vtx[]} vts 点の配列
+ * @param {{_global: number[], _sz: number[]}[]} nodes ノード配列 
+ * @param {{}[]} arr 材質8つまで。複数面。三段配列
+ * @param {number} ji ジョイントインデックス
+ * @param {string} inpath パーツパス
+ * @param {number} mi 材質インデックス
+ */
     addObjPart(vts, nodes, arr, ji, inpath, mi) {
         console.log(this.cl, `addObjPart called`);
         //console.log(this.cl, vts.length, arr[mi].length);
@@ -472,32 +488,43 @@ class Gltf {
 /**
  * メッシュと頂点を現状に追加する。骨と関節追加する。
  * @param {Vtx[]} vts 点の配列
- * @param {{_global: number[], _sz: number[]}[]} nodes ノード配列 
+ * @param {{_global: number[], _sz: number[], name: string}[]} nodes ノード配列 
  * @param {{}[]} arr 材質8つまで。複数面。三段配列。
  */
     makeSubMesh(vts, nodes, arr) {
         console.log(this.cl, `makeSubMesh called`);
 
-        nodes.forEach((v, i) => {
+        for (let i = 0; i < nodes.length; ++i) {
+            const v = nodes[i];
             for (let j = 0; j < 1; ++j) {
-                if (v.name === 'leftHand') {
-                        // 再有効化してみる
-                    //this.addObjPart(vts, nodes, arr, i, v.name, 0);
-                }
 
-                /**
-                 * 骨Iの方
-                 * @param {Object} arg2.from 
-                 * @param {Object} arg2.to 
-                 */
+/**
+ * 骨Iの方
+ * @param {Object} arg2.from 根本ボーン
+ * @param {Object} arg2.to 先ボーン
+ */
                 const addSubBone = arg2 => {
+                    console.log(arg2.from);
+                    let ok = false;
                     /**
-                     * 頂点の最後尾インデックス
+                     * @type {string[]}
                      */
+                    const ks = arg2.from._k;
+                    if (Array.isArray(ks)) {
+                        if (ks.includes('only')) {
+                            ok = true;
+                        }
+                    }
+                    if (!ok) {
+                        return;
+                    }
+/**
+ * 頂点の最後尾インデックス
+ */
                     let vioffset = vts.length;
 
                     // もとに戻って球追加すっか...
-                    const div = 16;
+                    const div = 24;
                     let rr = 0.04;
                     let from = new THREE.Vector3(
                         arg2.from._global[0],
@@ -507,6 +534,11 @@ class Gltf {
 
                     const sz = arg2.from._sz ?? [];
                     if (sz.length === 0 || sz[0] > 0) {
+// 関節球
+                        if (sz[0] > 0) {
+                            rr = sz[0];
+                        }
+
                         for (let k = 0; k <= div / 2; ++k) {
                             const hang = Math.PI * k / (div / 2);
                             const csh = Math.cos(hang);
@@ -549,11 +581,11 @@ class Gltf {
 
                     }
 
+                    return;
                     if ('_bo' in arg2.to && arg2.to._bo === 0) {
-                        console.log('skip bone');
+                        console.log('skip bone'); // _bo == 0 だとつなぎの骨スキップ
                         return;
                     }
-
 
 
                     let uv = new THREE.Vector2(5 / 16, 11 / 16); // 白
@@ -752,7 +784,7 @@ class Gltf {
                     }
                 }
             }
-        });
+        }
 
     }
 
@@ -807,14 +839,14 @@ class Gltf {
 "_UvAnimRotation": 0.0,
 "_BlendMode": 0,
 "_BumpScale": 1,
-"_CullMode": 0, // 2: 多分Back 0: 多分None 1: 多分Front 
+"_CullMode": 0, // 2: 多分Back, 0: 多分None, 1: 多分Front 
 "_Cutoff": 0.5,
 "_DebugMode": 0,
 "_IsFirstSetup": 0,
 "_ReceiveShadowRate": 1,
-"_ShadeShift":0,
+"_ShadeShift": 0,
 "_ShadeToony": 0.0,
-"_LightColorAttenuation": 0,
+"_LightColorAttenuation": 0.5, // ライト減衰
 "_OutlineWidth": 0.5,
 "_OutlineScaledMaxDistance": 1,
 "_OutlineLightingMix": 1,
@@ -831,7 +863,7 @@ keywordMap: {},
 tagMap: { "RenderType": 'Opaque' },
 textureProperties: { "_MainTex": 0 },
                         vectorProperties: {
-"_Color": [1,1,1, 1],
+"_Color": [0.5,0.5,0.5, 1],
 "_ShadeColor": [0.1, 0.1, 0.1, 0], // cluster, js で効いてる 多分これの影響
 "_MainTex": [0, 0, 1, 1], // オフセットと比率
 "_EmissionColor": [0.1, 0.1, 0.1, 1]
@@ -919,17 +951,17 @@ textureProperties: { "_MainTex": 0 },
         });
     }
 
-    /**
-     * .gltf と .bin に相当するデータを生成して
-     * 内部に保持する
-     */
+/**
+ * API. .gltf と .bin に相当するデータを生成して
+ * 内部に保持する
+ */
     makeData2() {
-        console.log(this.cl, `makeDate2 called`);
+        console.log(this.cl, `makeData2 called`);
 
-        /**
-         * TODO: ここを変更
-         */
-        const modelVersion = `0.1.1`;
+/**
+ * TODO: ここを変更
+ */
+        const modelVersion = `0.1.3`;
         const modelTitle = 'nothuman';
 
         const texs = [
@@ -942,9 +974,9 @@ textureProperties: { "_MainTex": 0 },
             texByte += v.byteStride;
         }
 
-        /**
-         * あとでセットする obj.nodes
-         */
+/**
+ * あとでセットする obj.nodes
+ */
         const treenodes = [];
         this.makeTree(treenodes);
 
@@ -952,18 +984,18 @@ textureProperties: { "_MainTex": 0 },
          * 頂点オブジェクトの配列
          */
         const vts = [];
-        /**
-         * 材質ごとの面配列
-         * @type {number[][][]}
-         */
+/**
+ * 材質ごとの面配列
+ * @type {number[][][]}
+ */
         const arr = [[]];
 
         this.makeSubMesh(vts, treenodes, arr);
         //this.paddingFace(vts, arr);
 
-        /**
-         * メッシュ生成後の頂点数
-         */
+/**
+ * メッシュ生成後の頂点数
+ */
         const vtNum = vts.length;
 
 /**
@@ -1057,12 +1089,12 @@ textureProperties: { "_MainTex": 0 },
             ],
             meshes: [ { primitives: [] }],
             skins: [
-                {inverseBindMatrices: matindex, joints: []} // bookmark
+                { inverseBindMatrices: matindex, joints: [] } // bookmark
             ],
 
             extensions: {
                 VRM: {
-                    exporterVersion: "usagiECMAScript-0.1.0",
+                    exporterVersion: "usagiECMAScript",
                     meta: {
                         title: modelTitle,
                         author: 'usagi',
@@ -1130,7 +1162,8 @@ textureProperties: { "_MainTex": 0 },
 
         // 統一されているものとしてコピー
 
-        obj.nodes.forEach((v,i) => {
+        for (let i = 0; i < obj.nodes.length; ++i) {
+            const v = obj.nodes[i];
             const b = {
                 bone: `${v.name}`,
                 node: + i,
@@ -1138,8 +1171,8 @@ textureProperties: { "_MainTex": 0 },
             };
 
             let isbone = true;
-            if ('_k' in v) {
-                if (v._k.includes('exc')) {
+            if ('_k' in v) { // keyword
+                if (v._k.includes('exc')) { // ボーン除外
                     isbone = false;
                 }
             }
@@ -1161,7 +1194,7 @@ textureProperties: { "_MainTex": 0 },
                     radius: 0.01 } ]
             };
             vrm.secondaryAnimation.colliderGroups.push(coll);
-        });
+        }
 
         { // 揺れ物の根元らしいが どうも ノードインデックスに見える
             [
@@ -1175,9 +1208,9 @@ textureProperties: { "_MainTex": 0 },
                     comment: `bg${String(i).padStart(2, '0')}`,
                     dragForce: 0.0, // 抵抗 減速
                     gravityDir: {x: 0, y: -1, z: 0},
-                    gravityPower: 1.0,
-                    hitRadius: 0.01,
-                    stiffiness: 0.5 // 復元力
+                    gravityPower: 0.0,
+                    hitRadius: 0.02,
+                    stiffiness: 0.0, // 復元力
                 };
                 for (const reg of regs) {
                     let found = this.searchNode(treenodes, reg);
@@ -1317,37 +1350,37 @@ textureProperties: { "_MainTex": 0 },
         }
         { // normal
             for (const v of vts) {
-                    p.setFloat32(c  , v.n.x, true);
-                    p.setFloat32(c+4, v.n.y, true);
-                    p.setFloat32(c+8, v.n.z, true);
-                    c += 3 * 4;
+                p.setFloat32(c  , v.n.x, true);
+                p.setFloat32(c+4, v.n.y, true);
+                p.setFloat32(c+8, v.n.z, true);
+                c += 3 * 4;
             }
         }
         { // uv ここがメイン
             const rate = 1;
             for (const v of vts) {
-                    p.setFloat32(c  , v.uv.x * rate, true);
-                    p.setFloat32(c+4, v.uv.y * rate, true);
-                    c += 2 * 4;
+                p.setFloat32(c  , v.uv.x * rate, true);
+                p.setFloat32(c+4, v.uv.y * rate, true);
+                c += 2 * 4;
             }
         }
 
         { // WEIGHTS_0
             for (const v of vts) {
-                    p.setFloat32(c   , v.wei.x, true);
-                    p.setFloat32(c+ 4, v.wei.y, true);
-                    p.setFloat32(c+ 8, v.wei.z, true);
-                    p.setFloat32(c+12, v.wei.w, true);
-                    c += 4 * 4;
+                p.setFloat32(c   , v.wei.x, true);
+                p.setFloat32(c+ 4, v.wei.y, true);
+                p.setFloat32(c+ 8, v.wei.z, true);
+                p.setFloat32(c+12, v.wei.w, true);
+                c += 4 * 4;
             }
         }
         { // JOINTS_0
             for (const v of vts) {
-                    p.setUint16(c   , v.jnt.x, true);
-                    p.setUint16(c+ 2, v.jnt.y, true);
-                    p.setUint16(c+ 4, v.jnt.z, true);
-                    p.setUint16(c+ 6, v.jnt.w, true);
-                    c += 2 * 4;
+                p.setUint16(c   , v.jnt.x, true);
+                p.setUint16(c+ 2, v.jnt.y, true);
+                p.setUint16(c+ 4, v.jnt.z, true);
+                p.setUint16(c+ 6, v.jnt.w, true);
+                c += 2 * 4;
             }
         }
 
@@ -1356,7 +1389,7 @@ textureProperties: { "_MainTex": 0 },
                 p.setUint32(c  , f[0], true);
                 p.setUint32(c+4, f[1], true);
                 p.setUint32(c+8, f[2], true);
-                c += 3*4;
+                c += 3 * 4;
             }
         }
 
@@ -1425,10 +1458,10 @@ textureProperties: { "_MainTex": 0 },
             this.str.length, this.bin.length);
     }
 
-    /**
-     * _foo のようなメンバを削除する
-     * @param {{nodes:any[]}} obj 
-     */
+/**
+ * _foo のようなメンバを削除する
+ * @param {{nodes:any[]}} obj 
+ */
     deleteExtra(obj) {
         let count = 0;
         obj.nodes.forEach(node => {

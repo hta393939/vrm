@@ -152,7 +152,7 @@ class Misc {
  * メイン
  */
     makeFile() {
-        console.log(this.cl, `#makeFile called`);
+        console.log(this.cl, `makeFile called`);
         { // バイナリ作る
             this.gltf.makeData2();
             const urlstr = this.gltf.save(true);
@@ -168,7 +168,7 @@ class Misc {
     }
 
     loadFile(inPath) {
-        console.log(this.cl, `#loadFile called`, inPath);
+        console.log(this.cl, `loadFile called`, inPath);
         {
             const xhr = new XMLHttpRequest();
             xhr.open('GET', inPath);
@@ -235,21 +235,23 @@ class Misc {
             });
         }
     
-        update();
+        this.update();
         console.log(`leave`, this);
+    }
+
+    update() {
+        requestAnimationFrame(() => {
+            this.update();
+        });
+
+        this.threed.update();
     }
 
 }
 
-const pack = new Misc();
-
-const update = () => {
-    requestAnimationFrame(update);
-
-    pack.threed.update();
-};
+const misc = new Misc();
 
 window.addEventListener('load', () => {
-    pack.onload();
+    misc.onload();
 });
 
