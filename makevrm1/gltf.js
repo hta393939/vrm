@@ -1702,7 +1702,7 @@ textureProperties: { _MainTex: 0 },
 //                        otherLicenseUrl: '',
                     },
                     humanoid: {
-                        humanBones: []
+                        humanBones: {}
                     },
                     firstPerson: {
                         //firstPersonBone: headNodeIndex, 廃止
@@ -1745,10 +1745,10 @@ textureProperties: { _MainTex: 0 },
 
     }; // obj
 
-    /**
-     * VRM! VRM!
-     */
-    const vrm = obj.extensions.VRM;
+/**
+ * VRM! VRM!
+ */
+    const vrm = obj.extensions.VRMC_vrm;
 
     const globals = [];
     { // node のツリー構造
@@ -1758,7 +1758,7 @@ textureProperties: { _MainTex: 0 },
 
         const num = obj.nodes.length;
         for (let i = 0; i < num; ++i) {
-            const v = obj.nodes[v];
+            const v = obj.nodes[i];
             const b = {
                 node: + i, // 必須
 //                extensions: [],
@@ -1789,7 +1789,7 @@ textureProperties: { _MainTex: 0 },
                 colliders: [ {offset: {x: 0, y: 0, z: 0},
                     radius: 0.01 } ]
             };
-            vrm.secondaryAnimation.colliderGroups.push(coll);
+            //vrm.secondaryAnimation.colliderGroups.push(coll);
         }
 
         { // 揺れ物の根元らしいが どうも ノードインデックスに見える
@@ -1814,7 +1814,7 @@ textureProperties: { _MainTex: 0 },
                         phybone.bones.push(found.index);
                     }
                 });
-                vrm.secondaryAnimation.boneGroups.push(phybone);
+                //vrm.secondaryAnimation.boneGroups.push(phybone);
             });
         }
 
@@ -1841,7 +1841,7 @@ textureProperties: { _MainTex: 0 },
 
     const ms = this.createMaterials();
     obj.materials.push(...ms.ms);
-    vrm.materialProperties.push(...ms.props); 
+//    vrm.materialProperties.push(...ms.props); 
 
     { // モーション エクスプレッション
         for (const k of [
@@ -1871,7 +1871,7 @@ textureProperties: { _MainTex: 0 },
                 "extensions": {},
                 "extras": {}
             };
-            vrm.VRMC_vrm.expressions.preset[k] = gr;
+            vrm.expressions.preset[k] = gr;
         }
     }
 

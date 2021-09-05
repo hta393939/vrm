@@ -2,15 +2,16 @@
 <html>
     <head>
         <meta charset='UTF-8' />
-        <title>.vrm 生成</title>
+        <title>.vrm 1.0-beta 生成したい</title>
         <link rel='stylesheet' href='./index.css' />
         <script src='./nodetemplate.js'></script>
         <script src="../lib/three.min.js"></script>
         <script src='./OrbitControls.js'></script>
+        <script src="../lib/GLTFLoader.js"></script>
         <script src="../lib/three-vrm.min.js"></script>
-
+<!--
         <script src='./LoaderSupport.js'></script>
-        <script src='./GLTFLoader.js'></script>
+-->
         <script src='./VRMLoader.js'></script>
         <script src='./objparse.js'></script>
         <script src='./vtx.js'></script>
@@ -27,9 +28,10 @@
 
         <input type='button' id='idPre2' value='ぷり' />
         <input type='button' id='idSave3' value='保存3 makeFile' />
-        背を低くした
 
-        <div id='idwebgl'></div>
+        <div id='idwebgl'>
+            <canvas id="idcanvas"></canvas>
+        </div>
 
         <div id='idadd1'></div>
 

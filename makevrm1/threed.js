@@ -106,15 +106,15 @@ class Threed {
         this.renderer.render(this.scene, this.camera);
     }
 
-    init(vieww, viewh, viewfov) {
-        const _this = this;
-        console.log(`${_this.NAME}#init called`);
-        _this.vieww = vieww;
-        _this.viewh = viewh;
-        _this.viewfov = viewfov;
+    init(inopt, vieww, viewh, viewfov) {
+        console.log(this.cl, `init called`);
+        this.vieww = vieww;
+        this.viewh = viewh;
+        this.viewfov = viewfov;
 
         {
             const renderer = new THREE.WebGLRenderer({
+                canvas: inopt.canvas,
                 antialias: true,
                 alpha: true, preserveDrawingBuffer: true
             });
@@ -126,10 +126,10 @@ class Threed {
             camera.position.set(0.1, 1.6, 2);
             camera.up.set(0,1,0);
             camera.lookAt(new THREE.Vector3(0, 1.7, 0));
-            _this.camera = camera;
+            this.camera = camera;
 
             const scene = new THREE.Scene();
-            _this.scene = scene;
+            this.scene = scene;
 
             {
                 const light = new THREE.DirectionalLight(0x999999);
@@ -153,7 +153,7 @@ class Threed {
                 scene.add(grid);
             }
 
-            _this.renderer = renderer;
+            this.renderer = renderer;
 
             return renderer.domElement;
         }
@@ -161,8 +161,7 @@ class Threed {
     }
 
     setWire(wire) {
-        const _this = this;
-        const obj = _this.scene.getObjectByName('model');
+        const obj = this.scene.getObjectByName('model');
         if (obj) {
             obj.material.wireframe = wire;
 
@@ -211,10 +210,18 @@ class Threed {
     setModel(inurl) {
         console.log(this.cl, `setModel called`);
 
-        const loader = new THREE.VRMLoader();
+        const loader = new THREE.GLTFLoader();
+
+        loader.register( ( parser ) => {
+            return new THREE_VRM.VRMLoaderPlugin( parser );
+        } );
+
         loader.load(inurl,
-            arg=>{
+            arg => {
                 console.log(`VRM load done`, arg);
+
+                const vrm = arg.userData.vrm;
+
                 let c = arg.scene.children;
 
                 let obj = null;
@@ -228,7 +235,7 @@ class Threed {
                     }
                 });
 
-                const vrm = arg.userData.gltfExtensions.VRM;
+                //const vrm = arg.userData.gltfExtensions.VRM;
                 //const vrmbones = vrm.humaoid.humanBones;
 
                 const flat = this.treeToFlat(bone);
@@ -237,18 +244,20 @@ class Threed {
                 obj.bind(skeleton);
                 obj.add(flat.bones[0]); // これわからん;; けど回すには必要
 
-                this.scene.add(obj);
+                this.scene.add(vrm.scene);
+
                 console.log('mats num', flat.mats.length, vrm);
                 const helper = new THREE.SkeletonHelper(obj);
                 helper.material.linewidth = 2;
                 this.scene.add(helper);
 
             },
-            arg=>{
-                //console.log(`load progress`, arg);
+            progress => {
+                const per = 100.0 * progress.loaded / progress.total;
+                console.log(`load progress`, per);
             },
-            arg=>{
-                console.log(`load err`, arg);
+            error => {
+                console.log(`load err`, error);
             });
     }
 
@@ -261,7 +270,7 @@ if (typeof exports !== 'undefined') {
     }
     exports.Threed = Threed;
 } else {
-    window.Threed = Threed;
+    _global.Threed = Threed;
 }
 
 })( (this || 0).self ?? (typeof self !== 'undefined' ? self : global) );

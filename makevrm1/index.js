@@ -63,6 +63,9 @@ class Misc {
     init() {
         console.log(this.cl, `init called`);
 
+/**
+ * @type {{cv: HTMLCanvasElement, name: string}[]}
+ */
         const tex = [
             { cv: cv00, name: 'baseTex' },
             { cv: cv01, name: 'thumbTex' },
@@ -120,23 +123,24 @@ class Misc {
         this.draw6(cv06);
         this.draw7(cv07);
 
-        tex.forEach(v => {
-            v.cv.toBlob(blob => {
-                const reader = new FileReader();
-                reader.addEventListener('load', ev => {
-                    console.log(`${v.name} load fire`);
+        for (const v of tex) {
+            v.cv.toBlob(async blob => {
+                if (!blob) {
+                    console.warn('null blob', v.name);
+                    return;
+                }
+                const ab = await blob.arrayBuffer();
+                console.log(`${v.name} load fire`);
 
-                    this.gltf[v.name] = ev.target.result;
-                });
-                reader.readAsArrayBuffer(blob);
+                this.gltf[v.name] = ab;
             }, 'image/png');
-        });
+        }
 
         {
             const threed = new Threed();
             const w = 512;
             const h = 512;
-            const dom = threed.init(w,h, 50);
+            const dom = threed.init({ canvas: window.idcanvas }, w,h, 50);
             if (dom) {
                 idwebgl.appendChild(dom);
                 threed.makeControl(dom);
@@ -566,8 +570,8 @@ class Misc {
         {
             const gltf = new Gltf();
             this.gltf = gltf;
-            gltf.loadPart('part001.json');
-            gltf.loadObj('obj11_6.obj');
+            //gltf.loadPart('part001.json');
+            //gltf.loadObj('obj11_6.obj');
         }
     
         {
