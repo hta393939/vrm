@@ -160,6 +160,10 @@ class Threed {
 
     }
 
+/**
+ * ワイヤーフレームを有効化する
+ * @param {boolean} wire 
+ */
     setWire(wire) {
         const obj = this.scene.getObjectByName('model');
         if (obj) {
@@ -169,6 +173,11 @@ class Threed {
         }
     }
 
+/**
+ * 
+ * @param {string} name 
+ * @param {boolean} visible 
+ */
     setVisible(name, visible) {
         const obj = this.scene.getObjectByName(name);
         if (obj) {
@@ -181,21 +190,22 @@ class Threed {
  * @param {THREE.Bone} inroot 
  */
     treeToFlat(inroot) {
-        const _this = this;
+        console.log('treeToFlat called');
+
         const ret = {bones: [], mats: []};
         
         const eigen = new THREE.Matrix4();
         eigen.makeTranslation(0,-1,0);
         console.log(`eigen`, eigen);
 
-        const f = (_bs, _ms, obj)=>{
+        const f = (_bs, _ms, obj) => {
             _bs.push(obj);
             _ms.push(eigen);
 
-            if ('children' in obj) {
-                obj.children.forEach(v=>{
+            if (Array.isArray(obj.children)) {
+                for (const v of obj.children) {
                     f(_bs, _ms, v);
-                });
+                }
             }
         };
 
@@ -221,6 +231,9 @@ class Threed {
                 console.log(`VRM load done`, arg);
 
                 const vrm = arg.userData.vrm;
+                this.scene.add(vrm.scene);
+                vrm.scene.name = 'model';
+                return;
 
                 let c = arg.scene.children;
 
@@ -234,6 +247,7 @@ class Threed {
                         bone = v;
                     }
                 });
+                console.log('vrm', 'obj', obj, 'bone', bone);
 
                 //const vrm = arg.userData.gltfExtensions.VRM;
                 //const vrmbones = vrm.humaoid.humanBones;
@@ -246,7 +260,7 @@ class Threed {
 
                 this.scene.add(vrm.scene);
 
-                console.log('mats num', flat.mats.length, vrm);
+                console.log('vrm mats num', flat.mats.length, vrm);
                 const helper = new THREE.SkeletonHelper(obj);
                 helper.material.linewidth = 2;
                 this.scene.add(helper);
@@ -254,10 +268,10 @@ class Threed {
             },
             progress => {
                 const per = 100.0 * progress.loaded / progress.total;
-                console.log(`load progress`, per);
+                console.log(`vrm load progress`, per);
             },
             error => {
-                console.log(`load err`, error);
+                console.log(`vrm load err`, error);
             });
     }
 

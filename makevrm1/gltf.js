@@ -972,25 +972,25 @@ class Gltf {
                 name: name,
                 pbrMetallicRoughness: {
                     //baseColorTexture: { index: 0, texCoord: 0 },
-                    baseColorFactor: [0.6,1, 0.5, 1],
+                    baseColorFactor: [0.6, 1, 0.5, 1],
 //                    baseColorFactor: [0.1, 0.1, 0.1, 1],
-                    //metallicFactor: 0.5,
-                    metallicFactor: 1.0,
+                    //metallicFactor: 1.0,
+                    metallicFactor: 0.0,
                     roughnessFactor: 0.2
                 },
                 "extensions": {
                     "VRMC_materials_mtoon": {
                         "specVerion": this.specVersion,
-                        "transparentWithZWrite": true,
-                        "renderQueueOffsetNumber": -6,
+//                        "transparentWithZWrite": true,
+                        "renderQueueOffsetNumber": 0,
                         "shadingToonyFactor": 0.9,
-                        "matcapTexture": 0,
+//                        "matcapTexture": 0,
                         "outlineWidthMode": "screenCoordinates",
                         "outlineWidthFactor": 1.0,
                         "outlineColorFactor": [1, 0, 0],
-                        "uvAnimationScrollXSpeedFactor": 0.1,
-                        "uvAnimationScrollYSpeedFactor": 0.2,
-                        "uvAnimationRotationSpeedFactor": 0.01,
+//                        "uvAnimationScrollXSpeedFactor": 0.1,
+//                        "uvAnimationScrollYSpeedFactor": 0.2,
+//                        "uvAnimationRotationSpeedFactor": 0.01,
                         "extensions": {},
                         "extras": {}
                     }
@@ -1492,10 +1492,11 @@ textureProperties: { _MainTex: 0 },
     paddingFace(vts, arr) {
         console.log(`paddingFace called`);
 
-        const pts = [{ p: [-1,1,0], uv: [0,0]},
-            {p: [1,1,0], uv: [1,0]},
-            {p: [1,-1,0], uv: [0,1]},
-            {p: [-1,-1,0], uv: [1,1]}];
+        const pts = [
+            { p: [-1,1,0], uv: [0,0]},
+            { p: [1,1,0], uv: [1,0]},
+            { p: [1,-1,0], uv: [0,1]},
+            { p: [-1,-1,0], uv: [1,1]}];
         arr.forEach(bym=>{
             if (bym.length >= 1) {
                 return;
@@ -1527,9 +1528,9 @@ textureProperties: { _MainTex: 0 },
 
         console.info(this.cl, `makeDate2 called`);
 
-        /**
-         * TODO: ここを変更
-         */
+/**
+ * TODO: ここを変更
+ */
         const modelVersion = `2.0.0`;
         const modelTitle = 'poly ccc 図形人形';
 
