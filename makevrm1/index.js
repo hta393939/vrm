@@ -30,11 +30,25 @@ class Misc {
     }
 
 /**
- * 
+ * ダウンロードする
+ * @param {Blob} blob バイナリ
+ * @param {string[]} ファイル名の配列 
+ */
+     download(blob, names) {
+        for (const v of names) {
+            const a = document.createElement('a');
+            a.download = v;
+            a.href = URL.createObjectURL(blob);
+            a.dispatchEvent(new MouseEvent('click'));
+        }
+    }
+
+/**
+ * バイナリを生成してダウンロードして可視化へ回す
  */
     save() {
         console.log(this.cl, `save called`);
-        this.gltf.makeData();
+        this.gltf.makeData2();
         const urlstr = this.gltf.save(true);
         if (urlstr) {
             // todo: 

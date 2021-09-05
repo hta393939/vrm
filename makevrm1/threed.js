@@ -1,10 +1,20 @@
-/// <reference path="./index.d.ts" />
+/**
+ * @file threed.js
+ */
+
+(function(_global) {
 
 'use strict';
 
+/**
+ * 可視化クラス
+ */
 class Threed {
+/**
+ * コンストラクタ
+ */
     constructor() {
-        this.NAME = 'Threed';
+        this.cl = 'Threed';
 
         this.basets = Date.now();
 
@@ -20,11 +30,9 @@ class Threed {
     }
 
     makeControl(dom) {
-        const _this = this;
+        const control = new THREE.OrbitControls(this.camera, dom);
 
-        const control = new THREE.OrbitControls(_this.camera, dom);
-
-        _this.control = control;
+        this.control = control;
     }
 
     /**
@@ -76,26 +84,26 @@ class Threed {
         return obj;
     }
 
-
+/**
+ * 高頻度に呼び出される
+ */
     update() {
-        const _this = this;
-
         const nowts = Date.now();
-        const pastts = nowts - _this.basets;
+        const pastts = nowts - this.basets;
 
-        if (_this.control) {
-            _this.control.update();
+        if (this.control) {
+            this.control.update();
         }
 
         {
-            const obj = _this.scene.getObjectByName('model');
+            const obj = this.scene.getObjectByName('model');
             if (obj) {
                 obj.skeleton.bones[0].rotation.y = pastts * 0.001;
                 obj.skeleton.bones[20].rotation.x = pastts * 0.001;
             }
         }
 
-        _this.renderer.render(_this.scene, _this.camera);
+        this.renderer.render(this.scene, this.camera);
     }
 
     init(vieww, viewh, viewfov) {
@@ -196,9 +204,12 @@ class Threed {
         return ret;
     }
 
+/**
+ * モデルファイルをセットする
+ * @param {string} inurl blob url など
+ */
     setModel(inurl) {
-        const _this = this;
-        console.log(`${_this.NAME}#setModel called`);
+        console.log(this.cl, `setModel called`);
 
         const loader = new THREE.VRMLoader();
         loader.load(inurl,
@@ -220,17 +231,17 @@ class Threed {
                 const vrm = arg.userData.gltfExtensions.VRM;
                 //const vrmbones = vrm.humaoid.humanBones;
 
-                const flat = _this.treeToFlat(bone);
+                const flat = this.treeToFlat(bone);
 
                 const skeleton = new THREE.Skeleton(flat.bones, flat.mats);
                 obj.bind(skeleton);
                 obj.add(flat.bones[0]); // これわからん;; けど回すには必要
 
-                _this.scene.add(obj);
+                this.scene.add(obj);
                 console.log('mats num', flat.mats.length, vrm);
                 const helper = new THREE.SkeletonHelper(obj);
                 helper.material.linewidth = 2;
-                _this.scene.add(helper);
+                this.scene.add(helper);
 
             },
             arg=>{
@@ -241,4 +252,17 @@ class Threed {
             });
     }
 
-} // class Threed
+}
+
+
+if (typeof exports !== 'undefined') {
+    if (typeof module !== 'undefined' && module.exports) {
+        exports = module.exports = Threed;
+    }
+    exports.Threed = Threed;
+} else {
+    window.Threed = Threed;
+}
+
+})( (this || 0).self ?? (typeof self !== 'undefined' ? self : global) );
+

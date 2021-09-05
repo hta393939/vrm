@@ -4,6 +4,11 @@
  * MIT License (c) 2018- Usagi
  */
 
+/**
+ * 
+ * https://github.com/vrm-c/vrm-specification/tree/master/specification
+ */
+
 (function(global_) {
 
 'use strict';
@@ -354,10 +359,11 @@ class Gltf {
         return new Blob([...ret]);
     }
 
-    /**
-     * ファイルとして保存する
-     * @param {boolean} inurl 
-     */
+/**
+ * ファイルとして保存する
+ * @param {boolean} inurl 
+ * @returns {string | null} blob の URL
+ */
     save(inurl) {
         console.log(this.cl, `save called`, inurl);
 
@@ -374,6 +380,8 @@ class Gltf {
                 console.log(`true`);
                 return url;
             }
+
+            URL.revokeObjectURL(url);
             console.log(`false`);
             return null;
         }
@@ -1478,10 +1486,10 @@ textureProperties: { _MainTex: 0 },
         });
     }
 
-    /**
-     * .gltf と .bin に相当するデータを生成して
-     * 内部に保持する
-     */
+/**
+ * .gltf と .bin に相当するデータを生成して
+ * 内部に保持する
+ */
     makeData2() {
 
         console.info(this.cl, `makeDate2 called`);
@@ -1489,8 +1497,8 @@ textureProperties: { _MainTex: 0 },
         /**
          * TODO: ここを変更
          */
-        const modelVersion = `1.38.13`;
-        const modelTitle = 'poly bbb 図形人形';
+        const modelVersion = `2.0.0`;
+        const modelTitle = 'poly ccc 図形人形';
 
         let texs = [
             { tex: this.baseTex },
@@ -1613,7 +1621,10 @@ textureProperties: { _MainTex: 0 },
 
         const obj = {
             //extensionsRequired: [],
-            extensionsUsed: ["VRM"],
+            extensionsUsed: [
+                "VRM",
+                "VRMC_springBone"
+            ],
             asset: {
                 version: "2.0",
                 generator: 'usagi ECMAScript'
@@ -1655,63 +1666,82 @@ textureProperties: { _MainTex: 0 },
             ],
 
             extensions: {
-                VRM: {
-                    //version: "0.44",
-                    exporterVersion: "usagiECMAScript-0.38.1",
+                "VRMC_vrm": {
                     specVersion: "0.0",
                     meta: {
-                        title: modelTitle,
-                        author: 'usagi',
-                        contactInformation: '',
-                        reference: '',
-                        texture: 1,
+//                        title: modelTitle,
+                        name: modelTitle, // man
                         version: modelVersion,
-                        allowedUserName: 'Everyone',
-                        violentUssageName: this.ALLOW,
-                        violentUsageName: this.ALLOW,
-                        sexualUssageName: this.ALLOW,
-                        sexualUsageName: this.ALLOW,
-                        commercialUssageName: this.ALLOW,
-                        commercialUsageName: this.ALLOW,
-                        otherPermissionUrl: '',
-                        licenseName: 'CC0',
-                        otherLicenseUrl: ''
+//                        author: 'usagi',
+                        authors: ['usage'], // man
+//                        copyrightInformation: '',
+//                        contactInformation: '',
+//                        reference: '',
+//                        references: [],
+//                        thirdPartyLicenses: [],
+//                        texture: 1,
+                        thumbnailImage: 1,
+                        licenseUrl: '', // man
+                        avatarPermission: 'everyone',
+                        allowExcessivelyViolentUsage: true,
+                        allowExcessivelySexualUsage: true,
+
+//                        allowedUserName: 'Everyone',
+//                        violentUssageName: this.ALLOW,
+//                        violentUsageName: this.ALLOW,
+//                        sexualUssageName: this.ALLOW,
+//                        sexualUsageName: this.ALLOW,
+//                        commercialUssageName: this.ALLOW,
+//                        commercialUsageName: this.ALLOW,
+                        commercialUsage: 'corporation',
+                        allowPoliticalOrReligiousUsage: true,
+                        allowAntisocialOrHateUsage: true,
+                        creditNotation: "unnecessary",
+                        allowRedistribution: true,
+                        modification: 'allowModificationRedistribution',
+//                        otherLicenseUrl: '',
                     },
                     humanoid: {
-                        armStretch: 0.05,
-                        feetSpacing: 0,
-                        hasTranslationDoF: false,
-                        legStretch: 0.05,
-                        lowerArmTwist: 0.5,
-                        lowerLegTwist: 0.5,
-                        upperArmTwist: 0.5,
-                        upperLegTwist: 0.5,
                         humanBones: []
                     },
                     firstPerson: {
-                        firstPersonBone: headNodeIndex,
-                        firstPersonOffset: { x:0, y:0, z:0 },
+                        //firstPersonBone: headNodeIndex, 廃止
+//                        firstPersonOffset: { x:0, y:0, z:0 },
+                        //offsetFromHeadBone: { x: 0, y: 0, z: 0 },
                         meshAnnotations: [
-                            { mesh: 0, firstPersonFlag: 'Auto' }
+                            { node: 0,
+                                type: "both", // scheme
+                                firstPersonFlag: 'both', // .md
+                                //"extensions": {},
+                                //"extras": {}
+                            }
                         ],
-                        lookAtTypeName: 'Bone',
-                        lookAtHorizontalInner: { curve: [0,0,0,1,1,1,1,0],
-                            xRange: 30, yRange: 30 },
-                        lookAtHorizontalOuter: { curve: [0,0,0,1,1,1,1,0],
-                            xRange: 30, yRange: 10 },
-                        lookAtVerticalDown: { curve: [0,0,0,1,1,1,1,0],
-                            xRange: 30, yRange: 10 },
-                        lookAtVerticalUp: { curve: [0,0,0,1,1,1,1,0],
-                            xRange: 30, yRange: 8 }
                     },
-                    blendShapeMaster: { blendShapeGroups: [] },
-                    secondaryAnimation: {
-                        boneGroups: [],
-                        colliderGroups: []
+                    lookAt: {
+
                     },
-                    materialProperties: []
-                } // VRM
-            } // extension
+                    expressions: {
+                        preset: {},
+                        custom: {},
+                        extensions: {},
+                        extras: {}
+                    },
+                    extensions: {},
+                    extras: {}
+                }, // VRM
+                "VRMC_springBone": {
+                    "specVersion": "1.0-beta",
+                    "colliders": [
+
+                    ],
+                    "colliderGroups": [
+
+                    ],
+                    "springs": [
+
+                    ]
+                }
+            } // extensions
 
     }; // obj
 
@@ -1726,11 +1756,13 @@ textureProperties: { _MainTex: 0 },
 
         // 統一されているものとしてコピー
 
-        obj.nodes.forEach((v,i) => {
+        const num = obj.nodes.length;
+        for (let i = 0; i < num; ++i) {
+            const v = obj.nodes[v];
             const b = {
-                bone: `${v.name}`,
-                node: + i,
-                useDefaultValues: true
+                node: + i, // 必須
+//                extensions: [],
+//                extra: {},
             };
 
             let isbone = true;
@@ -1741,7 +1773,8 @@ textureProperties: { _MainTex: 0 },
             }
 
             if (isbone) {
-                vrm.humanoid.humanBones.push(b);
+// 1.0βで name key になった
+                vrm.humanoid.humanBones[v.name] = b;
             }
 
             //console.log(v.name, v._global);
@@ -1757,7 +1790,7 @@ textureProperties: { _MainTex: 0 },
                     radius: 0.01 } ]
             };
             vrm.secondaryAnimation.colliderGroups.push(coll);
-        });
+        }
 
         { // 揺れ物の根元らしいが どうも ノードインデックスに見える
             [
@@ -1810,20 +1843,36 @@ textureProperties: { _MainTex: 0 },
     obj.materials.push(...ms.ms);
     vrm.materialProperties.push(...ms.props); 
 
-    { // モーション
-        ['Neutral',
-            'A', 'I', 'U', 'E', 'O',
-            'Blink',
-            'Joy', 'Angry', 'Sorrow', 'Fun',
-            'LookUp', 'LookDown', 'LookLeft', 'LookRight',
-            'Blink_L', 'Blink_R'].forEach(k => {
+    { // モーション エクスプレッション
+        for (const k of [
+            'happy', 'angry', 'sad', 'relaxed', 'surprised',
+            'aa', 'ih', 'ou', 'ee', 'oh',
+            'blink', 'blinkLeft', 'blinkRight',
+            'lookUp', 'lookDown', 'lookLeft', 'lookRight',
+            'neutral']) {
             const gr = {
-                name: `${k}`,
-                presetName: `${k.toLocaleLowerCase()}`,
-                binds: [], materialValues: []
+                /*
+                "morphTargetBinds": [
+                    {
+                        node: 0,
+                        index: 0,
+                        weight: 1,
+                        extensions: {},
+                        extras: {}
+                    },
+                ],
+                */
+//                "materialColorBinds": [],
+                //"textureTransformBinds": [],
+                "isBinary": false,
+                "overrideBlink": "none",
+                "overrideLookAt": "none",
+                "overrideMouth": "none",
+                "extensions": {},
+                "extras": {}
             };
-            vrm.blendShapeMaster.blendShapeGroups.push(gr);
-        });
+            vrm.VRMC_vrm.expressions.preset[k] = gr;
+        }
     }
 
     /**
