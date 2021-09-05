@@ -98,8 +98,8 @@ class Threed {
         {
             const obj = this.scene.getObjectByName('model');
             if (obj) {
-                obj.skeleton.bones[0].rotation.y = pastts * 0.001;
-                obj.skeleton.bones[20].rotation.x = pastts * 0.001;
+//                obj.skeleton.bones[0].rotation.y = pastts * 0.001;
+//                obj.skeleton.bones[20].rotation.x = pastts * 0.001;
             }
         }
 
@@ -123,7 +123,7 @@ class Threed {
 
             const camera = new THREE.PerspectiveCamera(viewfov, vieww/viewh,
                 0.01, 10000);
-            camera.position.set(0.1, 1.6, 2);
+            camera.position.set(0.1, 1.6, 5);
             camera.up.set(0,1,0);
             camera.lookAt(new THREE.Vector3(0, 1.7, 0));
             this.camera = camera;
@@ -149,7 +149,7 @@ class Threed {
                 scene.add(axes);
 
                 const grid = new THREE.GridHelper(10, 10);
-                grid.position.set(0, 1, 0);
+                grid.position.set(0, 1 * 0, 0);
                 scene.add(grid);
             }
 

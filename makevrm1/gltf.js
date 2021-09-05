@@ -162,6 +162,19 @@ class Gltf {
  */
         this.texNum = 2;
 
+/**
+ * 今回はこれを指定する必要があるみたい
+ */
+        this.licenseUrl = `https://vrm.dev/licenses/1.0/`;
+
+/**
+ * @default '1.0-beta'
+ */
+        this.specVersion = '1.0-beta';
+
+/**
+ * バイト型を表現する定数
+ */
         this.BYTE = 5120;
         this.UNSIGNED_BYTE = 5121;
         this.SHORT = 5122;
@@ -946,25 +959,44 @@ class Gltf {
 
 /**
  * 材質8つ TODO: 材質変更
+ * ms は材質配列
+ * @returns {Object[]}
  */
     createMaterials() {
         console.log(this.cl, `createMaterials called`);
-        const ret = {ms: [], props: []};
+        const ret = [];
 
         for (let i = 0; i < this.materialNum; ++i) {
             const name = `m${pad(i, 3)}`; // 一致させる
             const m = {
                 name: name,
                 pbrMetallicRoughness: {
-                    baseColorTexture: { index: 0, texCoord: 0 },
-                    //baseColorFactor: [1,1,1, 1],
-                    baseColorFactor: [0.1, 0.1, 0.1, 1],
+                    //baseColorTexture: { index: 0, texCoord: 0 },
+                    baseColorFactor: [0.6,1, 0.5, 1],
+//                    baseColorFactor: [0.1, 0.1, 0.1, 1],
                     //metallicFactor: 0.5,
-                    metallicFactor: 0.1,
-                    roughnessFactor: 0.1
+                    metallicFactor: 1.0,
+                    roughnessFactor: 0.2
+                },
+                "extensions": {
+                    "VRMC_materials_mtoon": {
+                        "specVerion": this.specVersion,
+                        "transparentWithZWrite": true,
+                        "renderQueueOffsetNumber": -6,
+                        "shadingToonyFactor": 0.9,
+                        "matcapTexture": 0,
+                        "outlineWidthMode": "screenCoordinates",
+                        "outlineWidthFactor": 1.0,
+                        "outlineColorFactor": [1, 0, 0],
+                        "uvAnimationScrollXSpeedFactor": 0.1,
+                        "uvAnimationScrollYSpeedFactor": 0.2,
+                        "uvAnimationRotationSpeedFactor": 0.01,
+                        "extensions": {},
+                        "extras": {}
+                    }
                 }
             };
-            ret.ms.push(m);
+            ret.push(m);
 
             let prop = {};
             switch(i) {
@@ -1445,7 +1477,8 @@ textureProperties: { _MainTex: 0 },
                         }
                 };
             }
-            ret.props.push(prop);
+
+            //Object.assign(m.expressions.VRMC_materials_mtoon, prop);
         }
         console.log(this.cl, `createMaterials leave`, ret);
         return ret;
@@ -1622,7 +1655,7 @@ textureProperties: { _MainTex: 0 },
         const obj = {
             //extensionsRequired: [],
             extensionsUsed: [
-                "VRM",
+                "VRMC_vrm",
                 "VRMC_springBone"
             ],
             asset: {
@@ -1667,7 +1700,7 @@ textureProperties: { _MainTex: 0 },
 
             extensions: {
                 "VRMC_vrm": {
-                    specVersion: "0.0",
+                    specVersion: this.specVersion,
                     meta: {
 //                        title: modelTitle,
                         name: modelTitle, // man
@@ -1680,8 +1713,8 @@ textureProperties: { _MainTex: 0 },
 //                        references: [],
 //                        thirdPartyLicenses: [],
 //                        texture: 1,
-                        thumbnailImage: 1,
-                        licenseUrl: '', // man
+                        thumbnailImage: 0,
+                        licenseUrl: this.licenseUrl, // man
                         avatarPermission: 'everyone',
                         allowExcessivelyViolentUsage: true,
                         allowExcessivelySexualUsage: true,
@@ -1730,16 +1763,56 @@ textureProperties: { _MainTex: 0 },
                     extras: {}
                 }, // VRM
                 "VRMC_springBone": {
-                    "specVersion": "1.0-beta",
+                    "specVersion": this.specVersion,
                     "colliders": [
-
+                        /*
+                        {
+                            "node": 2,
+                            "shape": {
+                                "sphere": {
+                                    "offset": [0, 0, 0],
+                                    "radius": 1
+                                }
+                            }
+                        },
+                        { // 対象ノードのローカル座標系でカプセル終点半球の中心
+                            "node": 2,
+                            "shape": {
+                                "capsule": {
+                                    "offset": [0, 0, 0],
+                                    "radius": 1,
+                                    "tail": [0, 0, 1]
+                                }
+                            }
+                        } */
                     ],
                     "colliderGroups": [
-
+                        /* {
+                            "name": "group00000",
+                            "colliders": [0, 1]
+                        } */
                     ],
                     "springs": [
-
+                        /* {
+                            "joints": [
+                                {
+                                    "node": 0,
+                                    "hitRadius": 0.1,
+                                    "stiffness": 0.5,
+                                    "gravityPower": 1.0,
+                                    "gravityDir": [0, -1, 0],
+                                    "dragForce": 0.5
+                                },
+                                { "node": 1 } // 末尾
+                            ],
+                            "colliderGroups": [
+                                0
+                            ]
+                        } */
                     ]
+                },
+                "VRMC_node_constraint": {
+
                 }
             } // extensions
 
@@ -1840,8 +1913,7 @@ textureProperties: { _MainTex: 0 },
     }
 
     const ms = this.createMaterials();
-    obj.materials.push(...ms.ms);
-//    vrm.materialProperties.push(...ms.props); 
+    obj.materials.push(...ms);
 
     { // モーション エクスプレッション
         for (const k of [
