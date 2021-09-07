@@ -91,26 +91,78 @@ class Threed {
         const nowts = Date.now();
         const pastts = nowts - this.basets;
 
-        if (this.control) {
-            this.control.update();
+        const delta = this.clock.getDelta();
+
+        { // 
+            const core = this.gltf?.userData?.vrm;
+            if (core) {        
+                const exprMgr = core?.expressionManager;
+                if (exprMgr) {
+                    exprMgr.setValue('aa', 0.5);
+
+                    exprMgr?.update(delta);
+                }
+
+                const humanoid = core?.humanoid;
+                if (humanoid) {
+                    const s = 0.25 * Math.PI * Math.sin(Math.PI * this.clock.elapsedTime);
+                    humanoid.getBoneNode('head').rotation.x = s;
+                }
+
+                const lookAt = core?.lookAt;
+                if (lookAt) {
+                    lookAt?.update(delta);
+                }
+
+                const springMgr = core?.springBoneManager;
+                if (springMgr) {
+                    springMgr?.update(delta);
+                    window.idspringview.textContent = `exist`;
+                }
+            }
         }
 
-        {
-            const obj = this.scene.getObjectByName('model');
-            if (obj) {
-//                obj.skeleton.bones[0].rotation.y = pastts * 0.001;
-//                obj.skeleton.bones[20].rotation.x = pastts * 0.001;
-            }
+        if (this.control) {
+            this.control.update();
         }
 
         this.renderer.render(this.scene, this.camera);
     }
 
+/**
+ * 
+ * @param {boolean} b 
+ */
+    toggleLayer(b) {
+        if (typeof b === 'boolean') {
+            this.isFirstPerson = b;
+        } else {
+            this.isFirstPerson = !this.isFirstPerson;
+        }
+        if (this.gltf) {
+            const firstPerson = this.gltf?.userData?.vrm?.firstPerson;
+
+            console.log('firstPerson', firstPerson);
+            if (this.isFirstPerson) {
+                this.camera.layers.enable(firstPerson.firstPersonOnlyLayer);
+                this.camera.layers.disable(firstPerson.thirdPersonOnlyLayer);
+            } else {
+                this.camera.layers.disable(firstPerson.firstPersonOnlyLayer);
+                this.camera.layers.enable(firstPerson.thirdPersonOnlyLayer);
+            }
+        }
+    }
+
+/**
+ * 初期化する
+ */
     init(inopt, vieww, viewh, viewfov) {
         console.log(this.cl, `init called`);
         this.vieww = vieww;
         this.viewh = viewh;
         this.viewfov = viewfov;
+
+        this.clock = new THREE.Clock();
 
         {
             const renderer = new THREE.WebGLRenderer({
@@ -120,6 +172,8 @@ class Threed {
             });
             renderer.setClearColor(new THREE.Color(0x99ccff), 1);
             renderer.setSize(vieww, viewh);
+
+            renderer.outputEncoding = THREE.sRGBEncoding;
 
             const camera = new THREE.PerspectiveCamera(viewfov, vieww/viewh,
                 0.01, 10000);
@@ -153,7 +207,19 @@ class Threed {
                 scene.add(grid);
             }
 
+            {
+                const obj = new THREE.Object3D();
+                this.lookTarget = obj;
+                camera.add(obj);
+            }
+
             this.renderer = renderer;
+
+            {
+                window.addEventListener('keydown', () => {
+                    this.toggleLayer();
+                });
+            }
 
             return renderer.domElement;
         }
@@ -165,11 +231,13 @@ class Threed {
  * @param {boolean} wire 
  */
     setWire(wire) {
-        const obj = this.scene.getObjectByName('model');
-        if (obj) {
-            obj.material.wireframe = wire;
+        const obj = this.scene.getObjectByName('skinnode');
 
-            console.log(``);
+        const mtl = obj?.material;
+        if (mtl) {
+            mtl.wireframe = wire;
+
+            console.log(`wireframe`, wire);
         }
     }
 
@@ -230,41 +298,28 @@ class Threed {
             arg => {
                 console.log(`VRM load done`, arg);
 
+                this.gltf = arg;
+
                 const vrm = arg.userData.vrm;
                 this.scene.add(vrm.scene);
                 vrm.scene.name = 'model';
-                return;
 
-                let c = arg.scene.children;
-
-                let obj = null;
-                let bone = null;
-                c.forEach(v=>{
-                    if (v.name === 'skinnode') {
-                        v.name = 'model';
-                        obj = v;
-                    } else if (v.name !== 'secondary') {
-                        bone = v;
+                {
+                    window.idthumbnail.src = vrm.meta.thumbnailImage.src;
+                }
+                {
+                    const lookAt = vrm?.lookAt;
+                    if (lookAt) {
+                        lookAt.target = this.lookTarget;
                     }
-                });
-                console.log('vrm', 'obj', obj, 'bone', bone);
+                }
+                {
+                    const firstPerson = vrm?.firstPerson;
+                    firstPerson.setup();
 
-                //const vrm = arg.userData.gltfExtensions.VRM;
-                //const vrmbones = vrm.humaoid.humanBones;
-
-                const flat = this.treeToFlat(bone);
-
-                const skeleton = new THREE.Skeleton(flat.bones, flat.mats);
-                obj.bind(skeleton);
-                obj.add(flat.bones[0]); // これわからん;; けど回すには必要
-
-                this.scene.add(vrm.scene);
-
-                console.log('vrm mats num', flat.mats.length, vrm);
-                const helper = new THREE.SkeletonHelper(obj);
-                helper.material.linewidth = 2;
-                this.scene.add(helper);
-
+                    this.isFirstPerson = false;
+                    this.toggleLayer(true);
+                }
             },
             progress => {
                 const per = 100.0 * progress.loaded / progress.total;
@@ -287,5 +342,5 @@ if (typeof exports !== 'undefined') {
     _global.Threed = Threed;
 }
 
-})( (this || 0).self ?? (typeof self !== 'undefined' ? self : global) );
+})( (this || 0).self || (typeof self !== 'undefined' ? self : global) );
 

@@ -676,7 +676,7 @@ class Gltf {
                         // x正 と y で
                         bz.crossVectors(bx, by);
                         bx.crossVectors(by, bz);
-                    } else if (diff.z < 0
+                    } else if (diff.z > 0
                         && Math.abs(diff.z) > Math.abs(diff.x)
                         && Math.abs(diff.z) > Math.abs(diff.y)) {
                         dir = 'front';
@@ -1003,10 +1003,6 @@ class Gltf {
                 case 0: // 骨のところ 面貼り
                 case 7:
                     prop = { // VRM/MToon シェーダー
-                        name: name,
-                        shader: 'VRM/MToon',
-                        renderQueue: 5000,
-                        floatProperties: {
 //"_UvAnimScrollX": 0.5, // 0.5 だと動いてるの見える 2秒周期
 //"_UvAnimScrollY": 0.5, // 0.5 だと動いているの見える
 //"_UvAnimRotation": 0.05,
@@ -1027,32 +1023,21 @@ class Gltf {
 //"_SrcBlend": 1.0,
 //"_DstBlend": 0.0,
 //"_ZWrite": 1,
-//"_IsFirstSetup": 0
-                        },
-keywordMap: {},
-tagMap: { RenderType: 'Opaque' },
-                        textureProperties: {
+//"_IsFirstSetup"
 _MainTex: 0,
 //_BumpMap: 2,
 //_BumpMap: 5,
 //_SphereAdd: 3
-                        },
-                        vectorProperties: {
 //"_OutlineColor": [1,0,0, 1],
 //"_ShadeColor": [0.1, 0.9, 0.1, 1], // cluster で効いてる
 //"_MainTex": [0, 0, 0.5, 0.5], // オフセットと比率
 //_BumpMap: [0,0, 1,1],
 //"_EmissionColor": [0.1, 0.1, 0.1, 1]
-                        }
                 };
                 break;
 
                 case 1: // 丸いところ 色 uv 指定
                     prop = { // VRM/MToon シェーダー
-                        name: name,
-                        shader: 'VRM/MToon',
-                        renderQueue: 5000,
-                        floatProperties: {
 //"_ReceiveShadowRate":1,
 //"_ShadeShift":0,
 //"_ShadeToony": 0.9,
@@ -1068,19 +1053,12 @@ _MainTex: 0,
 //"_OutlineCullMode": 1,
 //"_MToonVersion": 32,
 "_Mode": 0,
-                        },
-                        keywordMap: {},
-                        tagMap: { RenderType: 'Opaque' },
-                        textureProperties: {
                             _MainTex: 0,
-                            //_SphereAdd: 3
-                        },
-                        vectorProperties: {
+                            //_SphereAdd: 
 //"_OutlineColor": [0,1,0, 1],
 //"_ShadeColor": [0.1, 0.9, 0.1, 1], // cluster で効いてる
 //_BumpMap: [0,0, 1,1],
 //"_EmissionColor": [0.1, 0.1, 0.1, 1]
-                        }
                 };
                 break;
 
@@ -1091,7 +1069,7 @@ _MainTex: 0,
                         name: name,
                         shader: 'Standard',
                         renderQueue: 2000,
-                        floatProperties: {"_Cutoff": 0.5,
+            "_Cutoff": 0.5,
             "_Glossiness": 0.5, "_GlossMapScale": 1,
             "_SmoothnessTextureChannel": 0,
             "_Metallic": ((i % 2) === 0) ? 1.0 : 0.5,
@@ -1100,30 +1078,19 @@ _MainTex: 0,
             "_DetailNormalMapScale": 1, "_UVSec": 0,
             "_Mode": 0,
 //"_SrcBlend": 1.0, "_DstBlend": 0.0,
-            "_ZWrite": 1
-                        },
-                        keywordMap: {},
-                        tagMap: { RenderType: 'Opaque' },
-                        textureProperties: {
+            "_ZWrite": 1,
                             _MainTex: 0,
                             //_BumpMap: 2,
                             //_SphereAdd: 3
-                        },
-                        vectorProperties: {
                             //_MainTex: [0,0, 0.5,0.5], // 効く 3tene
                             //_BumpMap: [0,0, 1,1],
                             //_Color: [1,1,1, 1],
                             //_EmissionColor: [0.1, 0.1, 0.1, 1]
-                        }
                     };
                     break;
 
                 case 2: // VRM/MToon シェーダー 目のところ予定
                     prop = {
-                        name: name,
-                        shader: 'VRM/MToon',
-                        renderQueue: 2000,
-                        floatProperties: {
 "_UvAnimScrollX": 0.25,
 //"_ReceiveShadowRate":1,
 //"_ShadeShift":0,
@@ -1138,32 +1105,17 @@ _MainTex: 0,
 //"_OutlineColorMode": 0,
 "_CullMode": 2,
 //"_OutlineCullMode": 1,
-"_MToonVersion": 32,
-"_Mode": 0,
-//"_SrcBlend": 1.0,
-//"_DstBlend": 0.0,
-//"_ZWrite": 1,
-//"_IsFirstSetup": 0
-                        },
-keywordMap: {},
-tagMap: { RenderType: 'Opaque' },
-textureProperties: { _MainTex: 7 },
-                        vectorProperties: {
+//textureProperties: { _MainTex: 7 },
 "_Color": [1,1,1, 1],
 //"_ShadeColor": [0.1, 0.9, 0.1, 1], // cluster で効いてる
 //_MainTex: [0, 0, 0.5, 0.5], // オフセットと比率 効く 3tene
 //_BumpMap: [0,0, 1,1],
 //_EmissionColor: [0.1, 0.1, 0.1, 1]
-                        }
                 };
                 break;
 
                 case 3: // VRM/MToon シェーダー アンテナのところ予定
                     prop = {
-                        name: name,
-                        shader: 'VRM/MToon',
-                        renderQueue: 2000,
-                        floatProperties: {
 //"_UvAnimScrollX": 0.01,
 //"_UvAnimScrollY": 0.01,
 //"_UvAnimRotation": 0.01,
@@ -1180,35 +1132,21 @@ textureProperties: { _MainTex: 7 },
 //"_OutlineColorMode": 0,
 "_CullMode": 2,
 "_OutlineCullMode": 1,
-"_MToonVersion": 32,
-"_Mode": 0,
-//"_SrcBlend": 1.0,
-//"_DstBlend": 0.0,
-//"_ZWrite": 1,
-//"_IsFirstSetup": 0
-                        },
-                        keywordMap: {},
-                        tagMap: { RenderType: 'Opaque' },
-                        textureProperties: { _MainTex: 0,
+
+_MainTex: 0,
                             //_BumpMap: 2,
                             //_SphereAdd: 3
-                        },
-                        vectorProperties: {
 "_Color": [1,1,1, 1],
 //"_ShadeColor": [0.1, 0.9, 0.1, 1], // cluster で効いてる
 //_MainTex: [0, 0, 0.5, 0.5], // オフセットと比率 効く 3tene
 //_BumpMap: [0,0, 1,1],
 //_EmissionColor: [0.1, 0.1, 0.1, 1]
-                        }
                 };
                 break;
 
             case 333: // スタンダード
                 prop = {
-                    name: name,
-                    shader: 'Standard',
-                    renderQueue: 2000,
-                    floatProperties: {"_Cutoff": 0.5,
+"_Cutoff": 0.5,
         "_ReceiveShadowRate":1, "_ShadeShift":0,
         "_ShadeToony": 0.9, "_LightColorAttenuation": 0,
         "_OutlineWidth": 0.5, "_OutlineScaledMaxDistance": 1,
@@ -1217,34 +1155,19 @@ textureProperties: { _MainTex: 7 },
         "_OutlineColorMode": 0, "_CullMode": 2,
         "_OutlineCullMode": 1,
         "_BumpScale": 1,
-        "_Mode": 0,
-        "_SrcBlend": 1.0,
-        "_DstBlend": 0.0,
-        "_ZWrite": 1,
-        "_IsFirstSetup": 0
-                    },
-                    keywordMap: {},
-                    tagMap: { RenderType: 'Opaque' },
-                    textureProperties: { _MainTex: 0,
+_MainTex: 0,
                         //_BumpMap: 2,
                         //_SphereAdd: 3
-                    },
-                    vectorProperties: {
                         _MainTex: [0, 0, 0.5, 0.5], // オフセットと比率 効く 3tene
                         _BumpMap: [0,0, 1,1],
                         "_ShadeColor": [0.1, 0.9, 0.1, 1], // cluster で効いてる
                         _Color: [1,1,1, 1],
                         _EmissionColor: [0.1, 0.1, 0.1, 1]
-                    }
             };
                 break;
 
                 case 4: // VRM/ シェーダー
                     prop = {
-                        name: name,
-                        shader: 'VRM/UnlitTexture',
-                        renderQueue: 2000,
-floatProperties: {
 "_UvAnimScrollX": 0.01,
 "_UvAnimScrollY": 0.01,
 "_UvAnimRotation": 0.01,
@@ -1259,35 +1182,19 @@ floatProperties: {
 "_BlendMode": 0, "_OutlineWidthMode": 0,
 "_OutlineColorMode": 0, "_CullMode": 2,
 "_OutlineCullMode": 1,
-"_MToonVersion": 32,
-"_Mode": 0,
-"_SrcBlend": 1.0,
-"_DstBlend": 0.0,
-"_ZWrite": 1,
-"_IsFirstSetup": 0
-                        },
-                        keywordMap: {},
-                        tagMap: { RenderType: 'Opaque' },
-                        textureProperties: { _MainTex: 0,
+_MainTex: 0,
                             //_BumpMap: 2,
                             //_SphereAdd: 3
-                        },
-vectorProperties: {
     "_Color": [1,1,1, 1],
 //"_ShadeColor": [0.1, 0.9, 0.1, 1], // cluster で効いてる
 _MainTex: [0, 0, 0.5, 0.5], // オフセットと比率 効く 3tene
 //_BumpMap: [0,0, 1,1],
 //_EmissionColor: [0.1, 0.1, 0.1, 1]
-}
                 };
                     break;
 
                     case 5: // VRM/ シェーダー
                         prop = {
-                            name: name,
-                            shader: 'VRM/UnlitCutout',
-                            renderQueue: 3000,
-floatProperties: {
     "_UvAnimScrollX": 0.01,
     "_UvAnimScrollY": 0.01,
     "_UvAnimRotation": 0.01,
@@ -1307,27 +1214,18 @@ floatProperties: {
     "_SrcBlend": 1.0,
     "_DstBlend": 0.0,
     "_ZWrite": 1,
-    "_IsFirstSetup": 0
-},
-                            keywordMap: {},
-                            tagMap: { RenderType: 'Opaque' },
-textureProperties: { _MainTex: 1, _BumpMap: 2, _SphereAdd: 3 },
-vectorProperties: {
+    "_IsFirstSetup": 0,
+_MainTex: 1, _BumpMap: 2, _SphereAdd: 3,
     "_Color": [1,1,1, 1],
     "_ShadeColor": [0.1, 0.9, 0.1, 1], // cluster で効いてる
 //_MainTex: [0, 0, 0.5, 0.5], // オフセットと比率 効く 3tene
 //_BumpMap: [0,0, 1,1],
 //_EmissionColor: [0.1, 0.1, 0.1, 1]
-}
                     };
                         break;
 
                         case 6: // VRM/ シェーダー パーティクルとか
                             prop = {
-                                name: name,
-                                shader: 'VRM/UnlitTransparent',
-                                renderQueue: 6000,
-floatProperties: {
         "_UvAnimScrollX": 0.01,
         "_UvAnimScrollY": 0.01,
         "_UvAnimRotation": 0.01,
@@ -1347,26 +1245,16 @@ floatProperties: {
         "_SrcBlend": 1.0,
         "_DstBlend": 0.0,
         "_ZWrite": 1,
-        "_IsFirstSetup": 0
-},
-keywordMap: {},
-tagMap: { RenderType: 'Opaque' },
-textureProperties: { _MainTex: 1 },
-vectorProperties: {
+_MainTex: 1,
     "_Color": [1,1,1, 1],
 "_ShadeColor": [0.1, 0.9, 0.1, 1], // cluster で効いてる
 //_MainTex: [0, 0, 0.5, 0.5], // オフセットと比率 効く 3tene
     _EmissionColor: [0.1, 0.1, 0.1, 1]
-}
                         };
                             break;
 
                 case 777: // VRM/ シェーダー Z書く
                     prop = {
-                        name: name,
-                        shader: 'VRM/UnlitTransparentZWrite',
-                        renderQueue: 3000,
-                        floatProperties: {
 "_UvAnimScrollX": 0.01,
 "_UvAnimScrollY": 0.01,
 "_UvAnimRotation": 0.01,
@@ -1386,26 +1274,16 @@ vectorProperties: {
 "_SrcBlend": 1.0,
 "_DstBlend": 0.0,
 "_ZWrite": 1,
-"_IsFirstSetup": 0
-                        },
-                        keywordMap: {},
-                        tagMap: { RenderType: 'Opaque' },
-textureProperties: { _MainTex: 1 },
-                        vectorProperties: {
 "_Color": [1,1,1, 1],
 "_ShadeColor": [0.1, 0.9, 0.1, 1], // cluster で効いてる
 //_MainTex: [0, 0, 0.5, 0.5], // オフセットと比率 効く 3tene
 //_EmissionColor: [0.1, 0.1, 0.1, 1]
-                        }
                 };
                 break;
 
             case 888:
                 prop = {
-                        name: name,
-                        shader: 'Standard',
-                        renderQueue: 2000,
-                        floatProperties: {"_Cutoff": 0.5,
+"_Cutoff": 0.5,
             "_ReceiveShadowRate":1, "_ShadeShift":0,
             "_ShadeToony": 0.9, "_LightColorAttenuation": 0,
             "_OutlineWidth": 0.5, "_OutlineScaledMaxDistance": 1,
@@ -1418,29 +1296,20 @@ textureProperties: { _MainTex: 1 },
             "_SrcBlend": 1.0,
             "_DstBlend": 0.0,
             "_ZWrite": 1,
-            "_IsFirstSetup": 0
-                        },
-                        keywordMap: {},
-                        tagMap: { RenderType: 'Opaque' },
-                        textureProperties: { _MainTex: 1,
+            "_IsFirstSetup": 0,
+            _MainTex: 1,
                             _BumpMap: 2,
-                            _SphereAdd: 3 },
-                        vectorProperties: {
+                            _SphereAdd: 3,
                             _MainTex: [0, 0, 0.5, 0.5], // オフセットと比率 効く 3tene
                             _BumpMap: [0,0, 1,1],
                             "_ShadeColor": [0.1, 0.9, 0.1, 1], // cluster で効いてる
                             _Color: [1,1,1, 1],
                             _EmissionColor: [0.1, 0.1, 0.1, 1]
-                        }
                 };
                 break;
 
                 default:
                     prop = {
-                        name: name,
-                        shader: 'VRM/MToon',
-                        renderQueue: 5000,
-                        floatProperties: {
 //"_UvAnimScrollX": 0.0,
 //"_UvAnimScrollY": 0.0,
 //"_UvAnimRotation": 0.01,
@@ -1465,16 +1334,11 @@ textureProperties: { _MainTex: 1 },
 //"_DstBlend": 0.0,
 //"_ZWrite": 1,
 //"_IsFirstSetup": 0
-                        },
-keywordMap: {},
-tagMap: { RenderType: 'Opaque' },
-textureProperties: { _MainTex: 0 },
-                        vectorProperties: {
+_MainTex: 0,
 //"_Color": [1,1,1, 1],
 //"_ShadeColor": [0.1, 0.9, 0.1, 1], // cluster で効いてる
 //_MainTex: [0, 0, 0.5, 0.5], // オフセットと比率
 //_EmissionColor: [0.1, 0.1, 0.1, 1]
-                        }
                 };
             }
 
@@ -1525,13 +1389,12 @@ textureProperties: { _MainTex: 0 },
  * 内部に保持する
  */
     makeData2() {
-
         console.info(this.cl, `makeDate2 called`);
 
 /**
  * TODO: ここを変更
  */
-        const modelVersion = `2.0.0`;
+        const modelVersion = `2.0.1`;
         const modelTitle = 'poly ccc 図形人形';
 
         let texs = [
@@ -1652,6 +1515,8 @@ textureProperties: { _MainTex: 0 },
                 type: 'MAT4' });
         }
 
+        const anid0 = 0;
+        const anid1 = 0;
 
         const obj = {
             //extensionsRequired: [],
@@ -1703,14 +1568,11 @@ textureProperties: { _MainTex: 0 },
                 "VRMC_vrm": {
                     specVersion: this.specVersion,
                     meta: {
-//                        title: modelTitle,
                         name: modelTitle, // man
                         version: modelVersion,
-//                        author: 'usagi',
                         authors: ['usage'], // man
 //                        copyrightInformation: '',
 //                        contactInformation: '',
-//                        reference: '',
 //                        references: [],
 //                        thirdPartyLicenses: [],
 //                        texture: 1,
@@ -1721,12 +1583,6 @@ textureProperties: { _MainTex: 0 },
                         allowExcessivelySexualUsage: true,
 
 //                        allowedUserName: 'Everyone',
-//                        violentUssageName: this.ALLOW,
-//                        violentUsageName: this.ALLOW,
-//                        sexualUssageName: this.ALLOW,
-//                        sexualUsageName: this.ALLOW,
-//                        commercialUssageName: this.ALLOW,
-//                        commercialUsageName: this.ALLOW,
                         commercialUsage: 'corporation',
                         allowPoliticalOrReligiousUsage: true,
                         allowAntisocialOrHateUsage: true,
@@ -1739,9 +1595,6 @@ textureProperties: { _MainTex: 0 },
                         humanBones: {}
                     },
                     firstPerson: {
-                        //firstPersonBone: headNodeIndex, 廃止
-//                        firstPersonOffset: { x:0, y:0, z:0 },
-                        //offsetFromHeadBone: { x: 0, y: 0, z: 0 },
                         meshAnnotations: [
                             { node: 0,
                                 type: "both", // scheme
@@ -1752,7 +1605,6 @@ textureProperties: { _MainTex: 0 },
                         ],
                     },
                     lookAt: {
-
                     },
                     expressions: {
                         preset: {},
@@ -1766,50 +1618,49 @@ textureProperties: { _MainTex: 0 },
                 "VRMC_springBone": {
                     "specVersion": this.specVersion,
                     "colliders": [
-                        /*
                         {
-                            "node": 2,
+                            "node": anid0,
                             "shape": {
                                 "sphere": {
                                     "offset": [0, 0, 0],
-                                    "radius": 1
+                                    "radius": 0.5
                                 }
                             }
                         },
                         { // 対象ノードのローカル座標系でカプセル終点半球の中心
-                            "node": 2,
+                            "node": anid1,
                             "shape": {
                                 "capsule": {
                                     "offset": [0, 0, 0],
-                                    "radius": 1,
-                                    "tail": [0, 0, 1]
+                                    "radius": 0.5,
+                                    "tail": [0, 0, 0.5]
                                 }
                             }
-                        } */
+                        }
                     ],
                     "colliderGroups": [
-                        /* {
+                        {
                             "name": "group00000",
                             "colliders": [0, 1]
-                        } */
+                        }
                     ],
                     "springs": [
-                        /* {
+                        {
                             "joints": [
                                 {
-                                    "node": 0,
+                                    "node": anid0,
                                     "hitRadius": 0.1,
                                     "stiffness": 0.5,
                                     "gravityPower": 1.0,
                                     "gravityDir": [0, -1, 0],
                                     "dragForce": 0.5
                                 },
-                                { "node": 1 } // 末尾
+                                { "node": anid1 } // 末尾
                             ],
                             "colliderGroups": [
                                 0
                             ]
-                        } */
+                        }
                     ]
                 },
                 "VRMC_node_constraint": {
@@ -1882,12 +1733,12 @@ textureProperties: { _MainTex: 0 },
                     hitRadius: 0.01,
                     stiffiness: 0.5 // 復元力
                 };
-                regs.forEach(reg => {
+                for (const reg of regs) {
                     let found = this.searchNode(treenodes, reg);
                     if (found) {
                         phybone.bones.push(found.index);
                     }
-                });
+                }
                 //vrm.secondaryAnimation.boneGroups.push(phybone);
             });
         }
@@ -1904,6 +1755,7 @@ textureProperties: { _MainTex: 0 },
         });
         obj.scenes[0].nodes.push(index);
 
+        /*
         index = obj.nodes.length;
         obj.nodes.push({ name: 'secondary',
             translation: [0,0,0],
@@ -1911,6 +1763,7 @@ textureProperties: { _MainTex: 0 },
             scale: [1,1,1]
         });
         obj.scenes[0].nodes.push(index);
+        */
     }
 
     const ms = this.createMaterials();
