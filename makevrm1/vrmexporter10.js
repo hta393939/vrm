@@ -485,10 +485,10 @@ class VrmExporter10 {
         }
 
         obj.children = [];
-        cur.c.forEach(v=>{
+        for (const v of cur.c) {
             let result = this.recurTree(ns, v, obj);
             obj.children.push(result.index);
-        });
+        }
         return { recur, index };
     }
 
@@ -606,17 +606,17 @@ class VrmExporter10 {
             vts.push(vtx);
         });
 
-        Object.keys(partsource.faces).forEach(k2 => {
+        for (const k2 in partsource.faces) {
             const v2 = partsource.faces[k2];
             const f3 = [];
-            v2.i.forEach(k3 => {
+            for (const k3 of v2.i) {
                 // k3 を vtx から取り出す
                 let index = vtskey.indexOf(k3);
                 //console.log(``, index);
                 f3.push(vioffset + index);
-            });
+            }
             arr[mi].push(f3);
-        });
+        }
 
     }
 
