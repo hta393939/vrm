@@ -97,6 +97,28 @@ class Gltf {
     constructor(param) {
         this.cl = this.constructor.name;
 
+/**
+ * 0.0-1.0
+ * @default 1.0
+ */
+        this.DRAG = 1.0;
+        this.DRAG = 0.0;
+
+/**
+ * 復元力
+ * @default 1.0
+ */
+//        this.STIFF = 5.0;
+        this.STIFF = 0.0;
+
+/**
+ * gravity power
+ * @default 0.01
+ */
+//        this.GRAV = 1.0;
+        this.GRAV = 0.01;
+        //this.GRAV = 0.0;
+
         /**
          * 文字列
          */
@@ -143,6 +165,10 @@ class Gltf {
         this.baseTex = null;
         /** */
         this.thumbTex = null;
+
+        this.tex0 = null;
+
+        this.tex1 = null;
         /** */
         this.tex2 = null;
         /** */
@@ -971,12 +997,16 @@ class Gltf {
             const m = {
                 name: name,
                 pbrMetallicRoughness: {
-                    //baseColorTexture: { index: 0, texCoord: 0 },
-                    baseColorFactor: [0.6, 1, 0.5, 1],
+                    // glTF の uv は左上が原点
+                    baseColorTexture: { index: 0, texCoord: 0 },
+//                    baseColorFactor: [0.6, 1, 0.5, 1],
 //                    baseColorFactor: [0.1, 0.1, 0.1, 1],
                     //metallicFactor: 1.0,
                     metallicFactor: 0.0,
-                    roughnessFactor: 0.2
+                    roughnessFactor: 0.2,
+                    doubleSided: false,
+//                    alphaMode: 'OPAQUE',
+//                    emissiveFactor: [0.2, 0.2, 0.2, 1.0],
                 },
                 "extensions": {
                     "VRMC_materials_mtoon": {
@@ -1003,62 +1033,11 @@ class Gltf {
                 case 0: // 骨のところ 面貼り
                 case 7:
                     prop = { // VRM/MToon シェーダー
-//"_UvAnimScrollX": 0.5, // 0.5 だと動いてるの見える 2秒周期
-//"_UvAnimScrollY": 0.5, // 0.5 だと動いているの見える
-//"_UvAnimRotation": 0.05,
-//"_ReceiveShadowRate":1, "_ShadeShift":0,
-//"_ShadeToony": 0.9,
-//"_LightColorAttenuation": 0.0,
-//"_OutlineWidth": 0.5 * 10,
-//"_OutlineScaledMaxDistance": 1,
-//"_OutlineLightingMix": 1,
-//"_DebugMode": 0,
-//"_BlendMode": 0,
-//"_OutlineWidthMode": 0,
-//"_OutlineColorMode": 0,
-//"_CullMode": 2,
-//"_OutlineCullMode": 1,
-//"_MToonVersion": 32,
-//"_Mode": 0,
-//"_SrcBlend": 1.0,
-//"_DstBlend": 0.0,
-//"_ZWrite": 1,
-//"_IsFirstSetup"
-_MainTex: 0,
-//_BumpMap: 2,
-//_BumpMap: 5,
-//_SphereAdd: 3
-//"_OutlineColor": [1,0,0, 1],
-//"_ShadeColor": [0.1, 0.9, 0.1, 1], // cluster で効いてる
-//"_MainTex": [0, 0, 0.5, 0.5], // オフセットと比率
-//_BumpMap: [0,0, 1,1],
-//"_EmissionColor": [0.1, 0.1, 0.1, 1]
                 };
                 break;
 
                 case 1: // 丸いところ 色 uv 指定
                     prop = { // VRM/MToon シェーダー
-//"_ReceiveShadowRate":1,
-//"_ShadeShift":0,
-//"_ShadeToony": 0.9,
-//"_LightColorAttenuation": 0.0, // 丸いところ 光反映
-//"_OutlineWidth": 0.5 * 10,
-//"_OutlineScaledMaxDistance": 1,
-//"_OutlineLightingMix": 1,
-//"_DebugMode": 0,
-//"_BlendMode": 0,
-//"_OutlineWidthMode": 0,
-//"_OutlineColorMode": 0,
-//"_CullMode": 2,
-//"_OutlineCullMode": 1,
-//"_MToonVersion": 32,
-"_Mode": 0,
-                            _MainTex: 0,
-                            //_SphereAdd: 
-//"_OutlineColor": [0,1,0, 1],
-//"_ShadeColor": [0.1, 0.9, 0.1, 1], // cluster で効いてる
-//_BumpMap: [0,0, 1,1],
-//"_EmissionColor": [0.1, 0.1, 0.1, 1]
                 };
                 break;
 
@@ -1515,8 +1494,10 @@ _MainTex: 0,
                 type: 'MAT4' });
         }
 
-        const anid0 = 0;
-        const anid1 = 0;
+        const anid0 = 19;
+        const anid1 = 20;
+        const anid2 = 21;
+        const anide = 22;
 
         const obj = {
             //extensionsRequired: [],
@@ -1575,8 +1556,7 @@ _MainTex: 0,
 //                        contactInformation: '',
 //                        references: [],
 //                        thirdPartyLicenses: [],
-//                        texture: 1,
-                        thumbnailImage: 0,
+                        thumbnailImage: 1,
                         licenseUrl: this.licenseUrl, // man
                         avatarPermission: 'everyone',
                         allowExcessivelyViolentUsage: true,
@@ -1618,48 +1598,18 @@ _MainTex: 0,
                 "VRMC_springBone": {
                     "specVersion": this.specVersion,
                     "colliders": [
-                        {
-                            "node": anid0,
-                            "shape": {
-                                "sphere": {
-                                    "offset": [0, 0, 0],
-                                    "radius": 0.5
-                                }
-                            }
-                        },
-                        { // 対象ノードのローカル座標系でカプセル終点半球の中心
-                            "node": anid1,
-                            "shape": {
-                                "capsule": {
-                                    "offset": [0, 0, 0],
-                                    "radius": 0.5,
-                                    "tail": [0, 0, 0.5]
-                                }
-                            }
-                        }
                     ],
                     "colliderGroups": [
                         {
-                            "name": "group00000",
-                            "colliders": [0, 1]
+                            "name": "bodycolli",
+                            "colliders": []
                         }
                     ],
                     "springs": [
                         {
                             "joints": [
-                                {
-                                    "node": anid0,
-                                    "hitRadius": 0.1,
-                                    "stiffness": 0.5,
-                                    "gravityPower": 1.0,
-                                    "gravityDir": [0, -1, 0],
-                                    "dragForce": 0.5
-                                },
-                                { "node": anid1 } // 末尾
                             ],
-                            "colliderGroups": [
-                                0
-                            ]
+                            "colliderGroups": [ 0 ]
                         }
                     ]
                 },
@@ -1668,12 +1618,18 @@ _MainTex: 0,
                 }
             } // extensions
 
-    }; // obj
+        }; // obj
 
 /**
  * VRM! VRM!
  */
     const vrm = obj.extensions.VRMC_vrm;
+
+    const colliders = obj.extensions.VRMC_springBone.colliders;
+/**
+ * @type {number[]}
+ */
+    const colligr0 = obj.extensions.VRMC_springBone.colliderGroups[0].colliders;
 
     const globals = [];
     { // node のツリー構造
@@ -1708,39 +1664,18 @@ _MainTex: 0,
             globals.push(v._global);
             obj.skins[0].joints.push(i);
 
-            // (ノード)ボーン追従
+//// (ノード)ボーン追従 コリジョンにするか
             const coll = {
                 node: + i,
-                colliders: [ {offset: {x: 0, y: 0, z: 0},
-                    radius: 0.01 } ]
-            };
-            //vrm.secondaryAnimation.colliderGroups.push(coll);
-        }
-
-        { // 揺れ物の根元らしいが どうも ノードインデックスに見える
-            [
-                [],
-                [/antenna0/i]
-            ].forEach((regs, i) => {
-                const phybone = {
-                    bones: [],
-                    center: -1,
-                    colliderGroups: [],
-                    comment: `bg${String(i).padStart(2, '0')}`,
-                    dragForce: 0.0, // 抵抗 減速
-                    gravityDir: {x: 0, y: -1, z: 0},
-                    gravityPower: 1.0,
-                    hitRadius: 0.01,
-                    stiffiness: 0.5 // 復元力
-                };
-                for (const reg of regs) {
-                    let found = this.searchNode(treenodes, reg);
-                    if (found) {
-                        phybone.bones.push(found.index);
+                "shape": {
+                    "sphere": {
+                        offset: { x: 0, y: 0, z: 0 },
+                        radius: 1.0
                     }
                 }
-                //vrm.secondaryAnimation.boneGroups.push(phybone);
-            });
+            };
+            colligr0.push(+ colliders.length);
+            colliders.push(coll);
         }
 
         obj.scenes[0].nodes.push(0);
@@ -1801,9 +1736,29 @@ _MainTex: 0,
         }
     }
 
-    /**
-     * bufferView の番号が1つずつ増えていく
-     */
+//// アンテナ スプリングボーン
+    {
+        const joints = obj.extensions.VRMC_springBone.springs[0].joints;
+        for (let i = 0; i <= 8; ++i) {
+            const joint = {
+                "node": anid0 + i,
+                "hitRadius": 1,
+                "stiffness": this.STIFF,
+                "gravityPower": this.GRAV,
+                "gravityDir": [0, -1, 0],
+                "dragForce": this.DRAG
+            };
+            joints.push(joint);
+        }
+        {
+            joints.push({ "node": anid0 + 9 }); // 末尾
+        }
+    }
+
+
+/**
+ * bufferView の番号が1つずつ増えていく
+ */
     let bvOffset = 0;
     /**
      * buffer のバイトオフセットがバイト単位で増えていく

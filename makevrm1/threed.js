@@ -106,7 +106,8 @@ class Threed {
                 const humanoid = core?.humanoid;
                 if (humanoid) {
                     const s = 0.25 * Math.PI * Math.sin(Math.PI * this.clock.elapsedTime);
-                    humanoid.getBoneNode('head').rotation.x = s;
+//                    humanoid.getBoneNode('head').rotation.x = s;
+                    humanoid.getBoneNode('rightUpperArm').rotation.z = s;
                 }
 
                 const lookAt = core?.lookAt;
@@ -118,6 +119,11 @@ class Threed {
                 if (springMgr) {
                     springMgr?.update(delta);
                     window.idspringview.textContent = `exist`;
+                }
+
+                const constMgr = core?.constraintManager;
+                if (constMgr) {
+                    constMgr?.update(delta);
                 }
             }
         }
@@ -194,7 +200,7 @@ class Threed {
                 const light = new THREE.AmbientLight(0x333333);
                 scene.add(light);
             }
-            {
+            if (false) {
                 const light = new THREE.DirectionalLight(0x666666);
                 scene.add(light);
             }
