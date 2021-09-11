@@ -3,17 +3,21 @@
  */
 // MIT License (c) 2018- Usagi
 
-/// <reference path="./index.d.ts" />
-
 'use strict';
 
-/** */
+/**
+ * メインクラス
+ */
 class Misc {
+/**
+ * コンストラクタ
+ */
     constructor() {
         this.cl = this.constructor.name;
-        this.NAME = 'Pack';
+
 /**
  * 共通名
+ * @default 'gvrmn'
  */
         this.STORAGE = 'gvrmn';
 /**
@@ -48,8 +52,8 @@ class Misc {
  */
     save() {
         console.log(this.cl, `save called`);
-        this.gltf.makeData2();
-        const urlstr = this.gltf.save(true);
+        this.vrmexporter.makeData2();
+        const urlstr = this.vrmexporter.save(true);
         if (urlstr) {
             // todo: 
             this.threed.setModel(urlstr);
@@ -58,7 +62,7 @@ class Misc {
     }
 
 /**
- * 
+ * 初期化する
  */
     init() {
         console.log(this.cl, `init called`);
@@ -132,7 +136,7 @@ class Misc {
                 const ab = await blob.arrayBuffer();
                 console.log(`${v.name} load fire`);
 
-                this.gltf[v.name] = ab;
+                this.vrmexporter[v.name] = ab;
             }, 'image/png');
         }
 
@@ -505,8 +509,8 @@ class Misc {
     makeFile() {
         console.log(this.cl, `makeFile called`);
         { // バイナリ作る
-            this.gltf.makeData2();
-            const urlstr = this.gltf.save(true);
+            this.vrmexporter.makeData2();
+            const urlstr = this.vrmexporter.save(true);
             if (urlstr) {
                 this.threed.setModel(urlstr);
                 URL.revokeObjectURL(urlstr);
@@ -515,20 +519,6 @@ class Misc {
                     this.saveSetting();
                 }, 3000);
             }
-        }
-    }
-
-    loadFile(inPath) {
-        console.log(this.cl, `loadFile called`, inPath);
-        {
-            const xhr = new XMLHttpRequest();
-            xhr.open('GET', inPath);
-            xhr.responseType = 'arraybuffer';
-            xhr.addEventListener('load', ev=>{
-                const parser = new GltfParser();
-                parser.parse(ev.currentTarget.response);
-            });
-            xhr.send();
         }
     }
 
@@ -552,7 +542,7 @@ class Misc {
         }
     }
     saveSetting() {
-        console.log(`${this.NAME}#saveSetting called`);
+        console.log(this.cl, `saveSetting called`);
 
         const obj = {};
         let str = '';
@@ -561,17 +551,17 @@ class Misc {
             str = cv.toDataURL('image/png');
         }
         localStorage.setItem(this.STORAGE_THUMB, str);
-        console.log(`${this.NAME}#saveSetting leave`, obj, str.length);
+        console.log(this.cl, `saveSetting leave`, obj, str.length);
     }
 
     onload() {
         this.loadSetting();
     
         {
-            const gltf = new Gltf();
-            this.gltf = gltf;
-            //gltf.loadPart('part001.json');
-            //gltf.loadObj('obj11_6.obj');
+            const vrmexporter = new VrmExporter10();
+            this.vrmexporter = vrmexporter;
+            //vrmexporter.loadPart('part001.json');
+            //vrmexporter.loadObj('obj11_6.obj');
         }
     
         {
@@ -597,21 +587,26 @@ class Misc {
             });
         }
     
-        update();
+        this.update();
         console.log(`leave`, this);
+    }
+
+/**
+ * 高頻度に呼ばれる関数
+ */
+    update() {
+        requestAnimationFrame(() => {
+            this.update();
+        });
+
+        this.threed.update();
     }
 
 }
 
-const pack = new Misc();
-
-const update = () => {
-    requestAnimationFrame(update);
-
-    pack.threed.update();
-};
+const misc = new Misc();
 
 window.addEventListener('load', () => {
-    pack.onload();
+    misc.onload();
 });
 

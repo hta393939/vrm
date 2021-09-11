@@ -1,6 +1,5 @@
-/* */
 /**
- * @file gltf.js
+ * @file vrmexporter10.js
  * MIT License (c) 2018- Usagi
  */
 
@@ -91,9 +90,13 @@ class V2 {
 }
 
 /**
- * 
+ * .vrm 1.0-beta 書き出し
  */
-class Gltf {
+class VrmExporter10 {
+/**
+ * コンストラクタ
+ * @param {Object} param 
+ */
     constructor(param) {
         this.cl = this.constructor.name;
 
@@ -262,15 +265,6 @@ class Gltf {
  * 10497 wrap*用 デフォルト
  */
         this.REPEAT = 10497;
-
-/**
- * for VRM
- */
-        this.DIS = 'Disallow';
-/**
- * 
- */
-        this.ALLOW = 'Allow';
     }
 
     /**
@@ -1601,7 +1595,11 @@ _MainTex: 0,
                     ],
                     "colliderGroups": [
                         {
-                            "name": "bodycolli",
+                            "name": "body",
+                            "colliders": []
+                        },
+                        {
+                            "name": "antenna",
                             "colliders": []
                         }
                     ],
@@ -1627,9 +1625,15 @@ _MainTex: 0,
 
     const colliders = obj.extensions.VRMC_springBone.colliders;
 /**
+ * 体コリジョン
  * @type {number[]}
  */
     const colligr0 = obj.extensions.VRMC_springBone.colliderGroups[0].colliders;
+/**
+ * アンテナコリジョン
+ * @type {number[]}
+ */
+    const colligr1 = obj.extensions.VRMC_springBone.colliderGroups[1].colliders;
 
     const globals = [];
     { // node のツリー構造
@@ -1669,12 +1673,19 @@ _MainTex: 0,
                 node: + i,
                 "shape": {
                     "sphere": {
-                        offset: { x: 0, y: 0, z: 0 },
-                        radius: 1.0
+                        offset: [0, 0, 0], // float3 だった;;
+                        radius: + v._sz
                     }
                 }
             };
-            colligr0.push(+ colliders.length);
+            const re = /antenna(?<num>\d+)/;
+            const m = re.exec(v.name);
+            if (m) {
+                colligr1.push(+ colliders.length);
+            } else {
+                colligr0.push(+ colliders.length);
+            }
+
             colliders.push(coll);
         }
 
@@ -1689,16 +1700,6 @@ _MainTex: 0,
             skin: 0
         });
         obj.scenes[0].nodes.push(index);
-
-        /*
-        index = obj.nodes.length;
-        obj.nodes.push({ name: 'secondary',
-            translation: [0,0,0],
-            rotation: [0,0,0,1],
-            scale: [1,1,1]
-        });
-        obj.scenes[0].nodes.push(index);
-        */
     }
 
     const ms = this.createMaterials();
@@ -1742,7 +1743,7 @@ _MainTex: 0,
         for (let i = 0; i <= 8; ++i) {
             const joint = {
                 "node": anid0 + i,
-                "hitRadius": 1,
+                "hitRadius": 0.01,
                 "stiffness": this.STIFF,
                 "gravityPower": this.GRAV,
                 "gravityDir": [0, -1, 0],
@@ -1874,13 +1875,13 @@ _MainTex: 0,
         }
 
         { // WEIGHTS_0
-            vts.forEach(v => {
+            for (const v of vts) {
                 p.setFloat32(c   , v.wei.x, true);
                 p.setFloat32(c+ 4, v.wei.y, true);
                 p.setFloat32(c+ 8, v.wei.z, true);
                 p.setFloat32(c+12, v.wei.w, true);
                 c += 4 * 4;
-            });
+            }
         }
         { // JOINTS_0
             for (const v of vts) {
@@ -1922,7 +1923,9 @@ _MainTex: 0,
 
 // テクスチャ
             console.log(`テクスチャ bufferView 開始インデックス`, bvOffset);
-            texs.forEach((v, i) => {
+            const num = texs.length;
+            for (let i = 0; i < num; ++i) {
+                const v = texs[i];
                 obj.images.push({
                     bufferView: bvOffset,
                     mimeType: 'image/png'
@@ -1939,9 +1942,9 @@ _MainTex: 0,
                         buffer: 0,
                         byteOffset: d,
                         byteLength: v.byteLength
-                    });
-                    d += v.byteStride; 
                 });
+                d += v.byteStride;
+            }
         }
 
         this.deleteExtra(obj);
@@ -1991,11 +1994,11 @@ _MainTex: 0,
 
 if (typeof exports !== 'undefined') {
     if (typeof module !== 'undefined' && module.exports) {
-        exports = module.exports = Gltf;
+        exports = module.exports = VrmExporter10;
     }
-    exports.Gltf = Gltf;
+    exports.VrmExporter10 = VrmExporter10;
 } else {
-    global_.Gltf = Gltf;
+    global_.VrmExporter10 = VrmExporter10;
 }
 
 })( (this || 0).self || typeof self !== 'undefined' ? self : global );
