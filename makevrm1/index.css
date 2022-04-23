@@ -1,9 +1,5 @@
 @charset "UTF-8";
 
-canvas {
-    border: solid 1px black;
-}
-
 .pt {
     cursor: pointer;
 }
@@ -32,5 +28,7 @@ canvas {
 }
 
 #img06 {
-    border: solid 1px green;
+    border-color: red;
 }
+
+

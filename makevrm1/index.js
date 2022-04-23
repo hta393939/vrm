@@ -142,8 +142,8 @@ class Misc {
 
         {
             const threed = new Threed();
-            const w = 512;
-            const h = 512;
+            const w = 512 / 2;
+            const h = 512 / 2;
             const dom = threed.init({ canvas: window.idcanvas }, w,h, 50);
             if (dom) {
                 idwebgl.appendChild(dom);
@@ -152,6 +152,13 @@ class Misc {
 
             }
             this.threed = threed;
+        }
+
+        {
+            const style = document.createElement('style');
+            const dpr = window.devicePixelRatio;
+            style.innerHTML = `.oneborder { border-style: solid; border-width: calc(1px / ${dpr}); }`;
+            document.head.appendChild(style);
         }
 
     } // init

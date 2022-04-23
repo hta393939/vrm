@@ -212,6 +212,9 @@ class VrmExporter10 {
          * 5123
          */
         this.UNSIGNED_SHORT = 5123;
+
+        // 5124 は無い
+
         /**
          * 5125
          */
@@ -448,21 +451,22 @@ class VrmExporter10 {
             recur = false;
         }
 
-        let index = ns.length + 0;
+// これまでに追加された個数がそのまま次のインデックスになる
+        let index = ns.length;
         const obj = {
             name: `${cur.name}`,
             translation: [0,0,0],
             rotation: [0,0,0,1],
             scale: [1,1,1],
             extensions: {
+                /*
                 VRMC_node_constraint: {
-                    /*
                     rotation: {
                         source: 0,
                         weight: 1,
                     }
-                    */
                 }
+                */
             }
         };
         if ('r' in cur) {
@@ -1001,18 +1005,35 @@ class VrmExporter10 {
             const name = `m${pad(i, 3)}`; // 一致させる
             const m = {
                 name: name,
+// https://github.com/KhronosGroup/glTF/blob/main/specification/2.0/schema/material.pbrMetallicRoughness.schema.json
                 pbrMetallicRoughness: {
-                    // glTF の uv は左上が原点
-                    baseColorTexture: { index: 0, texCoord: 0 },
 //                    baseColorFactor: [0.6, 1, 0.5, 1],
 //                    baseColorFactor: [0.1, 0.1, 0.1, 1],
+                    // glTF の uv は左上が原点
+                    baseColorTexture: { index: 0, texCoord: 0 },
+// テクスチャにリニアで積
                     //metallicFactor: 1.0,
                     metallicFactor: 0.0,
+// テクスチャにリニアで積
                     roughnessFactor: 0.2,
-                    doubleSided: false,
-//                    alphaMode: 'OPAQUE',
-//                    emissiveFactor: [0.2, 0.2, 0.2, 1.0],
+//                    metallicRoughnessTexture: { index: 0, texCoord: 0 },
+// B が metalness, G が roughness, R と A は無視しなければならない undefined の場合 1.0 とする
                 },
+                /*
+                normalTexture: {
+
+                },
+                occlusionTexture: {
+// R のみ使用する(高いほどフル間接照明) GBA は無視する
+                },
+                emissiveTexture: {
+// A が存在したら無視する
+                },
+                */
+                emissiveFactor: [0.0, 0.0, 0.0],
+                alphaMode: 'OPAQUE',
+                alphaCutoff: 0.5, // 以上
+                doubleSided: true, // default false
                 "extensions": {
                     "VRMC_materials_mtoon": {
                         "specVerion": this.specVersion,
@@ -1378,8 +1399,8 @@ _MainTex: 0,
 /**
  * TODO: ここを変更
  */
-        const modelVersion = `2.0.1`;
-        const modelTitle = 'poly ccc 図形人形';
+        const modelVersion = `2.1.1`;
+        const modelTitle = 'poly ccc 図形人形 1.0-draft';
 
         let texs = [
             { tex: this.baseTex },
@@ -1508,7 +1529,9 @@ _MainTex: 0,
             //extensionsRequired: [],
             extensionsUsed: [
                 "VRMC_vrm",
-                "VRMC_springBone"
+                "VRMC_springBone",
+                "VRMC_node_constraint",
+                "VRMC_materials_mtoon",
             ],
             asset: {
                 version: "2.0",

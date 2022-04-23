@@ -8,7 +8,11 @@
         <script src="../lib/three.min.js"></script>
         <script src="./OrbitControls.js"></script>
         <script src="../lib/GLTFLoader.js"></script>
+
+        <script src="../third_party/three-vrm.min.js"></script>
+        <!--
         <script src="../lib/three-vrm.min.js"></script>
+        -->
         <script src="./objparse.js"></script>
         <script src="./vtx.js"></script>
         <script src="./threed.js"></script>
@@ -29,7 +33,7 @@
         </div>
 
         <div id="idwebgl">
-            <canvas id="idcanvas"></canvas>
+            <canvas id="idcanvas" class="oneborder"></canvas>
         </div>
 
         <div>
@@ -42,12 +46,12 @@
         <div class="toright">
 <div class="tobottom">
     <div>▼ メインcv00</div>
-    <canvas id="cv00" width="64" height="64"></canvas>
+    <canvas class="oneborder" id="cv00" width="64" height="64"></canvas>
 </div>
 <div>
     <div>▼ cv01</div>
-            <canvas class="mini" id="cv01"></canvas>
-            <img class="mini" id="imgthumb" src="./v16.png" />
+            <canvas class="mini oneborder" id="cv01"></canvas>
+            <img class="mini oneborder" id="imgthumb" src="./v16.png" />
             <!--           <img id="imgthumb" src="./polybbb_thumb.png" />
             -->
 </div>
@@ -72,16 +76,16 @@
     <canvas class="mini" id="cv06" width="512" height="512"></canvas>
 </div>
 <div class="tobottom">
-    <div>06 img</div>
-    <img class="mini" id="img06" />
+    <div>▼ 06 img</div>
+    <img class="mini oneborder" id="img06" />
 </div>
 <div class="tobottom">
     <div>▼ cv07</div>
     <canvas class="mini" id="cv07" width="512" height="512"></canvas>
 </div>
 <div class="tobottom">
-    <div>img07</div>
-    <img class="mini" id="img07" src="./inner.png" />
+    <div>▼ img07</div>
+    <img class="mini oneborder" id="img07" src="./inner.png" />
 </div>
        </div>
        <hr />
