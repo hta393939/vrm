@@ -197,6 +197,7 @@ class VrmExporter10 {
         this.licenseUrl = `https://vrm.dev/licenses/1.0/`;
 
 /**
+ * 時々 1.0-draft があるんだけど..
  * @default '1.0-beta'
  */
         this.specVersion = '1.0-beta';
@@ -267,10 +268,10 @@ class VrmExporter10 {
         this.REPEAT = 10497;
     }
 
-    /**
-     * 
-     * @param {Date} d 時刻
-     */
+/**
+ * 
+ * @param {Date} d 時刻
+ */
     getTimeID(d = new Date()) {
         let s = '';
         s += pad(d.getFullYear(), 4);
@@ -283,10 +284,10 @@ class VrmExporter10 {
         return s;
     }
 
-    /**
-     * パーツファイルを読み込む
-     * @param {string} inpath 
-     */
+/**
+ * パーツファイルを読み込む
+ * @param {string} inpath 
+ */
     async loadPart(inpath) {
         const res = await fetch(inpath)
             .catch(err => {
@@ -298,10 +299,10 @@ class VrmExporter10 {
         console.log(`loadPart succ`, obj);
     }
 
-    /**
-     * .obj をパーツとして読み込みたい
-     * bookmark: bookmark:
-     */
+/**
+ * .obj をパーツとして読み込みたい
+ * bookmark: bookmark:
+ */
     async loadObj(inpath) {
         const res = await fetch(inpath)
             .catch(err => {
@@ -318,11 +319,11 @@ class VrmExporter10 {
         console.log(this.cl, `loadObj leave, obj`, obj, this.objpart);
     }
 
-    /**
-     * ダウンロードする
-     * @param {Blob} blob バイナリ
-     * @param {string[]} ファイル名の配列 
-     */
+/**
+ * ダウンロードする
+ * @param {Blob} blob バイナリ
+ * @param {string[]} ファイル名の配列 
+ */
     download(blob, names) {
         for (const v of names) {
             const a = document.createElement('a');
@@ -332,10 +333,10 @@ class VrmExporter10 {
         }
     }
 
-    /**
-     * fourcc 4バイトを生成する u8
-     * @param {string} f 4文字まで
-     */
+/**
+ * fourcc 4バイトを生成する u8
+ * @param {string} f 4文字まで
+ */
     fourcc(f) {
         const buf = new Uint8Array(4);
         for (let i = 0; i < 4; ++i) {
@@ -344,10 +345,10 @@ class VrmExporter10 {
         return buf;
     }
 
-    /**
-     * Typed Array を返す u8
-     * @param {number} v 整数
-     */
+/**
+ * Typed Array を返す u8
+ * @param {number} v 整数
+ */
     u32(v) {
         const ab = new ArrayBuffer(4);
         const p = new DataView(ab);
@@ -356,11 +357,11 @@ class VrmExporter10 {
     }
 
 
-    /**
-     * ファイル全体作る
-     * str と bin はすでに準備できていること。
-     * @return {Blob} 1つの Blob 
-     */
+/**
+ * ファイル全体作る
+ * str と bin はすでに準備できていること。
+ * @return {Blob} 1つの Blob 
+ */
     wholeBlob() {
         console.log(this.cl, `wholeBlob called`);
 
@@ -421,14 +422,14 @@ class VrmExporter10 {
     }
 
 
-    /**
-     * リカーシブツリーを平たくする
-     * @param {{}[]} ns この配列のインデックスとしてみなす
-     * @param {Object} cur 今の対象 in tree
-     * @param {any[]} [cur.c]
-     * @param {{}} parent 親 obj
-     * @return {{recur: boolean, index: number}} cur の結果。自分のインデックス
-     */
+/**
+ * リカーシブツリーを平たくする
+ * @param {{}[]} ns この配列のインデックスとしてみなす
+ * @param {Object} cur 今の対象 in tree
+ * @param {any[]} [cur.c]
+ * @param {{}} parent 親 obj
+ * @return {{recur: boolean, index: number}} cur の結果。自分のインデックス
+ */
     recurTree(ns, cur, parent) {
 
         const glopos = [0,0,0];
@@ -452,7 +453,17 @@ class VrmExporter10 {
             name: `${cur.name}`,
             translation: [0,0,0],
             rotation: [0,0,0,1],
-            scale: [1,1,1]
+            scale: [1,1,1],
+            extensions: {
+                VRMC_node_constraint: {
+                    /*
+                    rotation: {
+                        source: 0,
+                        weight: 1,
+                    }
+                    */
+                }
+            }
         };
         if ('r' in cur) {
             obj.translation = cur.r;
@@ -492,26 +503,26 @@ class VrmExporter10 {
         return { recur, index };
     }
 
-    /**
-     * ツリーからノード配列を作成する
-     * @param {{}[]} nodes 保存先
-     */
+/**
+ * ツリーからノード配列を作成する
+ * @param {{}[]} nodes 保存先
+ */
     makeTree(nodes) {
         console.log(this.cl, `makeTree called`);
         this.recurTree(nodes, _tree, null);
         console.log(this.cl, `makeTree leave`, nodes);
     }
 
-    /**
-     * bookmark: bookmark: 
-     * メッシュと頂点を現状に追加する。obj パーツから
-     * @param {Vtx[]} vts 点の配列
-     * @param {{_global: number[], _sz: number[]}[]} nodes ノード配列 
-     * @param {{}[]} arr 複数面。三段配列
-     * @param {number} ji ジョイントインデックス
-     * @param {string} inpath パーツパス
-     * @param {number} mi 材質インデックス
-     */
+/**
+ * bookmark: bookmark: 
+ * メッシュと頂点を現状に追加する。obj パーツから
+ * @param {Vtx[]} vts 点の配列
+ * @param {{_global: number[], _sz: number[]}[]} nodes ノード配列 
+ * @param {{}[]} arr 複数面。三段配列
+ * @param {number} ji ジョイントインデックス
+ * @param {string} inpath パーツパス
+ * @param {number} mi 材質インデックス
+ */
     addObjPart(vts, nodes, arr, ji, inpath, mi) {
         console.log(this.cl, `addObjPart called`);
         //console.log(this.cl, vts.length, arr[mi].length);
@@ -556,15 +567,15 @@ class VrmExporter10 {
         //    vts, arr[mi]);
     }
 
-    /**
-     * メッシュと頂点を現状に追加する。ここ bookmark
-     * @param {Vtx[]} vts 点の配列
-     * @param {{_global: number[], _sz: number[]}[]} nodes ノード配列 
-     * @param {{}[]} arr 複数面。三段配列。
-     * @param {number} ji ジョイントインデックス
-     * @param {string} inpath パーツパス
-     * @param {number} mi 材質インデックス
-     */
+/**
+ * メッシュと頂点を現状に追加する。ここ bookmark
+ * @param {Vtx[]} vts 点の配列
+ * @param {{_global: number[], _sz: number[]}[]} nodes ノード配列 
+ * @param {{}[]} arr 複数面。三段配列。
+ * @param {number} ji ジョイントインデックス
+ * @param {string} inpath パーツパス
+ * @param {number} mi 材質インデックス
+ */
     addSubPart(vts, nodes, arr, ji, inpath, mi) {
         console.log(this.cl, `addSubPart called`);
         //return;
@@ -578,7 +589,7 @@ class VrmExporter10 {
 
         const vtskey = Object.keys(partsource.vts);
 
-        vtskey.forEach((k1, i) => {
+        for (const k1 of vtskey) {
             /**
              * @type {{p:string, n:number[], uv:number[]}}
              */
@@ -604,7 +615,7 @@ class VrmExporter10 {
                 v._global[0], v._global[1], v._global[2]));
 
             vts.push(vtx);
-        });
+        }
 
         for (const k2 in partsource.faces) {
             const v2 = partsource.faces[k2];
@@ -620,12 +631,12 @@ class VrmExporter10 {
 
     }
 
-    /**
-     * メッシュと頂点を現状に追加する。骨と関節追加する。
-     * @param {Vtx[]} vts 点の配列
-     * @param {{_global: number[], _sz: number[]}[]} nodes ノード配列 
-     * @param {{}[]} arr 複数面。三段配列。
-     */
+/**
+ * メッシュと頂点を現状に追加する。骨と関節追加する。
+ * @param {Vtx[]} vts 点の配列
+ * @param {{_global: number[], _sz: number[]}[]} nodes ノード配列 
+ * @param {{}[]} arr 複数面。三段配列。
+ */
     makeSubMesh(vts, nodes, arr) {
         console.log(this.cl, `makeSubMesh called`);
 
@@ -640,9 +651,9 @@ class VrmExporter10 {
 
                 /*
                 if ('_pts' in v) {
-                    v._pts.forEach(k => {
+                    for (const k of v._pts) {
                         this.addSubPart(vts, nodes, arr, i, `${k}.json`, 0);
-                    });
+                    }
                 } else {
                     this.addSubPart(vts, nodes, arr, i, 'part001.json', 0);
                 }*/
@@ -837,9 +848,9 @@ class VrmExporter10 {
       
                 };
                 if ('children' in v) {
-                    v.children.forEach(vi2 => {
+                    for (const vi2 of v.children) {
                         addSubBone({ from: v, to: nodes[vi2] });
-                    });
+                    }
                 }
 
                 /**
@@ -1334,12 +1345,12 @@ _MainTex: 0,
             { p: [1,1,0], uv: [1,0]},
             { p: [1,-1,0], uv: [0,1]},
             { p: [-1,-1,0], uv: [1,1]}];
-        arr.forEach(bym=>{
+        for (const bym of arr) {
             if (bym.length >= 1) {
                 return;
             }
             let offset = vts.length;
-            pts.forEach((v, i)=>{
+            for (const v of pts) {
                 const vtx = new Vtx();
                 vtx.p.set(v.p[0], v.p[1], v.p[2]);
                 vtx.p.multiplyScalar(0);
@@ -1347,14 +1358,14 @@ _MainTex: 0,
                 //vtx.calcStandardTan();
                 vtx.uv.set(v.uv[0], v.uv[1]);
                 vts.push(vtx);
-            });
+            }
             let v0 = offset; // 時計回り
             let v1 = v0 + 1;
             let v2 = v0 + 2;
             let v3 = v0 + 3;
             bym.push([v0, v3, v2]);
             bym.push([v0, v2, v1]);
-        });
+        }
     }
 
 /**
@@ -1970,22 +1981,21 @@ _MainTex: 0,
             this.str.length, this.bin.length);
     }
 
-    /**
-     * _foo のようなメンバを削除する
-     * @param {Object} obj 
-     * @param {{}[]} obj.nodes 
-     */
+/**
+ * _foo のようなメンバを削除する
+ * @param {Object} obj 
+ * @param {{}[]} obj.nodes 
+ */
     deleteExtra(obj) {
         let count = 0;
-        obj.nodes.forEach(node => {
-            const keys = Object.keys(node);
-            keys.forEach(k => {
+        for (const node of obj.nodes) {
+            for (const k in node) {
                 if (k.substr(0,1) === '_') {
                     delete node[k];
                     ++count;
                 }
-            });
-        });
+            }
+        }
         console.log(`deleteExtra leave`, count);
     }
 
