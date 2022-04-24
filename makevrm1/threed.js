@@ -1,5 +1,7 @@
 /**
  * @file threed.js
+ * (c) 2022- usagi
+ * distributed under MIT License
  */
 
 (function(_global) {
@@ -109,7 +111,7 @@ class Threed {
 //                    humanoid.getBoneNode('head').rotation.x = s;
                     humanoid.getBoneNode('rightUpperArm').rotation.z = s;
 
-                    humanoid.getBoneNode('hips').rotation.z = s * 0.1;
+                    //humanoid.getBoneNode('hips').rotation.z = s * 0.1;
                 }
 
                 const lookAt = core?.lookAt;
@@ -123,9 +125,9 @@ class Threed {
                     window.idspringview.textContent = `exist`;
                 }
 
-                const constMgr = core?.nodeConstraintManager;
-                if (constMgr) {
-                    constMgr?.update(delta);
+                const ctrMgr = this?.gltf?.userData?.vrmNodeConstraintManager;
+                if (ctrMgr) {
+                    ctrMgr?.update(delta);
                 }
             }
         }
@@ -328,6 +330,24 @@ class Threed {
                     this.isFirstPerson = false;
                     this.toggleLayer(true);
                 }
+
+                { // constraint
+// https://github.com/pixiv/three-vrm/blob/1.0/packages/three-vrm-node-constraint/examples/aim.html
+//                    const constraintManager = new THREE_VRM_NODE_CONSTRAINT.VRMNodeConstraintManager({
+//                        autoRemoveCircularDependency: true
+//                    });
+//                    this.constraintManager = constraintManager;
+
+                    // constraint を作る
+                    // add する
+                    //     helper 作る
+                    //     scene に足す
+
+                    this.scene.updateMatrixWorld();
+                    arg.userData.vrmNodeConstraintManager.setInitState();
+                }
+
+
             },
             progress => {
                 const per = 100.0 * progress.loaded / progress.total;

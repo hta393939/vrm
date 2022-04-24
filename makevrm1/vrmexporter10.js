@@ -427,6 +427,71 @@ class VrmExporter10 {
         }
     }
 
+/**
+ * glTF node に VRMC_node_constraint を追加する
+ * @param {{}[]} ns ノードの配列
+ */
+    applyConstraints(ns) {
+        console.log(this.cl, 'applyConstraints called');
+        for (const obj of ns) {
+            const ctrs = [
+                { name: 'leftTwist3',
+                    sourceName: "antenna6", ctr: {
+                        "roll": {
+                            "rollAxis": "Z",
+                            "weight": 1,
+                        }
+                    }
+                },
+                { name: 'leftTwist31',
+                    sourceName: "antenna5", ctr: {
+                        "roll": {
+                            "rollAxis": "X",
+                            "weight": 1,
+                        }
+                    }
+                },
+                { name: 'leftTwist2',
+                    sourceName: "antenna7", ctr: {
+                        "aim": {
+                            "aimAxis": "NegativeY",
+                            "weight": 1,
+                        }
+                    }
+                },
+                { name: 'leftTwist1',
+                    sourceName: "rightUpperArm", ctr: {
+                        "rotation": {
+                            "weight": 1,
+                        }
+                    }
+                }
+            ];
+            const found = ctrs.find(v => { return v.name === obj.name; });
+            if (found) {
+                // node index
+                const srcIndex = ns.findIndex(v => {
+                    return v.name === found.sourceName;
+                });
+                if (srcIndex >= 0) {
+                    const keys = Object.keys(found.ctr);
+                    for (const key of keys) {
+                        found.ctr[key].source = srcIndex;
+                        obj.extensions = {
+                            VRMC_node_constraint: {
+                                specVersion: "1.0-draft",
+                                constraint: {
+                                    [key]: found.ctr[key]
+                                }
+                            }
+                        };
+                        console.log(key, JSON.stringify(obj.extensions.VRMC_node_constraint));
+                    }
+                }
+            }
+        }
+
+    }
 
 /**
  * リカーシブツリーを平たくする
@@ -485,52 +550,6 @@ class VrmExporter10 {
 
         }
         obj._global = glopos;
-
-        { // constraint 試行
-            const ctrs = [
-                { name: 'leftTwist11', sourceName: "hips", ctr: {
-                        "roll": {
-                            "rollAxis": "Z",
-                            "weight": 1,
-                        }
-                    }
-                },
-                { name: 'leftTwist12', sourceName: "hips", ctr: {
-                        "aim": {
-                            "aimAxis": "NegativeY",
-                            "weight": 1,
-                        }
-                    }
-                },
-                { name: 'leftTwistEnd', sourceName: "hips", ctr: {
-                        "rotation": {
-                            "weight": 1,
-                        }
-                    }
-                }
-            ];
-            const found = ctrs.find(v => { return v.name === obj.name; });
-            if (found) {
-                // node index
-                const srcIndex = ns.findIndex(v => {
-                    return v.name === found.sourceName;
-                });
-                if (srcIndex >= 0) {
-                    const keys = Object.keys(found.ctr);
-                    for (const key of keys) {
-                        found.ctr[key].source = srcIndex;
-                        obj.extensions = {
-                            VRMC_node_constraint: {
-                                constraint: {
-                                    [key]: found.ctr[key]
-                                }
-                            }
-                        };
-                        console.log(key, JSON.stringify(obj.extensions.VRMC_node_constraint));
-                    }
-                }
-            }
-        }
 
         ns.push(obj);
 
@@ -1468,6 +1487,7 @@ _MainTex: 0,
          */
         const treenodes = [];
         this.makeTree(treenodes);
+        this.applyConstraints(treenodes);
 
         /**
          * 頂点オブジェクトの配列
