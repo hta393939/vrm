@@ -459,13 +459,22 @@ class VrmExporter10 {
                         }
                     }
                 },
-                { name: 'leftTwist1',
+                { name: 'leftTwist13',
                     sourceName: "rightUpperArm", ctr: {
                         "rotation": {
                             "weight": 1,
                         }
                     }
-                }
+                },
+                /*{
+                    name: "",
+                    sourceName: "rightUpperArm",
+                    ctr: {
+                        "rotation": {
+                            "weight": 1,
+                        }
+                    }
+                }*/
             ];
             const found = ctrs.find(v => { return v.name === obj.name; });
             if (found) {
@@ -1694,19 +1703,32 @@ _MainTex: 0,
                         {
                             "name": "antenna",
                             "colliders": []
+                        },
+                        {
+                            "name": "antenna1",
+                            "colliders": []
+                        },
+                        {
+                            "name": "antenna4",
+                            "colliders": []
                         }
                     ],
                     "springs": [
                         {
-                            "joints": [
-                            ],
+                            "joints": [],
+// これにぶつかる衝突グループのインデックスの配列
+                            "colliderGroups": [ 0 ]
+                        },
+                        {
+                            "joints": [],
+                            "colliderGroups": [ 0 ]
+                        },
+                        {
+                            "joints": [],
                             "colliderGroups": [ 0 ]
                         }
                     ]
                 },
-                "VRMC_node_constraint": {
-
-                }
             } // extensions
 
         }; // obj
@@ -1714,21 +1736,30 @@ _MainTex: 0,
 /**
  * VRM! VRM!
  */
-    const vrm = obj.extensions.VRMC_vrm;
+        const vrm = obj.extensions.VRMC_vrm;
 
-    const colliders = obj.extensions.VRMC_springBone.colliders;
+        const colliders = obj.extensions.VRMC_springBone.colliders;
 /**
  * 体コリジョン
  * @type {number[]}
  */
-    const colligr0 = obj.extensions.VRMC_springBone.colliderGroups[0].colliders;
+        const colligr0 = obj.extensions.VRMC_springBone.colliderGroups[0].colliders;
 /**
  * アンテナコリジョン
  * @type {number[]}
  */
-    const colligr1 = obj.extensions.VRMC_springBone.colliderGroups[1].colliders;
+        const colligr1 = obj.extensions.VRMC_springBone.colliderGroups[1].colliders;
+/**
+ * アンテナもう一つ
+ */
+        const colligr2 = obj.extensions.VRMC_springBone.colliderGroups[2].colliders;
 
-    const globals = [];
+/**
+ * アンテナさらに
+ */
+        const colligr3 = obj.extensions.VRMC_springBone.colliderGroups[3].colliders;
+
+        const globals = [];
     { // node のツリー構造
         obj.nodes = treenodes;
 
@@ -1771,12 +1802,21 @@ _MainTex: 0,
                     }
                 }
             };
+
+            const index = colliders.length;
             const re = /antenna(?<num>\d+)/;
             const m = re.exec(v.name);
             if (m) {
-                colligr1.push(+ colliders.length);
+                const num = Number.parseFloat(m.groups.num);
+                if (num <= 9) {
+                    colligr1.push(index);
+                } else if (num >= 10 && num <= 19) {
+                    colligr2.push(index);
+                } else {
+                    colligr3.push(index);
+                }
             } else {
-                colligr0.push(+ colliders.length);
+                colligr0.push(index);
             }
 
             colliders.push(coll);
@@ -1848,7 +1888,48 @@ _MainTex: 0,
             joints.push({ "node": anid0 + 9 }); // 末尾
         }
     }
-
+    {
+        const joints = obj.extensions.VRMC_springBone.springs[1].joints;
+        for (let i = 11; i <= 11; ++i) {
+            const name = `antenna${i}`;
+            const index = treenodes.findIndex(v => { return v.name === name; });
+            const joint = {
+                "node": index,
+                "hitRadius": 0.01,
+                "stiffness": this.STIFF,
+                "gravityPower": this.GRAV,
+                "gravityDir": [0, -1, 0],
+                "dragForce": this.DRAG
+            };
+            joints.push(joint);
+        }
+        {
+            const name = `antenna${12}`;
+            const index = treenodes.findIndex(v => { return v.name === name; });
+            joints.push({ "node": index }); // 末尾
+        }
+    }
+    {
+        const joints = obj.extensions.VRMC_springBone.springs[2].joints;
+        for (let i = 41; i <= 41; ++i) {
+            const name = `antenna${i}`;
+            const index = treenodes.findIndex(v => { return v.name === name; });
+            const joint = {
+                "node": index,
+                "hitRadius": 0.01,
+                "stiffness": this.STIFF,
+                "gravityPower": this.GRAV,
+                "gravityDir": [0, -1, 0],
+                "dragForce": this.DRAG
+            };
+            joints.push(joint);
+        }
+        {
+            const name = `antenna${42}`;
+            const index = treenodes.findIndex(v => { return v.name === name; });
+            joints.push({ "node": index }); // 末尾
+        }
+    }
 
 /**
  * bufferView の番号が1つずつ増えていく

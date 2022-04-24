@@ -106,8 +106,14 @@ const _tree =
 
                   ]},
                   {"name": "leftTwist1", "r": [0, 0.4, 0], "sz": [0.06], "c": [
-                    {"name": "leftTwist11", "r": [0.2, 0, 0], "sz": [0.06], "c": [
-                      {"name": "leftTwist1End", "r": [0.2, 0, 0], "sz": [0.03], "c": []}
+                    {"name": "antenna11", "k": ["exc"], "pts": [], "r": [0.4, 0, 0], "sz": [0.06], "c": [
+                      {"name": "antenna12", "k": ["exc"], "pts": [], "r": [0.2, 0, 0], "sz": [0.06], "c": [
+                        {"name": "leftTwist13", "r": [0.2, 0, 0], "sz": [0.06], "c": [
+                          {"name": "leftTwist14", "r": [0.2, 0, 0], "sz": [0.06], "c": [
+                            {"name": "leftTwist1End", "r": [0.2, 0, 0], "sz": [0.06], "c": []}
+                          ]}
+                        ]}
+                      ]}
                     ]}
                   ]},
                   {"name": "leftTwist2", "r": [0, -0.3, 0], "sz": [0.06], "c": [
@@ -118,6 +124,15 @@ const _tree =
                   {"name": "leftTwist3", "r": [0.2, 0.2, 0.2], "sz": [0.06], "c": [
                     {"name": "leftTwist31", "r": [0, -0.2, 0], "sz": [0.06], "c": [
                       {"name": "leftTwist3End", "r": [0, -0.2, 0], "sz": [0.06], "c": []}
+                    ]}
+                  ]},
+                  { "name": "leftTwist4", "r": [0.2, 0.2, -0.2], "sz": [0.06], "c": [
+                    {"name": "antenna41", "k": ["exc"], "r": [0, -0.2, 0], "sz": [0.06], "c": [
+                      {"name": "antenna42", "k": ["exc"], "r": [0, -0.2, 0], "sz": [0.06], "c": [
+                        {"name": "leftTwist43", "r": [0, -0.2, 0], "sz": [0.06], "c": [
+                          {"name": "leftTwist4End", "r": [0, -0.2, 0], "sz": [0.06], "c": []}
+                        ]}
+                      ]}
                     ]}
                   ]}
               ]}
