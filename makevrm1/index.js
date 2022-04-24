@@ -53,7 +53,14 @@ class Misc {
     save() {
         console.log(this.cl, `save called`);
         this.vrmexporter.makeData2();
-        const urlstr = this.vrmexporter.save(true);
+
+        let isdownload = false;
+        const el = document.getElementById('idwithdownload');
+        if (el && el.checked) {
+            isdownload = true;
+        }
+
+        const urlstr = this.vrmexporter.save(true, isdownload);
         if (urlstr) {
             // todo: 
             this.threed.setModel(urlstr);
@@ -572,7 +579,7 @@ class Misc {
         }
     
         {
-            idSave3.addEventListener('click', ev => {
+            idsave3.addEventListener('click', ev => {
                 this.makeFile();
             });
         }

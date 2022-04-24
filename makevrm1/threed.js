@@ -108,6 +108,8 @@ class Threed {
                     const s = 0.25 * Math.PI * Math.sin(Math.PI * this.clock.elapsedTime);
 //                    humanoid.getBoneNode('head').rotation.x = s;
                     humanoid.getBoneNode('rightUpperArm').rotation.z = s;
+
+                    humanoid.getBoneNode('hips').rotation.z = s * 0.1;
                 }
 
                 const lookAt = core?.lookAt;
@@ -121,7 +123,7 @@ class Threed {
                     window.idspringview.textContent = `exist`;
                 }
 
-                const constMgr = core?.constraintManager;
+                const constMgr = core?.nodeConstraintManager;
                 if (constMgr) {
                     constMgr?.update(delta);
                 }
