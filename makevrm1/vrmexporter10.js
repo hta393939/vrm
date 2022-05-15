@@ -1,6 +1,7 @@
-/**
- * @file vrmexporter10.js
- * MIT License (c) 2018- Usagi
+/*!
+ * vrmexporter10.js
+ * Copyright (c) 2018- Usagi
+ * This software is released under the MIT License.
  */
 
 /**
@@ -488,7 +489,7 @@ class VrmExporter10 {
                         found.ctr[key].source = srcIndex;
                         obj.extensions = {
                             VRMC_node_constraint: {
-                                specVersion: "1.0-draft",
+                                specVersion: "1.0-beta",
                                 constraint: {
                                     [key]: found.ctr[key]
                                 }

@@ -134,10 +134,15 @@ class Gltf {
         this.innerMatrixIndex = 0;
 /**
  * テクスチャ数 通常+サムネ
+ * @default 1
  */
         this.TEXNUM = 1;
 /** */
         this.baseTex = null;
+/**
+ * 
+ */
+        this.sphereTex = null;
 /** */
         this.BYTE = 5120;
 /** */
@@ -834,37 +839,38 @@ class Gltf {
                         shader: 'VRM/MToon',
                         renderQueue: 2000,
                         floatProperties: {
-"_UvAnimScrollX": 0.0,
-"_UvAnimScrollY": 0.0,
-"_UvAnimRotation": 0.0,
 "_BlendMode": 0,
 "_BumpScale": 1,
 "_CullMode": 0, // 2: 多分Back, 0: 多分None, 1: 多分Front 
 "_Cutoff": 0.5,
 "_DebugMode": 0,
-"_IsFirstSetup": 0,
-"_ReceiveShadowRate": 1,
+"_ReceiveShadowRate": 1.0,
 "_ShadeShift": 0,
 "_ShadeToony": 0.0,
-"_LightColorAttenuation": 0.5, // ライト減衰
+"_LightColorAttenuation": 0.0, // ライト減衰
 "_OutlineWidth": 0.5,
 "_OutlineScaledMaxDistance": 1,
 "_OutlineLightingMix": 1,
 "_OutlineWidthMode": 0,
 "_OutlineColorMode": 0,
 "_OutlineCullMode": 1,
-"_Mode": 0,
-"_MToonVersion": 34,
+"_UvAnimScrollX": 0.0,
+"_UvAnimScrollY": 0.0,
+"_UvAnimRotation": 0.0,
+"_MToonVersion": 35,
 //"_SrcBlend": 1.0,
 //"_DstBlend": 0.0,
 //"_ZWrite": 1,
                         },
 keywordMap: {},
 tagMap: { "RenderType": 'Opaque' },
-textureProperties: { "_MainTex": 0 },
+textureProperties: {
+    "_MainTex": 0,
+    "_SphereAdd": 1,
+},
                         vectorProperties: {
-"_Color": [0.5,0.5,0.5, 1],
-"_ShadeColor": [0.1, 0.1, 0.1, 0], // cluster, js で効いてる 多分これの影響
+"_Color": [0.8,0.8,0.6, 1],
+"_ShadeColor": [0.1, 0.1, 0.1, 1.0], // cluster, js で効いてる 多分これの影響
 "_MainTex": [0, 0, 1, 1], // オフセットと比率
 "_EmissionColor": [0.1, 0.1, 0.1, 1]
                         }
@@ -872,7 +878,7 @@ textureProperties: { "_MainTex": 0 },
 
                 if (this.fixcolor) {
                     //prop.vectorProperties._ShadeColor = [1.0, 0.9, 0.1, 1];
-                    prop.vectorProperties._ShadeColor = [0.8, 0.8, 0.0, 1];
+                    prop.vectorProperties._ShadeColor = [0.8, 0.8, 0.0, 1.0];
                 }
 
                 break;
@@ -961,12 +967,17 @@ textureProperties: { "_MainTex": 0 },
 /**
  * TODO: ここを変更
  */
-        const modelVersion = `0.1.3`;
+        const modelVersion = `0.1.4`;
         const modelTitle = 'nothuman';
 
         const texs = [
             { tex: this.baseTex }
         ];
+        if (this.sphereTex) {
+            texs.push({ tex: this.sphereTex });
+        }
+        this.TEXNUM = texs.length;
+
         let texByte = 0;
         for (const v of texs) {
             v.byteLength = + v.tex.byteLength;

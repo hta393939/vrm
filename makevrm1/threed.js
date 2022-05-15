@@ -1,7 +1,7 @@
-/**
- * @file threed.js
- * (c) 2022- usagi
- * distributed under MIT License
+/*!
+ * threed.js
+ * Copyright (c) 2022- usagi
+ * This software is released under the MIT License.
  */
 
 (function(_global) {

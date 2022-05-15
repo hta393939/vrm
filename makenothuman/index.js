@@ -21,6 +21,10 @@ class Misc {
         this.baseTex = null;
 /** */
         this.thumbTex = null;
+/**
+ * 
+ */
+        this.sphereTex = null;
 /** */
         this.texs = [];
     }
@@ -36,12 +40,17 @@ class Misc {
         }
     }
 
+/**
+ * 初期化
+ */
     init() {
         console.log(this.cl, `init called`);
 
         const cv0 = window.cv0;
+        const cv1 = window.cv1;
         const tex = [
-            {cv: cv0, name: 'baseTex'}
+            { cv: cv0, name: 'baseTex' },
+            { cv: cv1, name: 'sphereTex' },
         ];
 
         {
@@ -49,6 +58,7 @@ class Misc {
             cv0.height = 16;
         }
         this.draw(cv0);
+        this.draw1(cv1);
 
         for (const v of tex) {
             try {
@@ -76,10 +86,10 @@ class Misc {
     } // init
 
 
-    /**
-     * ベーステクスチャ
-     * @param {HTMLCanvasElement} cv 
-     */
+/**
+ * ベーステクスチャ
+ * @param {HTMLCanvasElement} cv 
+ */
     draw(cv) {
         console.log(`draw called`);
         const w = cv.width;
@@ -138,6 +148,51 @@ class Misc {
                 }
             }
         }
+    }
+
+/**
+ * スフィアadd テクスチャ
+ * @param {HTMLCanvasElement} cv 
+ */
+    draw1(cv) {
+        console.log(`draw1 called`);
+        const w = cv.width;
+        const h = cv.height;
+        const c = cv.getContext('2d');
+        if (!c) {
+            return;
+        }
+
+        const data = c.getImageData(0, 0, w, h);
+        for (let i = 0; i < h; ++i) {
+            for (let j = 0; j < w; ++j) {
+                let x = (j - w/2 + 0.5) / (w / 2);
+                let y = (i - h/2 + 0.5) / (h / 2);
+                let rr = Math.sqrt(x ** 2 + y ** 2);
+                let lv = (rr ** 4) * 255.0;
+
+                let rx = x - 0.5;
+                let ry = y - 0.0;
+                let rr2 = Math.sqrt(rx ** 2 + ry ** 2);
+
+                let offset = (w * i + j) * 4;
+                let r = Math.floor((0.6 - rr2) * 255.0);
+                let g = Math.floor(lv);
+                let b = Math.floor(lv);
+                let a = 255;
+                if (rr >= 1.02) {
+                    r = 0;
+                    g = 0;
+                    b = 0;
+                }
+
+                data.data[offset] = r;
+                data.data[offset+1] = g;
+                data.data[offset+2] = b;
+                data.data[offset+3] = a;
+            }
+        }
+        c.putImageData(data, 0, 0);
     }
 
     tos(x,y,z) {

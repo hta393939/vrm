@@ -1,7 +1,8 @@
-/**
- * @file index.js
+/*!
+ * index.js
+ * Copyright (c) 2018- Usagi
+ * This software is released under the MIT License.
  */
-// MIT License (c) 2018- Usagi
 
 'use strict';
 

@@ -1,4 +1,8 @@
-/// <reference path="./index.d.ts" />
+/*!
+ * vtx.js
+ * Copyright (c) 2018- Usagi
+ * This software is released under the MIT License.
+ */
 
 (function(global_) {
 
