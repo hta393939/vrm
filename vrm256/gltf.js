@@ -104,6 +104,7 @@ class Gltf {
 
         /**
          * 材質数
+         * @default 1
          */
         this.MTLNUM = 1;
 
@@ -707,7 +708,7 @@ class Gltf {
     }
 
 /**
- * 材質8つ
+ * 材質1つ
  */
     createMaterials() {
         console.log(this.cl, `#createMaterials called`);
@@ -861,7 +862,7 @@ class Gltf {
         /**
          * ここを変更
          */
-        const modelVersion = `0.1.0`;
+        const modelVersion = `0.2.1`;
         const modelTitle = '図形人形プチ 色変更';
 
         const texs = [
@@ -967,6 +968,7 @@ class Gltf {
                 generator: 'usagi ECMAScript'
             },
             nodes: [],
+            scene: 0,
             scenes: [{ nodes: [] }],
 // GLB-stored Buffer によると uri は undefined にして配列の先頭で参照する
             buffers: [
@@ -1090,8 +1092,12 @@ class Gltf {
             // (ノード)ボーン追従
             const coll = {
                 node: + i,
-                colliders: [ {offset: {x: 0, y: 0, z: 0},
-                    radius: 0.01 } ]
+                colliders: [
+                    {
+                        offset: {x: 0, y: 0, z: 0},
+                        radius: 0.01,
+                    }
+                ]
             };
             vrm.secondaryAnimation.colliderGroups.push(coll);
         });
@@ -1122,10 +1128,12 @@ class Gltf {
             });
         }
 
+// treenodes であり obj.nodes の先頭インデックスである 0
         obj.scenes[0].nodes.push(0);
 
         let index = obj.nodes.length;
-        obj.nodes.push({ name: 'skinnode',
+        let skinmeshnodename = 'Bot_Skinned';
+        obj.nodes.push({ name: skinmeshnodename,
             translation: [0,0,0],
             rotation: [0,0,0,1],
             scale: [1,1,1],
