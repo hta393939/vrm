@@ -5,6 +5,7 @@
  */
 
 // for vrm 1.0 -x に右手、+x に左手がいくタイプ
+// 親指書き換え済み
 
 'use strict';
 
@@ -68,8 +69,8 @@ const _tree =
           { "name": "leftUpperArm", "r": [0.1, 0, 0], "sz": [0.04], "c": [
               { "name": "leftLowerArm", "r": [0.3, 0, 0], "sz": [0.04], "c": [
                   { "name": "leftHand", "r": [0.2, 0, 0], "sz": [0.025], "c": [
-                      { "name": "leftThumbProximal", "pts":[], "r": [0.05, 0, 0.02], "ci": [2,0,0], "sz": [0.015], "c": [
-                          {"name": "leftThumbIntermediate", "pts":[], "r": [0.03, 0, 0.02], "ci": [3,0,0], "sz": [0.012], "c": [
+                      { "name": "leftThumbMetacarpal", "pts":[], "r": [0.05, 0, 0.02], "ci": [2,0,0], "sz": [0.015], "c": [
+                          {"name": "leftThumbProximal", "pts":[], "r": [0.03, 0, 0.02], "ci": [3,0,0], "sz": [0.012], "c": [
                               { "name": "leftThumbDistal", "pts":[], "r": [0.03, 0, 0.02], "ci": [4,0,0], "sz": [0.009], "c": [
                                   { "name": "leftThumbEnd", "k":["exc"], "pts":[], "r": [0.02, 0, 0.01], "ci": [5,0,0], "sz": [0.008] }
                               ] }
@@ -142,8 +143,8 @@ const _tree =
           { "name": "rightUpperArm", "r": [-0.1, 0, 0], "sz": [0.04], "c": [
               { "name": "rightLowerArm", "r": [-0.3, 0,0], "sz": [0.04], "c": [
                   { "name": "rightHand", "r": [-0.2, 0,0], "sz": [0.025], "c": [
-                      { "name": "rightThumbProximal", "pts":[], "r": [-0.05, 0, 0.02], "ci": [3,0,0], "sz": [0.015], "c": [
-                          {"name": "rightThumbIntermediate", "pts":[], "r": [-0.03, 0, 0.02], "ci": [4,0,0], "sz": [0.012], "c":[
+                      { "name": "rightThumbMetacarpal", "pts":[], "r": [-0.05, 0, 0.02], "ci": [3,0,0], "sz": [0.015], "c": [
+                          {"name": "rightThumbProximal", "pts":[], "r": [-0.03, 0, 0.02], "ci": [4,0,0], "sz": [0.012], "c":[
                               { "name": "rightThumbDistal", "pts":[], "r": [-0.03, 0, 0.02], "ci": [5,0,0], "sz": [0.009], "c":[
                                   {"name": "rightThumbEnd", "k":["exc"], "pts":[], "r": [-0.02, 0, 0.01], "ci": [5,0,0], "sz": [0.008]}
                               ] }
@@ -187,3 +188,5 @@ const _tree =
     ]} // spine
   ]} // hips
 ]};
+
+

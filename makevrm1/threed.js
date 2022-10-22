@@ -109,7 +109,7 @@ class Threed {
                 if (humanoid) {
                     const s = 0.25 * Math.PI * Math.sin(Math.PI * this.clock.elapsedTime);
 //                    humanoid.getBoneNode('head').rotation.x = s;
-                    humanoid.getBoneNode('rightUpperArm').rotation.z = s;
+                    humanoid.getRawBoneNode('rightUpperArm').rotation.z = s;
 
                     //humanoid.getBoneNode('hips').rotation.z = s * 0.1;
                 }
@@ -197,7 +197,7 @@ class Threed {
 
             {
                 const light = new THREE.DirectionalLight(0x999999);
-                light.position.set(-1,1, 1);
+                light.position.set(-1, 1, 1);
                 scene.add(light);
             }
             {
@@ -291,12 +291,13 @@ class Threed {
         return ret;
     }
 
+
 /**
- * モデルファイルをセットする
+ * モデルファイルを読み取ってセットする
  * @param {string} inurl blob url など
  */
     setModel(inurl) {
-        console.log(this.cl, `setModel called, for VRM1.0-beta`);
+        console.log(this.cl, `setModel called, for VRM1.0`);
 
         const loader = new THREE.GLTFLoader();
 

@@ -21,7 +21,7 @@ class Vtx {
         /**
          * @type {THREE.Vector3}
          */
-        this.n = new THREE.Vector3(0,1,0);
+        this.n = new THREE.Vector3(0, 1, 0);
         this.uv = new THREE.Vector2(0.5, 0.5);
 
         /**

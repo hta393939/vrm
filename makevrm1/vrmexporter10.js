@@ -3,6 +3,7 @@
  * Copyright (c) 2018- Usagi
  * This software is released under the MIT License.
  */
+// 自分でバイナリ生成するタイプ
 
 /**
  * 
@@ -91,7 +92,7 @@ class V2 {
 }
 
 /**
- * .vrm 1.0-beta 書き出し
+ * .vrm 1.0 書き出し
  */
 class VrmExporter10 {
 /**
@@ -198,10 +199,9 @@ class VrmExporter10 {
         this.licenseUrl = `https://vrm.dev/licenses/1.0/`;
 
 /**
- * 時々 1.0-draft があるんだけど..
- * @default '1.0-beta'
+ * @default '1.0'
  */
-        this.specVersion = '1.0-beta';
+        this.specVersion = '1.0';
 
 /**
  * バイト型を表現する定数
@@ -489,7 +489,7 @@ class VrmExporter10 {
                         found.ctr[key].source = srcIndex;
                         obj.extensions = {
                             VRMC_node_constraint: {
-                                specVersion: "1.0-beta",
+                                specVersion: "1.0",
                                 constraint: {
                                     [key]: found.ctr[key]
                                 }
@@ -934,6 +934,9 @@ class VrmExporter10 {
                     let scaleX = v._sz[0];
                     let scaleY = v._sz[0];
                     let scaleZ = v._sz[0];
+/**
+ * x, y, z の倍率
+ */
                     let scale = new THREE.Vector3(scaleX, scaleY, scaleZ);
                     if (scaleX <= 0.0) {
                         return;
@@ -1099,12 +1102,12 @@ class VrmExporter10 {
                 },
                 */
                 emissiveFactor: [0.0, 0.0, 0.0],
-                alphaMode: 'OPAQUE',
+                alphaMode: 'OPAQUE', // オペイク
                 alphaCutoff: 0.5, // 以上
                 doubleSided: true, // default false
                 "extensions": {
                     "VRMC_materials_mtoon": {
-                        "specVerion": this.specVersion,
+                        "specVersion": this.specVersion,
 //                        "transparentWithZWrite": true,
                         "renderQueueOffsetNumber": 0,
                         "shadingToonyFactor": 0.9,
@@ -1127,12 +1130,12 @@ class VrmExporter10 {
                 case 0: // 骨のところ 面貼り
                 case 7:
                     prop = { // VRM/MToon シェーダー
-                };
+                    };
                 break;
 
                 case 1: // 丸いところ 色 uv 指定
                     prop = { // VRM/MToon シェーダー
-                };
+                    };
                 break;
 
                 case 1111: // Standard シェーダー
@@ -1430,9 +1433,9 @@ _MainTex: 0,
         console.log(`paddingFace called`);
 
         const pts = [
-            { p: [-1,1,0], uv: [0,0]},
-            { p: [1,1,0], uv: [1,0]},
-            { p: [1,-1,0], uv: [0,1]},
+            { p: [-1, 1,0], uv: [0,0]},
+            { p: [ 1, 1,0], uv: [1,0]},
+            { p: [ 1,-1,0], uv: [0,1]},
             { p: [-1,-1,0], uv: [1,1]}];
         for (const bym of arr) {
             if (bym.length >= 1) {
@@ -1467,8 +1470,8 @@ _MainTex: 0,
 /**
  * TODO: ここを変更
  */
-        const modelVersion = `2.1.1`;
-        const modelTitle = 'poly ccc 図形人形 1.0-draft';
+        const modelVersion = `3.0.0`;
+        const modelTitle = 'poly ccc 図形人形 VRM 1.0';
 
         let texs = [
             { tex: this.baseTex },
@@ -1589,10 +1592,13 @@ _MainTex: 0,
                 type: 'MAT4' });
         }
 
-        const anid0 = 19;
-        const anid1 = 20;
-        const anid2 = 21;
-        const anide = 22;
+/**
+ * 多分 jaw が増えたので1つずれた
+ */
+        const anid0 = 20;
+        const anid1 = 21;
+        const anid2 = 22;
+        const anide = 23;
 
         const obj = {
             //extensionsRequired: [],
@@ -1873,6 +1879,19 @@ _MainTex: 0,
 
 //// アンテナ スプリングボーン
     {
+        const node = obj.nodes[anid0];
+        if (node) {
+            console.log(anid0, node.name);
+        }
+
+        let i = 0;
+        for (const node of obj.nodes) {
+            console.log(i, node.name);
+            i += 1;
+        }
+    }
+
+    if (false) { // ここから循環参照
         const joints = obj.extensions.VRMC_springBone.springs[0].joints;
         for (let i = 0; i <= 8; ++i) {
             const joint = {
@@ -1889,7 +1908,7 @@ _MainTex: 0,
             joints.push({ "node": anid0 + 9 }); // 末尾
         }
     }
-    {
+    if (false) {
         const joints = obj.extensions.VRMC_springBone.springs[1].joints;
         for (let i = 11; i <= 11; ++i) {
             const name = `antenna${i}`;
@@ -1910,7 +1929,7 @@ _MainTex: 0,
             joints.push({ "node": index }); // 末尾
         }
     }
-    {
+    if (false) {
         const joints = obj.extensions.VRMC_springBone.springs[2].joints;
         for (let i = 41; i <= 41; ++i) {
             const name = `antenna${i}`;
