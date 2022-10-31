@@ -29,6 +29,12 @@ class Threed {
         this.normalTex2 = null;
         this.emissTex2 = null;
         this.occlTex2 = null;
+
+/**
+ * 独立パーツ geometrysource
+ * @type {Object<string, Object>}
+ */
+        this.isoparts = {};
     }
 
     makeControl(dom) {
@@ -110,6 +116,8 @@ class Threed {
                     const s = 0.25 * Math.PI * Math.sin(Math.PI * this.clock.elapsedTime);
 //                    humanoid.getBoneNode('head').rotation.x = s;
                     humanoid.getRawBoneNode('rightUpperArm').rotation.z = s;
+                    humanoid.getRawBoneNode('leftUpperArm').rotation.z =
+                        0.25 * Math.PI * Math.sin(Math.PI * this.clock.elapsedTime + Math.PI * 0.5);
 
                     //humanoid.getBoneNode('hips').rotation.z = s * 0.1;
                 }

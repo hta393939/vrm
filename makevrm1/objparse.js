@@ -5,10 +5,13 @@
 
 class ObjParse {
     constructor() {
-        this.cl = this.constructor.name;
     }
 
-    async loadmtl(inpath) {
+/**
+ * 未実装
+ * @param {string} inpath https または data スキーム
+ */
+    static async loadmtl(inpath) {
         const res = await fetch(`${inpath}`);
         const text = await res.text();
         const ss = text.split('\n');
@@ -22,22 +25,22 @@ class ObjParse {
         console.log(ss);
     }
 
-    /**
-     * 
-     * @param {string} inwhole 
-     * @param {{mtl: boolean}} inopt 
-     */
-    async parse(inwhole, inopt = {}) {
+/**
+ * 行パースする
+ * @param {string} inwhole 中身全体
+ * @param {{mtl: boolean}} inopt 
+ */
+    static async parse(inwhole, inopt = {}) {
         const ret = {
             os: [],
             vs: [],
             vts: [],
-            vns: []
+            vns: [],
         };
 
         const re = /^\s*(?<type>\S+)\s+(?<body>.*)\s*$/;
         const ref1 = /\d+\/\d+\/\d+/;
-        const ref2 = /\d+\/\d+\/\d+/;
+        const ref02 = /(?<v>\d+)\/\/(?<vn>\d+)/;
         const ref3 = /(?<v>\d+)\/(?<vt>\d+)\/(?<vn>\d+)/;
 
         const ss = inwhole.split('\n');
@@ -109,6 +112,20 @@ class ObjParse {
                                 vn: parseInt(m3.groups.vn)
                             };
                             oneface.vs.push(indices);
+                        } else {
+                            const m02 = ref02.exec(s3);
+                            if (m02) {
+                                const indices = {
+                                    str: s3,
+                                    v: parseInt(m02.groups.v),
+                                    vt: parseInt('-1'),
+                                    vn: parseInt(m02.groups.vn),
+                                };
+                                oneface.vs.push(indices);
+                            } else {
+                                //const m1 = ref1.exec(s3);
+
+                            }
                         }
                     }
                     curobj.fs.push(oneface);
@@ -149,12 +166,14 @@ class ObjParse {
         return ret;
     }
 
-    /**
-     * 使う v, vt, vn だけから再構成するので重複はあまり心配しなくていい
-     * @param {{os: {}[], vs: {}[], vts: {}[], vns: {}[]}} inopt 
-     * @param {string} inname inopt.os[index] の中の name から見つける
-     */
-    makeVertex(inopt, inname) {
+/**
+ * parse の戻り値を使用する
+ * 使う v, vt, vn だけから再構成するので重複はあまり心配しなくていい
+ * @param {{os: {}[], vs: {}[], vts: {}[], vns: {}[]}} inopt 
+ * @param {string} inname inopt.os[index] の中のオブジェクト name から見つける
+ * @returns {} vtx頂点配列と面配列と1次元に並べた面頂点配列を返す
+ */
+    static async makeVertex(inopt, inname) {
         const ret = {
             vs: [],
             fs: [],
@@ -191,7 +210,11 @@ class ObjParse {
                     }
                     {
                         const i = fi.vt - 1;
-                        vtx.uv.fromArray(inopt.vts[i]);
+                        if (i >= 0) {
+                            vtx.uv.fromArray(inopt.vts[i]);
+                        } else { // TODO: uv の位置
+                            vtx.uv.fromArray([0.5, 0.5]);
+                        }
                     }
                     {
                         const i = fi.vn - 1;
@@ -228,4 +251,5 @@ class ObjParse {
     }
 
 }
+
 

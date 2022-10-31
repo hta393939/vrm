@@ -525,7 +525,14 @@ class Misc {
         console.log(this.cl, `makeFile called`);
         { // バイナリ作る
             this.vrmexporter.makeData2();
-            const urlstr = this.vrmexporter.save(true);
+
+            let isdownload = false;
+            const el = document.getElementById('idwithdownload');
+            if (el?.checked) {
+                isdownload = true;
+            }
+
+            const urlstr = this.vrmexporter.save(true, isdownload);
             if (urlstr) {
                 this.threed.setModel(urlstr);
                 URL.revokeObjectURL(urlstr);
@@ -569,7 +576,7 @@ class Misc {
         console.log(this.cl, `saveSetting leave`, obj, str.length);
     }
 
-    onload() {
+    async onload() {
         this.loadSetting();
     
         {
@@ -577,6 +584,15 @@ class Misc {
             this.vrmexporter = vrmexporter;
             //vrmexporter.loadPart('part001.json');
             //vrmexporter.loadObj('obj11_6.obj');
+            {
+                const res = await fetch('./plate03.obj');
+                const text = await res.text();
+                const objobj = await ObjParse.parse(text, { mtl: false });
+                const vfobj = await ObjParse.makeVertex(objobj, 'Cube.001');
+                vrmexporter.isoparts['plate03'] = vfobj;
+
+                console.log('onload, plate03');
+            }
         }
     
         {
