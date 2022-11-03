@@ -448,11 +448,14 @@ class VrmExporter10 {
     }
 
 /**
+ * TODO: コンストレイント
  * glTF node に VRMC_node_constraint を追加する
  * @param {{}[]} ns ノードの配列
  */
     applyConstraints(ns) {
-        console.log(this.cl, 'applyConstraints called');
+        console.log(this.cl, 'applyConstraints called', 'not apply');
+        return;
+
         for (const obj of ns) {
             const ctrs = [
                 { name: 'leftTwist3',
@@ -795,8 +798,10 @@ addIsoParts(vts, nodes, arr, ji, ingeosrc, mi, rate) {
 
                 let index, ir, ig, ib;
 
+                const re = /antenna\d/;
                 if (
-                    v.name === 'head'
+                    re.exec(v.name)
+                    //v.name === 'head'
                     //||v.name === 'leftHand'
                     //|| v.name == 'chest'
                     //|| v.name == 'leftFoot'
@@ -1939,7 +1944,7 @@ _MainTex: 0,
         }
     }
 
-    if (true) {
+    if (false) {
         const joints = obj.extensions.VRMC_springBone.springs[1].joints;
         for (let i = 0; i <= 8; ++i) {
             const joint = {
