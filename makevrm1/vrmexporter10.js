@@ -608,6 +608,71 @@ class VrmExporter10 {
     }
 
 /**
+ * TODO: 
+ * フラットからノード配列を作成する
+ * @param {{}[]} ns ノード配列であって保存先
+ */
+    makeTreeFromFlat(ns) {
+        console.log(this.cl, `makeTreeFromFlat called`);
+        for (const cur of _flattree) {
+            const parentIndex = ns.findIndex(v => {
+                return (cur.parent === v.name);
+            });
+            const parent = (parentIndex >= 0) ? ns[parentIndex] : null;
+
+            const glopos = [0, 0, 0];
+            const gpos = parent?._global;
+            if (gpos) {
+                glopos[0] = gpos[0];
+                glopos[1] = gpos[1];
+                glopos[2] = gpos[2];
+            }
+
+// これまでに追加された個数がそのまま次のインデックスになる
+            let index = ns.length;
+            if (parent) {
+                if (!('children' in parent)) {
+                    parent.children = [];
+                }
+                parent.children.push(index);
+            }
+
+            const obj = {
+                name: `${cur.name}`,
+                translation: [0,0,0],
+                rotation: [0,0,0,1],
+                scale: [1,1,1],
+            };
+            if ('r' in cur) {
+                obj.translation = cur.r;
+                for (let i = 0; i < 3; ++i) {
+                    glopos[i] += cur.r[i];
+                }
+            }
+            if ('k' in cur) { // キーワード文字列配列
+                obj._k = [...cur.k];
+            }
+            if ('pts' in cur) {
+                obj._pts = [...cur.pts];
+            }
+            if ('sz' in cur) { // サイズ数値配列
+                obj._sz = [...cur.sz];
+            } else {
+                obj._sz = [0.04];
+            }
+            if ('ci' in cur) {
+                obj._ci = [...cur.ci];
+            } else {
+    
+            }
+            obj._global = glopos;
+    
+            ns.push(obj); // 末尾に追加
+        }
+        console.log(this.cl, `makeTreeFromFlat leaves`);
+    }
+
+/**
  * bookmark: bookmark: 
  * メッシュと頂点を現状に追加する。obj パーツから
  * @param {Vtx[]} vts 点の配列
@@ -737,7 +802,7 @@ class VrmExporter10 {
  * @param {number} mi 材質インデックス
  * @param {number} rate 位置倍率
  */
-addIsoParts(vts, nodes, arr, ji, ingeosrc, mi, rate) {
+addIsoParts(vts, nodes, arr, ji, ingeosrc, mi, rate, inopt = { fixuv: null }) {
     console.log(this.cl, `addIsoParts called, ingeosrc`, ingeosrc);
     //return;
 
@@ -758,8 +823,12 @@ addIsoParts(vts, nodes, arr, ji, ingeosrc, mi, rate) {
         vtx.p.multiplyScalar(rate);
         vtx.n.set(vertex.n.x, vertex.n.y, vertex.n.z);
         vtx.n.normalize();
+
         // OpenGL base を gltf base へ変換
         vtx.uv.set(vertex.uv.x, 1 - vertex.uv.y);
+        if (inopt.fixuv) {
+            vtx.uv.set(inopt.fixuv.x, 1 - inopt.fixuv.y);
+        }
 
         let boi = + ji;
         vtx.jnt.set(boi, boi, boi, boi);
@@ -809,13 +878,19 @@ addIsoParts(vts, nodes, arr, ji, ingeosrc, mi, rate) {
                     //|| v.name === 'spine'
                     //|| v.name === 'head'
                     ) {
+                    let r = Math.floor(Math.random() * 6);
+                    let g = Math.floor(Math.random() * 6);
+                    let b = Math.floor(Math.random() * 6);
+                    const opt = {
+                        fixuv: Util.chipuv(r, g, b),
+                    };
                     this.addIsoParts(vts, nodes,
                         arr,
                         i,
                         this.isoparts['plate03'],
                         0,
                         0.02, // rate
-                        );
+                        opt);
                 }
 
                 /**
@@ -1205,7 +1280,7 @@ rimLightingMixFactor: 1,
 // https://github.com/vrm-c/vrm-specification/blob/master/specification/VRMC_materials_mtoon-1.0/README.ja.md#outline-width
 //"outlineWidthMode": "worldCoordinates",
 "outlineWidthMode": "screenCoordinates",
-"outlineWidthFactor": 0.02,
+"outlineWidthFactor": 0.005,
 "outlineColorFactor": [1, 0, 0],
 outlineLightingMixFactor: 1,
 //uvAnimationScrollXSpeedFactor: 0.1,
@@ -1517,7 +1592,9 @@ _MainTex: 0,
          * あとでセットする obj.nodes
          */
         const treenodes = [];
-        this.makeTree(treenodes);
+        // TODO: 1104
+        //this.makeTree(treenodes);
+        this.makeTreeFromFlat(treenodes);
         this.applyConstraints(treenodes);
 
         /**
@@ -1915,10 +1992,11 @@ _MainTex: 0,
         }
     }
 
-    if (false) {
-        const no = 11;
+    if (true) { // SpringChain
+        const first = 1;
+        const last = 8;
         const joints = obj.extensions.VRMC_springBone.springs[0].joints;
-        for (let i = no; i <= no; ++i) {
+        for (let i = first; i <= last; ++i) {
             const name = `antenna${i}`;
             const index = treenodes.findIndex(v => { return v.name === name; });
             if (index < 0) {
@@ -1935,7 +2013,7 @@ _MainTex: 0,
             joints.push(joint);
         }
         {
-            const name = `antenna${no + 1}`;
+            const name = `antenna${last + 1}`;
             const index = treenodes.findIndex(v => { return v.name === name; });
             if (index < 0) {
                 console.error('not found leaf', name);

@@ -119,7 +119,7 @@ class Threed {
                     humanoid.getRawBoneNode('leftUpperArm').rotation.z =
                         0.25 * Math.PI * Math.sin(Math.PI * this.clock.elapsedTime + Math.PI * 0.5);
 
-                    //humanoid.getBoneNode('hips').rotation.z = s * 0.1;
+                    humanoid.getBoneNode('hips').rotation.z = s * 0.004;
                 }
 
                 const lookAt = core?.lookAt;
@@ -188,7 +188,9 @@ class Threed {
                 antialias: true,
                 alpha: true, preserveDrawingBuffer: true
             });
-            renderer.setClearColor(new THREE.Color(0x99ccff), 1);
+//            const clearColor = 0x99ccff;
+            const clearColor = 0x333333;
+            renderer.setClearColor(new THREE.Color(clearColor), 1);
             renderer.setSize(vieww, viewh);
 
             renderer.outputEncoding = THREE.sRGBEncoding;
@@ -218,10 +220,11 @@ class Threed {
             }
             {
                 const axes = new THREE.AxesHelper(20);
+                axes.position.set(0, 0.004, 0);
                 scene.add(axes);
 
                 const grid = new THREE.GridHelper(10, 10);
-                grid.position.set(0, 1 * 0, 0);
+                grid.position.set(0, 0.0, 0);
                 scene.add(grid);
             }
 
