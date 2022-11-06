@@ -173,6 +173,7 @@ class Threed {
 
 /**
  * 初期化する
+ * @param {{canvas:HTMLCanvasElement}} inopt 
  */
     init(inopt, vieww, viewh, viewfov) {
         console.log(this.cl, `init called`);
@@ -241,8 +242,6 @@ class Threed {
                     this.toggleLayer();
                 });
             }
-
-            return renderer.domElement;
         }
 
     }
@@ -383,4 +382,5 @@ if (typeof exports !== 'undefined') {
 }
 
 })( (this || 0).self || (typeof self !== 'undefined' ? self : global) );
+
 

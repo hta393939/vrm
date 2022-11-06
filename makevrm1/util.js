@@ -1,5 +1,5 @@
 /*!
- * index.js
+ * util.js
  * Copyright (c) 2018- Usagi
  * This software is released under the MIT License.
  */
@@ -9,43 +9,69 @@
 /**
  * メインクラス
  */
-class Misc {
-/**
- * コンストラクタ
- */
-    constructor() {
-        this.cl = this.constructor.name;
+class Util {
 
 /**
- * 共通名
- * @default 'gvrmn'
- */
-        this.STORAGE = 'gvrmn';
-/**
+ * 色からカラーチップの threejs uv を得る
  * 
+ * @param {number} r 0～5
+ * @param {number} g 0～5
+ * @param {number} b 0～5
+ * @returns {{x: number, y: number}} v は下から上へ
  */
-        this.STORAGE_THUMB = 'gvrmthumb';
-
-        this.baseTex = null;
-        this.thumbTex = null;
-        this._tex02 = null;
-        this._tex03 = null;
-
-        this.texs = [];
+    static chipuv(r, g, b) {
+        const index = b + g * 6 + r * 36 + 8;
+        let j = index % 16;
+        let i = Math.floor(index / 16);
+        const uv = {
+            x: (j * 2 + 1) / 32,
+            y: 1 - (i * 2 + 1) / 32,
+        };
+        return uv;
     }
 
 /**
  * ダウンロードする
  * @param {Blob} blob バイナリ
- * @param {string[]} ファイル名の配列 
+ * @param {string[]} innames ファイル名の配列 
  */
-    download(blob, names) {
+    static download(blob, innames) {
+        const names = (Array.isArray(innames)) ? innames : [innames];
+
         for (const v of names) {
             const a = document.createElement('a');
             a.download = v;
             a.href = URL.createObjectURL(blob);
             a.dispatchEvent(new MouseEvent('click'));
+            URL.revokeObjectURL(a.href);
         }
+    }
+
+    static pad(v, n = 2) {
+        return new String(v).padStart(n, '0');
+    }
+
+/**
+ * 20221106_142517_789
+ * @param {Date} d 
+ * @returns {string}
+ */
+    static dtstr(d = new Date()) {
+        let s = '';
+        s += Util.pad(d.getFullYear(), 4);
+        s += Util.pad(d.getMonth() + 1);
+        s += Util.pad(d.getDate());
+        s += '_' + Util.pad(d.getHours());
+        s += Util.pad(d.getMinutes());
+        s += Util.pad(d.getSeconds());
+        s += '_' + Util.pad(d.getMilliseconds(), 3);
+        return s;
+    }
+
+/**
+ * コンストラクタ
+ */
+    constructor() {
     }
 
 /**
@@ -76,7 +102,6 @@ class Misc {
         console.log(this.cl, `init called`);
 
 /**
- * テクスチャとキャンバスの結びつけ
  * @type {{cv: HTMLCanvasElement, name: string}[]}
  */
         const tex = [
@@ -151,31 +176,23 @@ class Misc {
 
         {
             const threed = new Threed();
-            const w = 512;
-            const h = 512;
-            const opt = {
-                canvas: window.idcanvas
-            };
-            threed.init(opt, w,h, 50);
-            threed.makeControl(opt.canvas);
+            const w = 512 / 2;
+            const h = 512 / 2;
+            const dom = threed.init({ canvas: window.idcanvas }, w,h, 50);
+            if (dom) {
+                idwebgl.appendChild(dom);
+                threed.makeControl(dom);
 
+
+            }
             this.threed = threed;
-
-            const stream = opt.canvas.captureStream();
-            this.stream = stream;
-            const vd = document.getElementById('idvideo');
-            vd.srcObject = stream;
         }
 
         {
             const style = document.createElement('style');
             const dpr = window.devicePixelRatio;
-            style.innerHTML = `.oneborder { border-style: solid; border-width: calc(4px / ${dpr}); }`;
+            style.innerHTML = `.oneborder { border-style: solid; border-width: calc(1px / ${dpr}); }`;
             document.head.appendChild(style);
-        }
-
-        if (this.style) {
-            document.body.classList.add('wh512');
         }
 
     } // init
@@ -256,7 +273,7 @@ class Misc {
         if (c) {
             c.fillStyle = `rgba(${r},${g},${b}, 1)`;
             c.fillRect(0,0, w,h);
-        }
+        }  
     }
 
 /**
@@ -553,56 +570,9 @@ class Misc {
         }
     }
 
-    loadSetting() {
-        console.log(`loadSetting called`);
-
-        let str = localStorage.getItem(this.STORAGE);
-        try {
-            const obj = JSON.parse(str);
-            if (obj) {
-
-            }
-        } catch(ec) {
-            console.warn(`parse catch`, ec.message);
-        }
-
-        str = localStorage.getItem(this.STORAGE_THUMB);
-        if (str) {
-            window.img06.src = str;
-            console.log(`str.length`, str.length);
-        }
-    }
-    saveSetting() {
-        console.log(this.cl, `saveSetting called`);
-
-        const obj = {};
-        let str = '';
-        if (true) {
-            const cv = window.idwebgl.children[0];
-            str = cv.toDataURL('image/png');
-        }
-        localStorage.setItem(this.STORAGE_THUMB, str);
-        console.log(this.cl, `saveSetting leave`, obj, str.length);
-    }
-
     async onload() {
-        console.log('onload called');
         this.loadSetting();
     
-        const sp = new URLSearchParams(location.search);
-        for (const k of ['style']) {
-            if (!sp.has(k)) {
-                continue;
-            }
-            let val = sp.get(k) ?? true;
-            try {
-                val = JSON.parse(val);
-            } catch(ec) {
-
-            }
-            this[k] = val;
-        }
-
         {
             const vrmexporter = new VrmExporter10();
             this.vrmexporter = vrmexporter;
@@ -624,49 +594,7 @@ class Misc {
                 this.makeFile();
             });
         }
-
-        {
-            const elopen = document.getElementById('idopen');
-            if (elopen) {
-                elopen.addEventListener('click', ev => {
-                    let optstr = `popup,innerWidth=512,innerHeight=512`;
-                    window.open(location.href + '?style=fix', null, optstr);
-                });
-            }
-
-            const elbegin = document.getElementById('idbeginrec');
-            const elend = document.getElementById('idendrec');
-            if (elbegin && elend) {
-                elbegin.addEventListener('click', ev => {
-                    elbegin.setAttribute('disabled', 'disabled');
-                    elend.removeAttribute('disabled');
-                    this.beginRec();
-                });
-
-                elend.addEventListener('click', ev => {
-                    elbegin.removeAttribute('disabled');
-                    elend.setAttribute('disabled', 'disabled');
-                    this.endRec();
-                });
-
-
-                document.addEventListener('keydown', ev => {
-                    switch(ev.key) {
-                    case 'b':
-                        elbegin.dispatchEvent(new MouseEvent('click'));
-                        break;
-                    case 'e':
-                        elend.dispatchEvent(new MouseEvent('click'));
-                        break;
-                    case 'm':
-                        idsave3.dispatchEvent(new MouseEvent('click'))
-                        break;
-                    }
-                });
-            }
-        }
-
-
+    
         {
             this.init();
             info0.textContent = `${new Date().toLocaleString()}`;
@@ -688,44 +616,6 @@ class Misc {
         console.log(`leave`, this);
     }
 
-    beginRec() {
-        const stream = this.stream;
-        const recordOpt = {
-            videoBitsPerSecond: 1000 * 1000 * 10,
-            //mimeType: 'video/mp4'
-        };
-        const mr = new MediaRecorder(stream, recordOpt);
-        this.mr = mr;
-        const chunks = [];
-        mr.addEventListener('dataavailable', ev => {
-            chunks.push(ev.data);
-        });
-        mr.addEventListener('stop', ev => {
-            Util.download(new Blob(chunks), `m_${Util.dtstr()}.webm`);
-        });
-        mr.start();
-    }
-
-    endRec() {
-        this.mr.stop();
-    }
-
-/**
- * 高頻度に呼ばれる関数
- */
-    update() {
-        requestAnimationFrame(() => {
-            this.update();
-        });
-
-        this.threed.update();
-    }
-
 }
 
-const misc = new Misc();
-
-window.addEventListener('load', () => {
-    misc.onload();
-});
 

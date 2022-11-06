@@ -1,5 +1,10 @@
 @charset "UTF-8";
 
+body {
+    margin: 0;
+    padding: 0;
+}
+
 .pt {
     cursor: pointer;
 }
@@ -21,14 +26,19 @@
     flex-direction: column;
 }
 
-#idwebgl {
-/*    border: solid 1px red;
-    width: 640px;
-    height: 360px;*/
+#idcanvas {
+/*    border: solid 1px red; */
+    margin: 0;
+    padding: 0;
 }
 
 #img06 {
     border-color: red;
 }
 
+.wh512 {
+    overflow: hidden;
+    width: 512px;
+    height: 512px;
+}
 

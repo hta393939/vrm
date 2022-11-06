@@ -23,6 +23,8 @@
         <script src="./index.js"></script>
     </head>
     <body>
+        <canvas id="idcanvas" class="oneborder"></canvas>
+
         <div id="info0"></div>
 
         <label class="pt"><input class="pt" type="checkbox" id="idvis" checked="checked" />表示</label>
@@ -30,15 +32,20 @@
         <label class="pt"><input class="pt" type="checkbox" id="idaxes" />軸</label>        
 
         <input type="button" id="idPre2" value="ぷり" /><br />
+        <button id="idopen">別ウインドウで開く</button>
 
         <label class="pt"><input class="pt" type="checkbox" id="idwithdownload" />ダウンロードする</label>
         <input type="button" id="idsave3" value="保存3 makeFile" />
+        <button id="idbeginrec">収録開始</button>
+        <button disabled id="idendrec">収録終了</button>
+
         <div>
             <div id="idspringview"></div>
         </div>
 
-        <div id="idwebgl">
-            <canvas id="idcanvas" class="oneborder"></canvas>
+        <div>
+
+            <video id="idvideo" autoplay muted controls></video>
         </div>
 
         <div>

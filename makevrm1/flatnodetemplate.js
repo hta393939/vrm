@@ -104,7 +104,20 @@ const _flattree = [
 {"parent": "rightHand",  "name": "rightLittleProximal", "pts":[], "r": [-0.08, 0, -0.04], "ci": [3,3,0], "sz": [0.008]},
 {"parent": "rightLittleProximal", "name": "rightLittleIntermediate", "pts":[], "r": [-0.04, 0,0], "ci": [4,4,0], "sz": [0.008]},
 {"parent": "rightLittleIntermediate",  "name": "rightLittleDistal", "pts":[], "r": [-0.02, 0,0], "ci": [5,5,0], "sz": [0.007]},
-{"parent": "rightLittleDistal", "name": "rightLittleEnd", "k":["exc"], "pts":[], "r": [-0.015, 0,0], "ci":[5,5,0], "sz": [0.004]}
+{"parent": "rightLittleDistal", "name": "rightLittleEnd", "k":["exc"], "pts":[], "r": [-0.015, 0,0], "ci":[5,5,0], "sz": [0.004]},
+
+{"parent":"rightLowerArm", "name":"antenna20", "k": ["exc"], "pts": [], "r":[0, 0.0, 0.16], "sz": [0.01]},
+{"parent":"antenna20", "name":"antenna21", "k": ["exc"], "pts": [], "r":[0, 0.0, 0.16], "sz": [0.01]},
+{"parent":"antenna21", "name":"antenna22", "k": ["exc"], "pts": [], "r":[0, 0.0, 0.16], "sz": [0.01]},
+{"parent":"antenna22", "name":"antenna23", "k": ["exc"], "pts": [], "r":[0, 0.0, 0.16], "sz": [0.01]},
+{"parent":"antenna23", "name":"antenna24", "k": ["exc"], "pts": [], "r":[0, 0.0, 0.16], "sz": [0.01]},
+{"parent":"antenna24", "name":"antenna25", "k": ["exc"], "pts": [], "r":[0, 0.0, 0.16], "sz": [0.01]},
+{"parent":"antenna25", "name":"antenna26", "k": ["exc"], "pts": [], "r":[0, 0.0, 0.16], "sz": [0.01]},
+{"parent":"antenna26", "name":"antenna27", "k": ["exc"], "pts": [], "r":[0, 0.0, 0.16], "sz": [0.01]},
+{"parent":"antenna27", "name":"antenna28", "k": ["exc"], "pts": [], "r":[0, 0.0, 0.16], "sz": [0.01]},
+{"parent":"antenna28", "name":"antenna29", "k": ["exc"], "pts": [], "r":[0, 0.0, 0.16], "sz": [0.01]}
+
+
 ];
 
 

@@ -2023,16 +2023,23 @@ _MainTex: 0,
     }
 
     if (false) {
+        const first = 20;
+        const last = 29;
         const joints = obj.extensions.VRMC_springBone.springs[1].joints;
-        for (let i = 0; i <= 8; ++i) {
+        for (let i = first; i <= last; ++i) {
+            const name = `antenna${i}`;
             const joint = {
                 "node": anid0 + i,
-                "hitRadius": 0.01,
-                "stiffness": this.STIFF,
-                "gravityPower": this.GRAV,
-                "gravityDir": [0, -1, 0],
-                "dragForce": this.DRAG
             };
+            if (i < last) {
+                Object.assign(joint, {
+                    "hitRadius": 0.01,
+                    "stiffness": this.STIFF,
+                    "gravityPower": this.GRAV,
+                    "gravityDir": [0, -1, 0],
+                    "dragForce": this.DRAG
+                });
+            }
             joints.push(joint);
         }
         {
