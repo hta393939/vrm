@@ -652,6 +652,9 @@ class VrmExporter10 {
             if ('k' in cur) { // キーワード文字列配列
                 obj._k = [...cur.k];
             }
+            if ('parent' in cur) {
+                obj._parent = cur.parent;
+            }
             if ('pts' in cur) {
                 obj._pts = [...cur.pts];
             }
@@ -1821,21 +1824,7 @@ _MainTex: 0,
                             "colliders": []
                         }
                     ],
-                    "springs": [
-                        {
-                            "joints": [],
-// これにぶつかる衝突グループのインデックスの配列
-                            "colliderGroups": [ 0 ]
-                        },
-                        {
-                            "joints": [],
-                            "colliderGroups": [ 0 ]
-                        },
-                        {
-                            "joints": [],
-                            "colliderGroups": [ 0 ]
-                        }
-                    ]
+                    "springs": []
                 },
             } // extensions
 
@@ -1979,24 +1968,17 @@ _MainTex: 0,
     }
 
 //// アンテナ スプリングボーン
-    {
-        const node = obj.nodes[anid0];
-        if (node) {
-            console.log(anid0, node.name);
-        }
-
-        let i = 0;
-        for (const node of obj.nodes) {
-            //console.log(i, node.name);
-            i += 1;
-        }
-    }
 
     if (true) { // SpringChain
+        const spring = {
+            joints: []
+        };
+        obj.extensions.VRMC_springBone.springs.push(spring);
+
         const first = 1;
-        const last = 8;
-        const joints = obj.extensions.VRMC_springBone.springs[0].joints;
-        for (let i = first; i <= last; ++i) {
+        const last = 9;
+        const joints = spring.joints;
+        for (let i = first; i < last; ++i) {
             const name = `antenna${i}`;
             const index = treenodes.findIndex(v => { return v.name === name; });
             if (index < 0) {
@@ -2013,7 +1995,7 @@ _MainTex: 0,
             joints.push(joint);
         }
         {
-            const name = `antenna${last + 1}`;
+            const name = `antenna${last}`;
             const index = treenodes.findIndex(v => { return v.name === name; });
             if (index < 0) {
                 console.error('not found leaf', name);
@@ -2022,16 +2004,28 @@ _MainTex: 0,
         }
     }
 
-    if (false) {
-        const first = 20;
-        const last = 29;
-        const joints = obj.extensions.VRMC_springBone.springs[1].joints;
-        for (let i = first; i <= last; ++i) {
-            const name = `antenna${i}`;
+    for (const node of treenodes) {
+        if (!Array.isArray(node._k)) {
+            continue;
+        }
+        if (!node._k.includes('onechain')) {
+            continue;
+        }
+
+        const spring = {
+            joints: []
+        };
+        obj.extensions.VRMC_springBone.springs.push(spring);
+        const joints = spring.joints;
+        {
+            const name = node._parent;
+            const index = treenodes.findIndex(v => {
+                return (name === v.name);
+            });
+
             const joint = {
-                "node": anid0 + i,
+                "node": index,
             };
-            if (i < last) {
                 Object.assign(joint, {
                     "hitRadius": 0.01,
                     "stiffness": this.STIFF,
@@ -2039,12 +2033,20 @@ _MainTex: 0,
                     "gravityDir": [0, -1, 0],
                     "dragForce": this.DRAG
                 });
-            }
             joints.push(joint);
         }
         {
-            joints.push({ "node": anid0 + 9 }); // 末尾
+            const name = node.name;
+            let index = treenodes.findIndex(v => {
+                return (name === v.name);
+            });
+            if (index < 0) {
+                console.warn('not found', name);
+            }
+            joints.push({ "node": index }); // 末尾
         }
+
+        console.log(JSON.parse(JSON.stringify(spring)));
     }
 
     if (false) {

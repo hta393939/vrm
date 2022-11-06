@@ -578,7 +578,7 @@ class Misc {
         const obj = {};
         let str = '';
         if (true) {
-            const cv = window.idwebgl.children[0];
+            const cv = document.getElementById('idcanvas');
             str = cv.toDataURL('image/png');
         }
         localStorage.setItem(this.STORAGE_THUMB, str);

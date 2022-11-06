@@ -107,15 +107,15 @@ const _flattree = [
 {"parent": "rightLittleDistal", "name": "rightLittleEnd", "k":["exc"], "pts":[], "r": [-0.015, 0,0], "ci":[5,5,0], "sz": [0.004]},
 
 {"parent":"rightLowerArm", "name":"antenna20", "k": ["exc"], "pts": [], "r":[0, 0.0, 0.16], "sz": [0.01]},
-{"parent":"antenna20", "name":"antenna21", "k": ["exc"], "pts": [], "r":[0, 0.0, 0.16], "sz": [0.01]},
-{"parent":"antenna21", "name":"antenna22", "k": ["exc"], "pts": [], "r":[0, 0.0, 0.16], "sz": [0.01]},
-{"parent":"antenna22", "name":"antenna23", "k": ["exc"], "pts": [], "r":[0, 0.0, 0.16], "sz": [0.01]},
-{"parent":"antenna23", "name":"antenna24", "k": ["exc"], "pts": [], "r":[0, 0.0, 0.16], "sz": [0.01]},
-{"parent":"antenna24", "name":"antenna25", "k": ["exc"], "pts": [], "r":[0, 0.0, 0.16], "sz": [0.01]},
-{"parent":"antenna25", "name":"antenna26", "k": ["exc"], "pts": [], "r":[0, 0.0, 0.16], "sz": [0.01]},
-{"parent":"antenna26", "name":"antenna27", "k": ["exc"], "pts": [], "r":[0, 0.0, 0.16], "sz": [0.01]},
-{"parent":"antenna27", "name":"antenna28", "k": ["exc"], "pts": [], "r":[0, 0.0, 0.16], "sz": [0.01]},
-{"parent":"antenna28", "name":"antenna29", "k": ["exc"], "pts": [], "r":[0, 0.0, 0.16], "sz": [0.01]}
+{"parent":"antenna20", "name":"antenna21", "k": ["onechain", "exc"], "pts": [], "r":[0, 0.0, 0.16], "sz": [0.01]},
+{"parent":"antenna20", "name":"antenna22", "k": ["exc"], "roll": { "target" : "antenna21" }, "pts": [], "r":[0, 0.0, 0.16], "sz": [0.01]},
+{"parent":"antenna22", "name":"antenna23", "k": ["onechain", "exc"], "pts": [], "r":[0, 0.0, 0.16], "sz": [0.01]},
+{"parent":"antenna22", "name":"antenna24", "k": ["exc"], "roll": { "target" : "antenna23" }, "pts": [], "r":[0, 0.0, 0.16], "sz": [0.01]},
+{"parent":"antenna24", "name":"antenna25", "k": ["onechain", "exc"], "pts": [], "r":[0, 0.0, 0.16], "sz": [0.01]},
+{"parent":"antenna24", "name":"antenna26", "k": ["exc"], "roll": { "target" : "antenna25" }, "pts": [], "r":[0, 0.0, 0.16], "sz": [0.01]},
+{"parent":"antenna26", "name":"antenna27", "k": ["onechain", "exc"], "pts": [], "r":[0, 0.0, 0.16], "sz": [0.01]},
+{"parent":"antenna26", "name":"antenna28", "k": ["exc"], "roll": { "target" : "antenna27" }, "pts": [], "r":[0, 0.0, 0.16], "sz": [0.01]},
+{"parent":"antenna28", "name":"antenna29", "k": ["onechain", "exc"], "pts": [], "r":[0, 0.0, 0.16], "sz": [0.01]}
 
 
 ];

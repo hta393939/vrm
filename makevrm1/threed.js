@@ -119,7 +119,7 @@ class Threed {
                     humanoid.getRawBoneNode('leftUpperArm').rotation.z =
                         0.25 * Math.PI * Math.sin(Math.PI * this.clock.elapsedTime + Math.PI * 0.5);
 
-                    humanoid.getBoneNode('hips').rotation.z = s * 0.004;
+                    humanoid.getRawBoneNode('hips').rotation.z = s * 0.004;
                 }
 
                 const lookAt = core?.lookAt;
