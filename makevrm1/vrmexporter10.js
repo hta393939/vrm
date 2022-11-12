@@ -649,11 +649,38 @@ class VrmExporter10 {
                     glopos[i] += cur.r[i];
                 }
             }
+            // _ で始まるメンバは最後に削除するので glTF には残らない
             if ('k' in cur) { // キーワード文字列配列
                 obj._k = [...cur.k];
             }
             if ('parent' in cur) {
                 obj._parent = cur.parent;
+            }
+            if ('roll' in cur) {
+                const roll = {
+                    rollAxis: 'X',
+//                    rollAxis: 'Y',
+//                    rollAxis: 'Z',
+                    weight: cur.roll.weight ?? 1,
+                };
+                const sourceindex = ns.findIndex(node => {
+                    return node.name === cur.roll.sourcename;
+                });
+                if (sourceindex < 0) {
+                    console.error('roll source not found', cur.roll.sourcename);
+                } else {
+                    console.log('roll found', sourceindex);
+                }
+                roll.source = sourceindex;
+
+                obj.extensions = {
+                    VRMC_node_constraint: {
+                        specVersion: this.specVersion,
+                        constraint: {
+                            roll,
+                        }
+                    }
+                };
             }
             if ('pts' in cur) {
                 obj._pts = [...cur.pts];
@@ -864,15 +891,16 @@ addIsoParts(vts, nodes, arr, ji, ingeosrc, mi, rate, inopt = { fixuv: null }) {
         let rnd = 1;
 
         nodes.forEach((v, i) => {
+            const node = v;
             for (let j = 0; j < 1; ++j) {
                 const div = 8;
                 const belt = 8;
 
                 let index, ir, ig, ib;
 
-                const re = /antenna\d/;
-                if (
-                    re.exec(v.name)
+                const re = /antenna(?<num>\d+)/;
+                const m = re.exec(node.name);
+                if (m
                     //v.name === 'head'
                     //||v.name === 'leftHand'
                     //|| v.name == 'chest'
@@ -884,16 +912,31 @@ addIsoParts(vts, nodes, arr, ji, ingeosrc, mi, rate, inopt = { fixuv: null }) {
                     let r = Math.floor(Math.random() * 6);
                     let g = Math.floor(Math.random() * 6);
                     let b = Math.floor(Math.random() * 6);
+                    let num = Number.parseInt(m.groups.num);
+                    if (num >= 20) {
+                        r = Math.min(5, Math.floor((num - 20) / 4));
+                        g = r;
+                        b = r;
+                    }
                     const opt = {
                         fixuv: Util.chipuv(r, g, b),
                     };
-                    this.addIsoParts(vts, nodes,
-                        arr,
-                        i,
-                        this.isoparts['plate03'],
-                        0,
-                        0.02, // rate
-                        opt);
+                    let ok = false;
+                    if (0 <= num && num <= 9) {
+                        ok = true;
+                    }
+                    if (node?._pts?.includes('plate03')) {
+                        ok = true;
+                    }
+                    if (ok) {
+                        this.addIsoParts(vts, nodes,
+                            arr,
+                            i,
+                            this.isoparts['plate03'],
+                            0, // material index
+                            0.02, // rate
+                            opt);
+                    }
                 }
 
                 /**
@@ -1696,14 +1739,6 @@ _MainTex: 0,
                 type: 'MAT4' });
         }
 
-/**
- * 多分 jaw が増えたので1つずれた
- */
-        const anid0 = 20;
-        const anid1 = 21;
-        const anid2 = 22;
-        const anide = 23;
-
         const obj = {
             //extensionsRequired: [],
             extensionsUsed: [
@@ -1842,7 +1877,7 @@ _MainTex: 0,
  */
         const colligr0 = obj.extensions.VRMC_springBone.colliderGroups[0].colliders;
 /**
- * アンテナコリジョン
+ * アンテナのコリジョンの方
  * @type {number[]}
  */
         const colligr1 = obj.extensions.VRMC_springBone.colliderGroups[1].colliders;
@@ -1907,7 +1942,7 @@ _MainTex: 0,
                 const num = Number.parseFloat(m.groups.num);
                 if (num <= 9) {
                     colligr1.push(index);
-                } else if (num >= 10 && num <= 19) {
+                } else if (10 <= num && num <= 19) {
                     colligr2.push(index);
                 } else {
                     colligr3.push(index);
@@ -1987,10 +2022,12 @@ _MainTex: 0,
             const joint = {
                 "node": index,
                 "hitRadius": 0.01,
-                "stiffness": this.STIFF,
+                //"stiffness": this.STIFF, // 0.0-1.0
+                "stiffness": 0.0,
                 "gravityPower": this.GRAV,
                 "gravityDir": [0, -1, 0],
-                "dragForce": this.DRAG,
+                //"dragForce": this.DRAG,
+                "dragForce": 0.01, // 減速させる力 0.0-1.0
             };
             joints.push(joint);
         }
@@ -2028,10 +2065,12 @@ _MainTex: 0,
             };
                 Object.assign(joint, {
                     "hitRadius": 0.01,
-                    "stiffness": this.STIFF,
+                    //"stiffness": this.STIFF,
+                    "stiffness": 0,
                     "gravityPower": this.GRAV,
                     "gravityDir": [0, -1, 0],
-                    "dragForce": this.DRAG
+                    //"dragForce": this.DRAG,
+                    "dragForce": 0.005, // 1.0 楽しいw
                 });
             joints.push(joint);
         }

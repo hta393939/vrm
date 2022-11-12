@@ -115,7 +115,7 @@ class Threed {
                 if (humanoid) {
                     const s = 0.25 * Math.PI * Math.sin(Math.PI * this.clock.elapsedTime);
 //                    humanoid.getBoneNode('head').rotation.x = s;
-                    humanoid.getRawBoneNode('rightUpperArm').rotation.z = s;
+                    humanoid.getRawBoneNode('rightUpperArm').rotation.z = s * 0.02;
                     humanoid.getRawBoneNode('leftUpperArm').rotation.z =
                         0.25 * Math.PI * Math.sin(Math.PI * this.clock.elapsedTime + Math.PI * 0.5);
 
