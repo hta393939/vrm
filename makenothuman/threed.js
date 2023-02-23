@@ -1,10 +1,13 @@
-/// <reference path="./index.d.ts" />
+/**
+ * @file threed.js
+ */
 
 'use strict';
 
 class Threed {
     constructor() {
         this.NAME = 'Threed';
+        this.cl = this.constructor.name;
 
         this.basets = Date.now();
 
@@ -20,41 +23,9 @@ class Threed {
     }
 
     makeControl(dom) {
-        const _this = this;
-
-        const control = new THREE.OrbitControls(_this.camera, dom);
-
-        _this.control = control;
+        const control = new THREE.OrbitControls(this.camera, dom);
+        this.control = control;
     }
-
-    /**
-     * three.js メッシュを返す
-     */
-    /*
-    makeMesh() {
-        const _this = this;
-        console.log(`${_this.NAME}#makeMesh called`);
-        {
-            _this.packing.makeBuffer();
-            const il = new THREE.InterleavedBuffer(_this.packing.buf, _this.packing.attrLen);
-
-            const geo = new THREE.BufferGeometry();
-            geo.addAttribute('position', new THREE.InterleavedBufferAttribute(il, 3, 0));
-            geo.addAttribute('normal', new THREE.InterleavedBufferAttribute(il, 3, 3));
-            geo.addAttribute('uv', new THREE.InterleavedBufferAttribute(il, 2, 6));
-
-            geo.setIndex(new THREE.BufferAttribute(_this.packing.fbuf, 1));
-
-            const mtl = new THREE.MeshStandardMaterial({
-                color: 0x80ff80,
-                wireframe: true
-            });
-            const m = new THREE.Mesh(geo, mtl);
-            console.log(`${_this.NAME}#makeMesh leave`, m, _this.packing);
-
-            return m;
-        }
-    }*/
 
     /**
      * 最終ボーンを計算する
@@ -78,32 +49,32 @@ class Threed {
 
 
     update() {
-        const _this = this;
-
         const nowts = Date.now();
-        const pastts = nowts - _this.basets;
+        const pastts = nowts - this.basets;
 
-        if (_this.control) {
-            _this.control.update();
+        if (this.control) {
+            this.control.update();
         }
 
         {
-            const obj = _this.scene.getObjectByName('model');
+            const obj = this.scene.getObjectByName('model');
             if (obj) {
                 obj.skeleton.bones[0].rotation.y = pastts * 0.001;
-                obj.skeleton.bones[20].rotation.x = pastts * 0.001;
+                const b = obj.skeleton.bones?.[20];
+                if (b) {
+                    b.rotation.x = pastts * 0.001;
+                }
             }
         }
 
-        _this.renderer.render(_this.scene, _this.camera);
+        this.renderer.render(this.scene, this.camera);
     }
 
     init(vieww, viewh, viewfov) {
-        const _this = this;
-        console.log(`${_this.NAME}#init called`);
-        _this.vieww = vieww;
-        _this.viewh = viewh;
-        _this.viewfov = viewfov;
+        console.log(this.cl, `init called`);
+        this.vieww = vieww;
+        this.viewh = viewh;
+        this.viewfov = viewfov;
 
         {
             const renderer = new THREE.WebGLRenderer({
@@ -118,10 +89,10 @@ class Threed {
             camera.position.set(0.1, 1.6, 2);
             camera.up.set(0,1,0);
             camera.lookAt(new THREE.Vector3(0, 1.7, 0));
-            _this.camera = camera;
+            this.camera = camera;
 
             const scene = new THREE.Scene();
-            _this.scene = scene;
+            this.scene = scene;
 
             {
                 const light = new THREE.DirectionalLight(0x999999);
@@ -145,7 +116,7 @@ class Threed {
                 scene.add(grid);
             }
 
-            _this.renderer = renderer;
+            this.renderer = renderer;
 
             return renderer.domElement;
         }
@@ -153,8 +124,7 @@ class Threed {
     }
 
     setWire(wire) {
-        const _this = this;
-        const obj = _this.scene.getObjectByName('model');
+        const obj = this.scene.getObjectByName('model');
         if (obj) {
             obj.material.wireframe = wire;
 
@@ -174,14 +144,13 @@ class Threed {
  * @param {THREE.Bone} inroot 
  */
     treeToFlat(inroot) {
-        const _this = this;
         const ret = {bones: [], mats: []};
         
         const eigen = new THREE.Matrix4();
         eigen.makeTranslation(0,-1,0);
         console.log(`eigen`, eigen);
 
-        const f = (_bs, _ms, obj)=>{
+        const f = (_bs, _ms, obj) => {
             _bs.push(obj);
             _ms.push(eigen);
 
@@ -197,48 +166,25 @@ class Threed {
     }
 
     setModel(inurl) {
-        const _this = this;
-        console.log(`${_this.NAME}#setModel called`);
-
-        const loader = new THREE.VRMLoader();
+        console.log(this.NAME, `setModel called`);
+        const loader = new THREE.GLTFLoader();
+        loader.register(parser => {
+            return new THREE.VRMLoaderPlugin(parser);
+        });
         loader.load(inurl,
-            arg=>{
-                console.log(`VRM load done`, arg);
-                let c = arg.scene.children;
-
-                let obj = null;
-                let bone = null;
-                c.forEach(v=>{
-                    if (v.name === 'skinnode') {
-                        v.name = 'model';
-                        obj = v;
-                    } else if (v.name !== 'secondary') {
-                        bone = v;
-                    }
-                });
-
-                const vrm = arg.userData.gltfExtensions.VRM;
-                //const vrmbones = vrm.humaoid.humanBones;
-
-                const flat = _this.treeToFlat(bone);
-
-                const skeleton = new THREE.Skeleton(flat.bones, flat.mats);
-                obj.bind(skeleton);
-                obj.add(flat.bones[0]); // これわからん;; けど回すには必要
-
-                _this.scene.add(obj);
-                console.log('mats num', flat.mats.length, vrm);
-                const helper = new THREE.SkeletonHelper(obj);
-                helper.material.linewidth = 2;
-                _this.scene.add(helper);
-
+            gltf => {
+                console.log(`VRM load done`, gltf);
+                const vrm = gltf;
+                this.scene.add(vrm.scene);
             },
-            arg=>{
+            progress => {
                 //console.log(`load progress`, arg);
             },
-            arg=>{
+            arg => {
                 console.log(`load err`, arg);
             });
     }
 
-} // class Threed
+}
+
+
