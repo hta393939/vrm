@@ -36,34 +36,49 @@ class Threed {
         const n = rots.length;
         const obj = new THREE.Object3D();
         for (let i = n - 1; i >= 0; --i) {
-                const v = rots[i];
+            const v = rots[i];
 
-                const q1 = v.q(topo).quaternion;
-                obj.position.applyQuaternion(q1);
-                obj.position.add(v.p(topo));
+            const q1 = v.q(topo).quaternion;
+            obj.position.applyQuaternion(q1);
+            obj.position.add(v.p(topo));
 
-                obj.quaternion.multiplyQuaternions(q1, obj.quaternion);
+            obj.quaternion.multiplyQuaternions(q1, obj.quaternion);
         }
         return obj;
     }
 
-
+/**
+ * 外部から高頻度に更新する
+ */
     update() {
         const nowts = Date.now();
         const pastts = nowts - this.basets;
+        const deltaTime = this.clock.getDelta();
 
         if (this.control) {
             this.control.update();
         }
 
         {
-            const obj = this.scene.getObjectByName('model');
+            const obj = this.scene.getObjectByName('avatar');
             if (obj) {
+                const el = document.getElementById('idmove');
+                if (el?.checked) {
+                    obj.position.add(new THREE.Vector3(0.001, 0, 0));
+                }
+/*
                 obj.skeleton.bones[0].rotation.y = pastts * 0.001;
                 const b = obj.skeleton.bones?.[20];
                 if (b) {
                     b.rotation.x = pastts * 0.001;
-                }
+                }*/
+            }
+        }
+
+        {
+            const vrm = this?.vrm?.userData?.vrm;
+            if (vrm) {
+                vrm.update(deltaTime);
             }
         }
 
@@ -76,50 +91,51 @@ class Threed {
         this.viewh = viewh;
         this.viewfov = viewfov;
 
+        const renderer = new THREE.WebGLRenderer({
+            antialias: true,
+            alpha: true, preserveDrawingBuffer: true
+        });
+        renderer.setClearColor(new THREE.Color(0x99ccff), 1);
+        renderer.setSize(vieww, viewh);
+
+        const camera = new THREE.PerspectiveCamera(viewfov, vieww/viewh,
+            0.01, 10000);
+        camera.position.set(0.1, 1.6, 2);
+        camera.up.set(0,1,0);
+        camera.lookAt(new THREE.Vector3(0, 1.7, 0));
+        this.camera = camera;
+
+        const scene = new THREE.Scene();
+        this.scene = scene;
+
         {
-            const renderer = new THREE.WebGLRenderer({
-                antialias: true,
-                alpha: true, preserveDrawingBuffer: true
-            });
-            renderer.setClearColor(new THREE.Color(0x99ccff), 1);
-            renderer.setSize(vieww, viewh);
-
-            const camera = new THREE.PerspectiveCamera(viewfov, vieww/viewh,
-                0.01, 10000);
-            camera.position.set(0.1, 1.6, 2);
-            camera.up.set(0,1,0);
-            camera.lookAt(new THREE.Vector3(0, 1.7, 0));
-            this.camera = camera;
-
-            const scene = new THREE.Scene();
-            this.scene = scene;
-
-            {
-                const light = new THREE.DirectionalLight(0x999999);
-                light.position.set(-1,1, 1);
-                scene.add(light);
-            }
-            {
-                const light = new THREE.AmbientLight(0x333333);
-                scene.add(light);
-            }
-            {
-                const light = new THREE.DirectionalLight(0x666666);
-                scene.add(light);
-            }
-            {
-                const axes = new THREE.AxesHelper(20);
-                scene.add(axes);
-
-                const grid = new THREE.GridHelper(10, 10);
-                grid.position.set(0, 1, 0);
-                scene.add(grid);
-            }
-
-            this.renderer = renderer;
-
-            return renderer.domElement;
+            const light = new THREE.DirectionalLight(0x999999);
+            light.position.set(-1,1, 1);
+            scene.add(light);
         }
+        {
+            const light = new THREE.AmbientLight(0x333333);
+            scene.add(light);
+        }
+        {
+            const light = new THREE.DirectionalLight(0x666666);
+            scene.add(light);
+        }
+        {
+            const axes = new THREE.AxesHelper(20);
+            scene.add(axes);
+
+            const grid = new THREE.GridHelper(10, 10);
+            grid.position.set(0, -0.002, 0);
+            scene.add(grid);
+        }
+
+        this.renderer = renderer;
+
+        const clock = new THREE.Clock();
+        this.clock = clock;
+
+        return renderer.domElement;
 
     }
 
@@ -144,10 +160,10 @@ class Threed {
  * @param {THREE.Bone} inroot 
  */
     treeToFlat(inroot) {
-        const ret = {bones: [], mats: []};
+        const ret = { bones: [], mats: [] };
         
         const eigen = new THREE.Matrix4();
-        eigen.makeTranslation(0,-1,0);
+        eigen.makeTranslation(0, -1, 0);
         console.log(`eigen`, eigen);
 
         const f = (_bs, _ms, obj) => {
@@ -155,7 +171,7 @@ class Threed {
             _ms.push(eigen);
 
             if ('children' in obj) {
-                obj.children.forEach(v=>{
+                obj.children.forEach(v => {
                     f(_bs, _ms, v);
                 });
             }
@@ -175,6 +191,14 @@ class Threed {
             gltf => {
                 console.log(`VRM load done`, gltf);
                 const vrm = gltf;
+                this.vrm = vrm;
+                vrm.scene.name = 'avatar';
+                {
+                    const obj = this.scene.getObjectByName('avatar');
+                    if (obj) {
+                        obj.parent.remove(obj);
+                    }
+                }
                 this.scene.add(vrm.scene);
             },
             progress => {

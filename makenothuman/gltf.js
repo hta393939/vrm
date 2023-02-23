@@ -320,33 +320,6 @@ class Gltf {
     }
 
 /**
- * ファイルとして保存する
- * @param {boolean} inurl url も返すときは true
- * @returns {null|string} inurl true のときは string
- */
-    save(inurl) {
-        console.log(this.cl, `save called`, inurl);
-
-        {
-            const base = `a_${this.getTimeID(new Date())}`;
-
-            const blob = this.wholeBlob();
-            const url = URL.createObjectURL(blob);
-
-            this.download(blob,
-                [`${base}.glb`, `${base}.vrm`]);
-
-            if (inurl) {
-                console.log(`true`);
-                return url;
-            }
-            console.log(`false`);
-            return null;
-        }
-    }
-
-
-/**
  * リカーシブツリーを平たくする
  * @param {{}[]} ns この配列のインデックスとしてみなす
  * @param {{c?:[]}} cur 今の対象 in tree

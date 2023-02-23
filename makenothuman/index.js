@@ -3,8 +3,6 @@
  */
 // MIT License (c) 2018- Usagi
 
-/// <reference path="./index.d.ts" />
-
 'use strict';
 
 /** */
@@ -205,34 +203,30 @@ class Misc {
 
 /**
  * メイン
+ * @param {boolean} issave 
  */
-    makeFile() {
+    makeFile(issave) {
         console.log(this.cl, `makeFile called`);
         { // バイナリ作る
             this.gltf.makeData2();
-            const urlstr = this.gltf.save(true);
-            if (urlstr) {
-                this.threed.setModel(urlstr);
-                URL.revokeObjectURL(urlstr);
+            const blob = this.gltf.wholeBlob();
+            const urlstr = URL.createObjectURL(blob);
+            this.threed.setModel(urlstr);
 
-                setTimeout(() => {
-                    this.saveSetting();
-                }, 3000);
-            }
-        }
-    }
+            setTimeout(() => {
+                this.saveSetting();
 
-    loadFile(inPath) {
-        console.log(this.cl, `loadFile called`, inPath);
-        {
-            const xhr = new XMLHttpRequest();
-            xhr.open('GET', inPath);
-            xhr.responseType = 'arraybuffer';
-            xhr.addEventListener('load', ev => {
-                const parser = new GltfParser();
-                parser.parse(ev.currentTarget.response);
-            });
-            xhr.send();
+                if (issave) {
+                    this.gltf.makeData2();
+                    const saveblob = this.gltf.wholeBlob();
+                    const id = this.gltf.getTimeID();
+                    this.gltf.download(saveblob, [
+                        `a_${id}.vrm`, `a_${id}.glb`,
+                    ]);
+                }
+            }, 2000);
+
+            URL.revokeObjectURL(urlstr);
         }
     }
 
@@ -246,7 +240,7 @@ class Misc {
         }
     }
     saveSetting() {
-        console.log(this.cl, `#saveSetting called`);
+        console.log(this.cl, `saveSetting called`);
 
         const obj = {};
         let str = '';
@@ -255,7 +249,7 @@ class Misc {
             str = cv.toDataURL('image/png');
         }
         localStorage.setItem(this.STORAGE_THUMB, str);
-        console.log(this.cl, `#saveSetting leave`, obj, str.length);
+        console.log(this.cl, `saveSetting leave`, obj, str.length);
     }
 
     onload() {
@@ -266,10 +260,17 @@ class Misc {
             this.gltf = gltf;
             //gltf.loadObj('obj11_6.obj');
         }
-    
+        {
+            const el = document.getElementById('idmake');
+            if (el) {
+                el.addEventListener('click', () => {
+                    this.makeFile(false);
+                });
+            }
+        }
         {
             idSave3.addEventListener('click', ev => {
-                this.makeFile();
+                this.makeFile(true);
             });
         }
     
@@ -280,7 +281,7 @@ class Misc {
     
         {
             idvis.addEventListener('change', ev => {
-                this.threed.setVisible('model', ev.currentTarget.checked);
+                this.threed.setVisible('avatar', ev.currentTarget.checked);
             });
             idwire.addEventListener('change', ev => {
                 this.threed.setWire(ev.currentTarget.checked);

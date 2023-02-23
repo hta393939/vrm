@@ -16,15 +16,15 @@
         <script src="./index.js"></script>
     </head>
     <body>
-        <div id="info0"></div>
-
-        <label class="pt"><input class="pt" type="checkbox" id="idvis" checked="checked" />表示</label>
-        <label class="pt"><input class="pt" type="checkbox" id="idwire" checked="checked" />ワイヤー</label>
-        <label class="pt"><input class="pt" type="checkbox" id="idaxes" />軸</label>        
-        <div id="idwebgl"></div>
+<div id="info0"></div>
+<label class="pt"><input class="pt" type="checkbox" id="idvis" checked />表示</label>
+<label class="pt"><input class="pt" type="checkbox" id="idwire" />ワイヤー</label>
+<label class="pt"><input checked class="pt" type="checkbox" id="idaxes" />軸</label>        
+<label class="pt"><input class="pt" type="checkbox" id="idmove" />移動</label>
+<div id="idwebgl"></div>
 
         <div>
-            <input type="button" id="idPre2" value="ぷり" />
+            <button id="idmake">保存無し</button>
             <input type="button" id="idSave3" value="保存3 makeFile" />
             背を低くした
         </div>
@@ -41,9 +41,6 @@
         cv1
         <canvas id="cv1" width="256" height="256"></canvas>
    </div>
-<div>
-    spine も hips も動いちゃう。Armature は無さそう。
-</div>
 
 <hr />
 

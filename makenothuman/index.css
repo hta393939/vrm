@@ -1,5 +1,9 @@
 @charset "UTF-8";
 
+body {
+    user-select: none;
+}
+
 canvas {
     border: solid 1px black;
 }
