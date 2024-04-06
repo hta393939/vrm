@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="UTF-8" />
+        <title>.vrma 1.0 生成したい</title>
+        <link rel="stylesheet" href="./index.css" />
+        <script src="./nodetemplate.js"></script>
+        <script src="./flatnodetemplate.js"></script>
+        <script src="../third_party/three.min.1.4.5.js"></script>
+        <script src="../third_party/OrbitControls.1.4.5.js"></script>
+        <script src="../third_party/GLTFLoader.1.4.5.js"></script>
+
+        <script src="../third_party/three-vrm.min.1.0.4.js"></script>
+        <!--
+        <script src="../third_party/three-vrm.min.js"></script>
+
+        -->
+        <script src="./util.js"></script>
+        <script src="./vtx.js"></script>
+        <script src="./vrmexporter10.js"></script>
+
+    </head>
+    <body>
+        <canvas id="idcanvas" class="oneborder"></canvas>
+
+        <div id="info0"></div>
+
+        <label class="pt"><input class="pt" type="checkbox" id="idvis" checked="checked" />表示</label>
+        <label class="pt"><input class="pt" type="checkbox" id="idwire" checked="checked" />ワイヤー</label>
+        <label class="pt"><input class="pt" type="checkbox" id="idaxes" />軸</label>        
+
+        <input type="button" id="idPre2" value="ぷり" /><br />
+        <button id="idopen">別ウインドウで開く</button>
+
+        <label class="pt"><input class="pt" type="checkbox" id="idwithdownload" />ダウンロードする</label>
+        <input type="button" id="idsave3" value="保存3 makeFile" />
+        <button id="idbeginrec">収録開始</button>
+        <button disabled id="idendrec">収録終了</button>
+
+        <div>
+            <div id="idspringview"></div>
+        </div>
+
+       <hr />
+
+       <script type="module" src="./index.mjs"></script>
+    </body>
+</html>
+
+

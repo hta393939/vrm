@@ -1,0 +1,44 @@
+@charset "UTF-8";
+
+body {
+    margin: 0;
+    padding: 0;
+}
+
+.pt {
+    cursor: pointer;
+}
+
+.mini {
+    width: 256px;
+    height: 256px;
+}
+
+.toright {
+    flex-wrap: wrap;
+
+    display: flex;
+    flex-direction: row;
+}
+
+.tobottom {
+    display: flex;
+    flex-direction: column;
+}
+
+#idcanvas {
+/*    border: solid 1px red; */
+    margin: 0;
+    padding: 0;
+}
+
+#img06 {
+    border-color: red;
+}
+
+.wh512 {
+    overflow: hidden;
+    width: 512px;
+    height: 512px;
+}
+
