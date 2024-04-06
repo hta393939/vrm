@@ -1,15 +1,42 @@
 
 /**
- * @file flatnodetemplate.js
- * MIT License (c) 2018- Usagi
+ * @file flatnodetemplate.mjs
+ * MIT License (c) 2024- Usagi ウサギ
  */
 
 // for vrm 1.0 -x に右手、+x に左手がいくタイプ
 // 親指書き換え済み
 
-'use strict';
+export class Flattree {
+    static getTree() {
+        const num = Flattree._flattree.length;
+        const table = new Array(num);
+        const obj = {};
+        for (let i = 0; i < num; ++i) {
+            const item = Flattree._flattree[i];
+            item.c = [];
+            table[i] = {
+                item,
+            };
 
-const _flattree = [
+            if (!item.parent) {
+                Object.assign(obj, item);
+                continue;
+            }
+            // 探す
+            const index = table.findIndex(v => {
+                return true;
+            });
+            if (index < 0) {
+                throw new Error(`invalid data, ${item.name}`);
+                continue;
+            }
+            // 追加する
+            table[index].item.c.push(item);
+        }
+        return obj;
+    }
+    static _flattree = [
 {"parent": null, "name": "Armature", "k": ["exc"], "pts":[], "r": [0,0,0], "sz": [0.0] },
 {"parent": "Armature", "name": "hips", "r": [0, 0.9, 0], "sz": [0.08]},
 
@@ -131,6 +158,8 @@ const _flattree = [
 {"parent":"antenna41", "name":"antenna42", "k": ["onechain", "exc"], "pts": [], "r":[0, 0.0, 0.16], "sz": [0.01]},
 {"parent":"antenna39", "name":"antenna43", "k": ["exc"], "roll": { "sourcename" : "antenna41" }, "pts": ["plate03"], "r":[0, 0.0, 0.16], "sz": [0.01]}
 
-];
+    ];
+
+}
 
 

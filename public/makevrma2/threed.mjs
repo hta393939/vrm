@@ -1,8 +1,11 @@
 /*!
  * threed.mjs
- * Copyright (c) 2024- usagi ウサギ
+ * Copyright (c) 2024- Usagi ウサギ
  * This software is released under the MIT License.
  */
+
+import * as THREE from 'three';
+import { OrbitControls } from 'jsm/controls/OrbitControls.js';
 
 /**
  * 可視化クラス
@@ -24,7 +27,7 @@ export class Threed {
     }
 
     makeControl(dom) {
-        const control = new THREE.OrbitControls(this.camera, dom);
+        const control = new OrbitControls(this.camera, dom);
 
         this.control = control;
     }

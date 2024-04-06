@@ -1,10 +1,11 @@
 /*!
  * index.mjs
- * Copyright (c) 2024- usagi ウサギ
+ * Copyright (c) 2024- Usagi ウサギ
  * This software is released under the MIT License.
  */
 
 import { Threed } from './threed.mjs';
+import { VrmExporter10 } from './vrmexporter10.mjs';
 
 /**
  * メインクラス
@@ -89,85 +90,6 @@ class Misc {
  */
     init() {
         console.log(this.cl, `init called`);
-
-/**
- * テクスチャとキャンバスの結びつけ
- * @type {{cv: HTMLCanvasElement, name: string}[]}
- */
-        const tex = [
-            { cv: cv00, name: 'baseTex' },
-            { cv: cv01, name: 'thumbTex' },
-            { cv: cv02, name: '_tex02' },
-            { cv: cv03, name: '_tex03' },
-            { cv: cv04, name: '_tex04' },
-            { cv: cv05, name: '_tex05' },
-            { cv: cv06, name: '_tex06' },
-            { cv: cv07, name: '_tex07' },
-            { cv: cv08, name: '_tex08' },
-            { cv: cv09, name: '_tex09' },
-        ];
-
-        this.draw(cv00);
-        {
-            /**
-             * @type {HTMLCanvasElement}
-             */
-            const cv = window.cv01;
-
-            const c = cv.getContext('2d');
-            let ratio = window.devicePixelRatio;
-            ratio = 1;
-            const w = imgthumb.naturalWidth;
-            const h = imgthumb.naturalHeight;
-
-            cv.width = w / ratio;
-            cv.height = h / ratio;
-            c.drawImage(imgthumb,
-                0,0, w, h, // src
-                0,0, cv.width, cv.height);
-
-            console.log(`natural`, w,h);
-        }
-
-        if (false) {
-            const c = cv07.getContext('2d');
-            let ratio = window.devicePixelRatio;
-            ratio = 1;
-            const w = img07.naturalWidth;
-            const h = img07.naturalHeight;
-
-            cv07.width = w / ratio;
-            cv07.height = h / ratio;
-            c.drawImage(img07,
-                0,0, w, h, // src
-                0,0, cv07.width, cv07.height);
-
-            console.log(`natural`, w,h);
-        }
-
-        this.draw2(cv02);
-        this.draw3(cv03);
-        this.draw4(cv04);
-        //this.drawColor(cv5, 128,128,255);
-        this.draw5(cv05);
-        this.draw6(cv06);
-        this.draw7(cv07);
-        this.drawCopy(8);
-        this.drawCopy(9);
-
-        for (const v of tex) {
-            v.cv.toBlob(async blob => {
-                if (!blob) {
-                    console.warn('null blob', v.name);
-                    return;
-                }
-                const ab = await blob.arrayBuffer();
-                console.log(`${v.name} load fire`);
-
-                this.vrmexporter[v.name] = ab;
-            }, 'image/png');
-        }
-
         {
             const threed = new Threed();
             const w = 512;
@@ -179,102 +101,6 @@ class Misc {
             threed.makeControl(opt.canvas);
 
             this.threed = threed;
-
-            const stream = opt.canvas.captureStream();
-            this.stream = stream;
-            const vd = document.getElementById('idvideo');
-            vd.srcObject = stream;
-        }
-
-        {
-            const style = document.createElement('style');
-            const dpr = window.devicePixelRatio;
-            style.innerHTML = `.oneborder { border-style: solid; border-width: calc(4px / ${dpr}); }`;
-            document.head.appendChild(style);
-        }
-
-        if (this.style) {
-            document.body.classList.add('wh512');
-        }
-
-    } // init
-
-
-    /**
-     * ベーステクスチャ
-     * @param {HTMLCanvasElement} cv 
-     */
-    draw(cv) {
-        console.log(`draw called`);
-        const w = cv.width;
-        const h = cv.height;
-        const c = cv.getContext('2d');
-        if (c) {
-            let cnt = -8;
-            const n = 16;
-            for (let i = 0; i < n; ++i) {
-                for (let j = 0; j < n; ++j) {
-                    let x = j * 4;
-                    let y = i * 4;
-                    let r = 51 * (Math.floor(cnt / 36) % 6);
-                    let g = 51 * (Math.floor(cnt / 6) % 6);
-                    let b = 51 * (cnt % 6);
-                    let a = 1;
-
-                    if (cnt < 0) {
-                        if (cnt <= -5) {
-                            r = 255;
-                            g = 255;
-                            b = 255;
-                            a = 0.25 * (cnt + 8);
-                        } else {
-                            r = 0;
-                            g = 0;
-                            b = 255;
-                            a = 0.5;
-                            if (cnt === -3) {
-                                r = 255;
-                                g = 0;
-                                b = 0;
-                            } else if (cnt === -2) {
-                                r = 0;
-                                g = 255;
-                                b = 255;
-                            } else if (cnt === -1) {
-                                r = 0;
-                                g = 255;
-                                b = 0;
-                            }
-                        }
-                    } else if (cnt >= 216) {
-                        r = 128;
-                        g = 128;
-                        b = 128;
-                        a = 1;
-                    }
-
-                    c.fillStyle = `rgba(${r},${g},${b}, ${a})`;
-                    c.fillRect(x,y, 4, 4);
-                    ++cnt;
-                }
-            }
-        }
-    }
-
-/**
- * 一色で塗りつぶす
- * @param {HTMLCanvasElement} cv 
- * @param {number} r 
- * @param {number} g 
- * @param {number} b 
- */
-    drawColor(cv, r,g,b) {
-        const w = cv.width;
-        const h = cv.height;
-        const c = cv.getContext('2d');
-        if (c) {
-            c.fillStyle = `rgba(${r},${g},${b}, 1)`;
-            c.fillRect(0,0, w,h);
         }
     }
 
@@ -584,12 +410,6 @@ class Misc {
         } catch(ec) {
             console.warn(`parse catch`, ec.message);
         }
-
-        str = localStorage.getItem(this.STORAGE_THUMB);
-        if (str) {
-            window.img06.src = str;
-            console.log(`str.length`, str.length);
-        }
     }
     saveSetting() {
         console.log(this.cl, `saveSetting called`);
@@ -625,17 +445,6 @@ class Misc {
         {
             const vrmexporter = new VrmExporter10();
             this.vrmexporter = vrmexporter;
-            //vrmexporter.loadPart('part001.json');
-            //vrmexporter.loadObj('obj11_6.obj');
-            {
-                const res = await fetch('./plate03.obj');
-                const text = await res.text();
-                const objobj = await ObjParse.parse(text, { mtl: false });
-                const vfobj = await ObjParse.makeVertex(objobj, 'Cube.001');
-                vrmexporter.isoparts['plate03'] = vfobj;
-
-                console.log('onload, plate03');
-            }
         }
     
         {
