@@ -10,7 +10,6 @@
  * https://github.com/vrm-c/vrm-specification/tree/master/specification
  */
 
-import * as THREE from 'three';
 import { Flattree } from './flatnodetemplate.mjs';
 
 /** */
@@ -80,13 +79,54 @@ class V3 {
 
 }
 
+
+
+class Sampler {
+    constructor() {
+        this.input = 0;
+        this.output = 1;
+        this.interpolation = 'LINEAR';
+    }
+}
+
+class Channel {
+    //static TRANSLATION = 'translation';
+    //static ROTATION = 'rotation';
+    constructor() {
+        this.sampler = 0;
+        this.target = {
+            node: 0,
+            path: 'rotation'
+        };
+    }
+}
+
+class Animation {
+    constructor() {
+        this.name = 'animation';
+        this.samplers = [];
+        this.channels = [];
+    }
+}
+
+class AnimationTrack {
+    static TRANSLATION = 'translation';
+    static ROTATION = 'rotation';
+    constructor() {
+        this.target = {
+            nodeName: 'hips',
+            path: 'rotation'
+        };
 /**
- * 
+ * @type {number[]}
  */
-class V2 {
-    constructor(inX = 0, inY = 0) {
-        this.x = inX;
-        this.y = inY;
+        this.keys = [];
+/**
+ * @type {[number] | [number,number,number,number]}
+ */
+        this.values = [];
+
+        this.type = 'SCALAR'; // or 'VEC4'
     }
 }
 
@@ -113,24 +153,18 @@ export class VrmExporter10 {
  */
     constructor(param) {
         this.cl = this.constructor.name;
+/**
+ * アニメーション本体
+ * @type {AnimationTrack[]}
+ */
+        this.tracks = [];
+
+        this.animations = [];
 
         /**
          * 文字列
          */
         this.str = '{}';
-
-        /**
-         * ボーンのところの材質インデックス
-         * 光抑えめ
-         * @default 0
-         */
-        this.boneMatrixIndex = 0;
-
-/**
- * 材質数
- * @default 2
- */
-        this.materialNum = 0;
 
 /**
  * @default '1.0'
@@ -168,10 +202,6 @@ export class VrmExporter10 {
  */
         this.ELEMENT_ARRAY_BUFFER = 34963;
 
-/**
- * 9728
- */
-        this.NEAREST = 9728
 /**
  * 9729 LINEAR
  */
@@ -479,101 +509,6 @@ export class VrmExporter10 {
     }
 
 /**
- * メッシュと頂点を現状に追加する。ここ bookmark
- * @param {Vtx[]} vts 点の配列
- * @param {{_global: number[], _sz: number[]}[]} nodes ノード配列 
- * @param {{}[]} arr 複数面。三段配列。
- * @param {number} ji ジョイントインデックス
- * @param {string} inpath パーツパス
- * @param {number} mi 材質インデックス
- */
-    addSubPart(vts, nodes, arr, ji, inpath, mi) {
-        console.log(this.cl, `addSubPart called`);
-        //return;
-
-/**
- * パーツ格納オブジェクト
- * @type {{vts: {}}}
- */
-        const partsource = this.parts[inpath];
-        let v = nodes[ji];
-        const vioffset = vts.length; // 現在の末端
-
-        const vtskey = Object.keys(partsource.vts);
-
-        for (const k1 of vtskey) {
-            /**
-             * 
-             * @type {{p:string, n:number[], uv:number[]}}
-             */
-            const v1 = partsource.vts[k1];
-
-            const onep = partsource.ps[v1.p];
-            let x = onep.p[0];
-            let y = onep.p[1];
-            let z = onep.p[2];
-
-            const vtx = new Vtx();
-            vtx.p.set(x, y, z);
-            vtx.p.multiplyScalar(1/16);
-            vtx.n.set(v1.n[0], v1.n[1], v1.n[2]);
-            vtx.n.normalize();
-            // OpenGL base を gltf base へ変換
-            vtx.uv.set(v1.uv[0], 1 - v1.uv[1]);
-
-            let boi = + ji;
-            vtx.jnt.set(boi, boi, boi, boi);
-
-            vtx.p.add(new THREE.Vector3(
-                v._global[0], v._global[1], v._global[2]));
-
-            vts.push(vtx);
-        }
-
-        for (const k2 in partsource.faces) {
-            const v2 = partsource.faces[k2];
-            const f3 = [];
-            for (const k3 of v2.i) {
-                // k3 を vtx から取り出す
-                let index = vtskey.indexOf(k3);
-                //console.log(``, index);
-                f3.push(vioffset + index);
-            }
-            arr[mi].push(f3);
-        }
-
-    }
-
-/**
- * メッシュと頂点を現状に追加する。骨と関節追加する。
- * @param {Vtx[]} vts 点の配列
- * @param {{_global: number[], _sz: number[]}[]} nodes ノード配列 
- * @param {{}[]} arr 複数面。三段配列。
- */
-    makeSubMesh(vts, nodes, arr) {
-        console.log(this.cl, `makeSubMesh called`);
-
-        let rnd = 1;
-
-        nodes.forEach((v, i) => {
-            const node = v;
-            for (let j = 0; j < 1; ++j) {
-                /**
-                 * 骨の方
-                 */
-                const addSubBone = arg2 => { 
-                };
-                if ('children' in v) {
-                    for (const vi2 of v.children) {
-                        addSubBone({ from: v, to: nodes[vi2] });
-                    }
-                }
-            }
-        });
-
-    }
-
-/**
  * 配列の中を name で探す
  * @param {{name:string}[]} arr 
  * @param {RegExp} inre 
@@ -602,29 +537,13 @@ export class VrmExporter10 {
          * あとでセットする obj.nodes
          */
         const treenodes = [];
-        // TODO: 1104
-        //this.makeTree(treenodes);
-        this.makeTreeFromFlat(treenodes);
 
-        /**
-         * 頂点オブジェクトの配列
-         */
-        const vts = [];
-        /**
-         * 材質ごとの面配列
-         * @type {number[][][]}
-         */
-        const arr = [];
-        for (let i = 0; i < this.materialNum; ++i) {
-            arr.push([]);
-        }
+        this.makeAnimation();
 
-        this.makeSubMesh(vts, treenodes, arr);
-
-        /**
-         * メッシュ生成後の頂点数
-         */
-        const vtNum = 0;
+/**
+ * キー個数
+ */
+        const keynum = 61;
 
 /**
  * ノードすべて。bone でなくてもテクスチャに影響を与えるので
@@ -636,60 +555,27 @@ export class VrmExporter10 {
             /head/i);
         console.log(`head search`, found);
 
-        const bvs = [
+        const bvs = [];
+        /*
             {
                 target: VrmExporter10.TARGET_ARRAY_BUFFER,
-                byteLength: 3 * 4 * vtNum,
+                byteLength: 1 * 4 * keynum,
                 componentType: this.FLOAT,
-                count: vtNum,
-                max: [ 1,  1,  1],
-                min: [-1, -1, -1], // 範囲
-                type: 'VEC3'
+                count: keymum,
+                max: [1],
+                min: [0], // 範囲
+                type: 'SCALAR'
             },
             {
                 target: VrmExporter10.TARGET_ARRAY_BUFFER,
-                byteLength: 3 * 4 * vtNum,
+                byteLength: 4 * 4 * keynum,
                 componentType: this.FLOAT,
-                count: vtNum,
-                type: 'VEC3'
-            },
-            {
-                target: VrmExporter10.TARGET_ARRAY_BUFFER,
-                byteLength: 2 * 4 * vtNum,
-                componentType: this.FLOAT,
-                count: vtNum,
-                type: 'VEC2'
-            },
-            { // #3 WEIGHTS_0
-                target: VrmExporter10.TARGET_ARRAY_BUFFER,
-                byteLength: 4 * 4 * vtNum,
-                componentType: this.FLOAT,
-                count: vtNum,
+                count: keynum,
+                max: [1, 1, 1, 1],
+                min: [-1, -1, -1, -1],
                 type: 'VEC4'
             },
-            { // #4 JOINTS_0 short か..
-                target: VrmExporter10.TARGET_ARRAY_BUFFER,
-                byteLength: 4 * 2 * vtNum,
-                componentType: this.UNSIGNED_SHORT,
-                count: vtNum,
-                type: 'VEC4'
-            }
-        ];
-
-        /**
-         * 面構成インデックスの先頭
-         */
-        const facetop = bvs.length;
-
-        const inverseIndex = bvs.length;
-        console.info(`面と逆行列(bufferViewで`, facetop, inverseIndex);
-        {
-            bvs.push({
-                byteLength: 16 * 4 * jointNum,
-                componentType: this.FLOAT,
-                count: jointNum,
-                type: 'MAT4' });
-        }
+        ];*/
 
         const obj = {
             //extensionsRequired: [],
@@ -701,7 +587,7 @@ export class VrmExporter10 {
                 generator: 'Usagi ECMAScript'
             },
             nodes: [],
-            scenes: [{ nodes: [] }],
+            scenes: [{ name: 'AuxScene', nodes: [] }],
 // GLB-stored Buffer によると uri は undefined にして配列の先頭で参照する
             buffers: [
                 { byteLength: 0 /*binBufByte*/ }
@@ -717,7 +603,7 @@ export class VrmExporter10 {
                     humanoid: {
                         humanBones: {}
                     },
-
+/*
                     firstPerson: {
                         meshAnnotations: [
                             { node: 0,
@@ -738,6 +624,7 @@ export class VrmExporter10 {
                     },
                     extensions: {},
                     extras: {}
+                    */
                 },
             } // extensions
 
@@ -748,7 +635,6 @@ export class VrmExporter10 {
  */
         const vrm = obj.extensions.VRMC_vrm_animation;
 
-        const globals = [];
     { // node のツリー構造
         obj.nodes = treenodes;
 
@@ -774,27 +660,12 @@ export class VrmExporter10 {
 // 1.0 で name key になった
                 vrm.humanoid.humanBones[v.name] = b;
             }
-
-            //console.log(v.name, v._global);
-
-            // bookmark 違うけど一応ここで
-            globals.push(v._global);
         }
 
         obj.scenes[0].nodes.push(0);
-
-        let index = obj.nodes.length;
-        obj.nodes.push({ name: 'skinnode',
-            translation: [0,0,0],
-            rotation: [0,0,0,1],
-            scale: [1,1,1],
-            mesh: 0,
-            skin: 0
-        });
-        obj.scenes[0].nodes.push(index);
     }
 
-    { // モーション エクスプレッション
+    if (false) { // モーション エクスプレッション
         for (const k of [
             'happy', 'angry', 'sad', 'relaxed', 'surprised',
             'aa', 'ih', 'ou', 'ee', 'oh',
@@ -826,6 +697,8 @@ export class VrmExporter10 {
         }
     }
 
+        this.applyAnimation();
+        obj.animations = this.animations;
 
 /**
  * bufferView の番号が1つずつ増えていく
@@ -860,32 +733,6 @@ export class VrmExporter10 {
         }
     }
 
-    arr.forEach((v, i) => { // プリミを複数段にする。材質があるので
-        let prim = {
-            mode: 4,
-            attributes: {
-                POSITION: 0,                  
-                NORMAL: 1,
-                TEXCOORD_0: 2,
-                WEIGHTS_0: 3,
-                JOINTS_0: 4
-            },
-            indices: facetop + i, // 面構成頂点
-            material: + i, // 材質インデックス
-        };
-        if (i >= 0) {
-//        if (false) {
-            prim.targets = [
-                {
-                    POSITION: 0,
-                    NORMAL: 1
-                }
-            ];
-        }
-
-        obj.meshes[0].primitives.push(prim);
-    });
-
 
 //// バイナリここから ////
 
@@ -894,7 +741,10 @@ export class VrmExporter10 {
  */
     let attrByte = byteOffset;
 
-// 切り上げてちょうど確保
+/**
+ * 切り上げてちょうど確保
+ * bin[sp] のバイト数
+ */
     const binBufByte = Math.ceil(attrByte / 4) * 4;
 /**
 * バイナリ全体
@@ -909,7 +759,7 @@ export class VrmExporter10 {
      * POSITION の範囲取得用
      */
         const range = {
-            min: [9999, 9999, 9999], max: [-9999,-9999,-9999]
+            min: [9999, 9999, 9999, 9999], max: [-9999,-9999,-9999,-9999]
         };
 
         /**
@@ -951,20 +801,6 @@ export class VrmExporter10 {
             console.log(`最大最小`, obj.accessors[i]);
         }
 
-        { // 行列
-            for (let i = 0; i < jointNum; ++i) {
-                const glopos = globals[i];
-                const mts = [1,0,0,0, 0,1,0,0, 0,0,1,0, 0,0,0, 1];
-                mts[12] = -glopos[0];
-                mts[13] = -glopos[1];
-                mts[14] = -glopos[2];
-                for (const v of mts) {
-                    p.setFloat32(c, v, true);
-                    c += 4;
-                }
-            }
-        }
-
         this.deleteExtra(obj);
 
         if (true) {
@@ -989,13 +825,70 @@ export class VrmExporter10 {
         let count = 0;
         for (const node of obj.nodes) {
             for (const k in node) {
-                if (k.substr(0,1) === '_') {
+                if (k.substring(0, 1) === '_') {
                     delete node[k];
                     ++count;
                 }
             }
         }
         console.log(`deleteExtra leave`, count);
+    }
+
+/**
+ * tracks から展開する
+ */
+    applyAnimation() {
+        const trackNum = this.tracks.length;
+        const anim = new Animation();
+        this.animations = [anim];
+
+        let samplerIndex = 0;
+        let channelsIndex = 0;
+        for (let i = 0; i < trackNum; ++i) {
+            const track = this.tracks[i];
+
+            const sampler = new Sampler();
+            const channel = new Channel();
+
+            sampler.input = i * 2;
+            sampler.output = i * 2 + 1;
+            sampler.interpolation = 'LINEAR';
+
+            channel.target = {
+                node: 0, // ここをなんとかする
+                path: track.target.path,
+            };
+            channel.sampler = samplerIndex;
+
+            // バイナリ生成するかも
+
+            anim.samplers.push(sampler);
+            anim.channels.push(channel);
+            samplerIndex += 1;
+            channelsIndex += 1;
+        }
+    }
+
+    makeAnimation() {
+        const num = 61;
+        const key = new Float32Array(num);
+        for (let i = 0; i < num; ++i) {
+            key[i] = num * i / 30;
+        }
+
+        for (let i = 0; i < 91; ++i) {
+            const track = new AnimationTrack();
+            this.tracks.push(track);
+
+            track.target.nodeName = 'hips';
+            track.target.path = 'rotation';
+            track.keys = key.slice(0);
+            track.values = [0, 0, 0, 1];
+            track.type = 'VEC4';
+        }
+        {
+
+        }
     }
 
 }
