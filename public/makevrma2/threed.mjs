@@ -296,7 +296,8 @@ export class Threed {
  * @param {string} inurl blob url など
  */
     setModel(inurl) {
-        console.log(this.cl, `setModel called, for VRM1.0`);
+        console.log(`!!! setModel called, for VRM1.0`);
+        return;
 
         const loader = new THREE.GLTFLoader();
 

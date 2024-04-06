@@ -10,6 +10,9 @@
  * https://github.com/vrm-c/vrm-specification/tree/master/specification
  */
 
+import * as THREE from 'three';
+import { Flattree } from './flatnodetemplate.mjs';
+
 /** */
 const pad = (v, n = 2) => {
     return String(v).padStart(n, '0');
@@ -616,6 +619,7 @@ export class VrmExporter10 {
  */
     makeTreeFromFlat(ns) {
         console.log(this.cl, `makeTreeFromFlat called`);
+        const _flattree = Flattree._flattree;
         for (const cur of _flattree) {
             const parentIndex = ns.findIndex(v => {
                 return (cur.parent === v.name);
@@ -908,354 +912,16 @@ addIsoParts(vts, nodes, arr, ji, ingeosrc, mi, rate, inopt = { fixuv: null }) {
         nodes.forEach((v, i) => {
             const node = v;
             for (let j = 0; j < 1; ++j) {
-                const div = 8;
-                const belt = 8;
-
-                let index, ir, ig, ib;
-
-                const re = /antenna(?<num>\d+)/;
-                const m = re.exec(node.name);
-                if (m
-                    //v.name === 'head'
-                    //||v.name === 'leftHand'
-                    //|| v.name == 'chest'
-                    //|| v.name == 'leftFoot'
-                    //|| v.name == 'leftShoulder'
-                    //|| v.name === 'spine'
-                    //|| v.name === 'head'
-                    ) {
-                    let r = Math.floor(Math.random() * 6);
-                    let g = Math.floor(Math.random() * 6);
-                    let b = Math.floor(Math.random() * 6);
-                    let num = Number.parseInt(m.groups.num);
-                    if (num >= 20) {
-                        r = Math.min(5, Math.floor((num - 20) / 4));
-                        g = r;
-                        b = r;
-                    }
-                    const opt = {
-                        fixuv: Util.chipuv(r, g, b),
-                    };
-                    let mtlidx = -1;
-                    if (0 <= num && num <= 9) {
-                        mtlidx = 1;
-                    }
-                    if (node?._pts?.includes('plate03')) {
-                        mtlidx = 1;
-                    }
-                    if (mtlidx >= 0) {
-                        this.addIsoParts(vts, nodes,
-                            arr,
-                            i,
-                            this.isoparts['plate03'],
-                            mtlidx, // material index
-                            0.02, // rate
-                            opt);
-                    }
-                }
-
                 /**
                  * 骨の方
                  */
-                const addSubBone = arg2 => {
-                    // 頂点の最後尾
-                    let vioffset = vts.length;
-
-                    ir = 5;
-                    ig = 4;
-                    ib = 3;
-                    const cindex = ib + ig * 6 + ir * 36;
-                    let ix = (cindex + 8) % 16;
-                    let iy = Math.floor((cindex + 8) / 16);
-                    /**
-                     * 0.0 - 1.0 の範囲に変更した uv
-                     * glTF って上から?
-                     */
-                    let uv = new THREE.Vector2((ix * 4 + 2) / 64, (iy * 4 + 2) / 64);
-
-                    let from = new THREE.Vector3(arg2.from._global[0],
-                        arg2.from._global[1],
-                        arg2.from._global[2]);
-                    let to = new THREE.Vector3(arg2.to._global[0],
-                            arg2.to._global[1],
-                            arg2.to._global[2]);
-                    let diff = new THREE.Vector3().subVectors(to, from);
-                    let dist = diff.length();
-                    let offsetVector = diff.clone().multiplyScalar(0.5).add(from);
-
-                    // 横? 上? 前? を判定する
-                    let bx = new THREE.Vector3(1,0,0);
-                    let by = new THREE.Vector3(-diff.x, -diff.y, -diff.z).normalize();
-                    let bz = new THREE.Vector3(0,0,1);
-                    let dir = 'default';
-                    if (diff.y > 0
-                        && Math.abs(diff.y) > Math.abs(diff.x)
-                        && Math.abs(diff.y) > Math.abs(diff.z)) {
-                        dir = 'up';
-                        // x正 と y で
-                        bz.crossVectors(bx, by);
-                        bx.crossVectors(by, bz);
-                    } else if (diff.z > 0
-                        && Math.abs(diff.z) > Math.abs(diff.x)
-                        && Math.abs(diff.z) > Math.abs(diff.y)) {
-                        dir = 'front';
-                        // x正 と y で front は Znega だった;;
-                        bz.crossVectors(bx, by);
-                        bx.crossVectors(by, bz);
-                    } else {
-                        // y と z正で
-                        bx.crossVectors(by, bz);
-                        bz.crossVectors(bx, by);
-                    }
-                    let rot = new THREE.Matrix3();
-                    // set は row-major
-                    rot.set(bx.x, by.x, bz.x,
-                        bx.y, by.y, bz.y,
-                        bx.z, by.z, bz.z);
-
-                    let topR = arg2.from._sz[0];
-                    let topLen = dist * 0.5;
-                    let bottomR = arg2.to._sz[0];
-                    let bottomLen = dist * 0.5;
-
-                    if (topR <= 0.0 || bottomR <= 0.0) {
-                        return;
-                    }
-                    topR = Math.min(topR, bottomR);
-                    bottomR = topR;
-
-                    // 補正後半径
-                    let topK = (topR - bottomR) * (dist - topR * 1) / dist + bottomR;
-                    let bottomK = (bottomR - topR) * (dist - bottomR * 1) / dist + topR;
-                    topLen -= topR * 1;
-                    topR = +topK;
-                    bottomLen -= bottomR * 1;
-                    bottomR = +bottomK;
-
-                    if (topLen <= -bottomLen) {
-                        return; // 裏返ったら追加しない
-                    }
-
-                    const pts = [
-                        [-1,-1,-1], [1,-1,-1], [-1,1,-1], [1,1,-1],
-                        [-1,-1,1], [1,-1,1], [-1,1,1], [1,1,1]
-                    ];
-                    const faces = [
-                        {is: [0,4,6,2], n: [-1,0,0]},
-                        {is: [3,7,5,1], n: [1,0,0]},
-                        {is: [5,4,0,1], n: [0,-1,0]},
-                        {is: [3,2,6,7], n: [0,1,0]},
-                        {is: [1,0,2,3], n: [0,0,-1]},
-                        {is: [7,6,4,5], n: [0,0,1]}
-                    ];
-                    /**
-                     * 左上、右上、右下、左下 コ
-                     */
-                    const uvs = [
-                        [0.0, 0.0], [1.0, 0.0], [1.0, 1.0], [0.0, 1.0]
-                    ];
-
-// 細長補正
-                    {
-                        let uindex = 0;
-                        let vindex = 0;
-                        let yoko = topR + topR;
-                        let tate = topLen + bottomLen;
-                        if (yoko !== tate) {
-                            if (yoko < tate) {
-                                // 右へ
-                                let pow = Math.round(Math.log2(tate / yoko));
-                                if (pow >= 2) {
-                                    pow = 2;
-                                }
-                                uindex = pow;
-                            } else {
-                                // 下へ
-                                let pow = Math.round(Math.log2(yoko / tate));
-                                if (pow >= 2) {
-                                    pow = 2;
-                                }
-                                vindex = pow;
-                            }
-                        }
-                    }
-
-                    faces.forEach((v4, i4) =>{
-                        v4.is.forEach((index, i5) => {
-                            let pt = pts[index];
-                            const ptv = new THREE.Vector3(pt[0], pt[1], pt[2]);
-
-                            if (ptv.y > 0) {
-                                ptv.x *= topR;
-                                ptv.y *= topLen;
-                                ptv.z *= topR;
-                            } else {
-                                ptv.x *= bottomR;
-                                ptv.y *= bottomLen;
-                                ptv.z *= bottomR;
-                            }
-
-                            // 全面で貼るタイプ
-                            //uv.set(uvs[i5][0], uvs[i5][1]);
-                            /*
-                            if (true) {
-                                const u = 0;
-                                const v = 0;
-                                uv.set(u, v);
-                            }*/
-
-                            const nv = new THREE.Vector3(v4.n[0], v4.n[1], v4.n[2]);
-                            ptv.applyMatrix3(rot);
-                            nv.applyMatrix3(rot);
-
-                            const vtx = new Vtx();
-                            vtx.p.copy(ptv);
-                            vtx.n.copy(nv);
-                            vtx.n.normalize();
-
-                            vtx.uv.copy(uv);
-
-                            // TODO: ボーンウエイトインデックス
-                            let boi = + i;
-                            //vtx.jnt.set(boi, boi, boi, boi);
-                            vtx.jnt.set(boi, 0, 0, 0);
-
-                            vtx.p.add(offsetVector);
-
-                            vts.push(vtx);
-                        });
-                        let v0 = i4 * 4 + vioffset;
-                        let v1 = v0 + 1;
-                        let v2 = v0 + 2;
-                        let v3 = v0 + 3;
-
-                        let aindex = this.boneMatrixIndex;
-                        arr[aindex].push([v0, v1, v2]);
-                        arr[aindex].push([v0, v2, v3]);
-                    });
-      
+                const addSubBone = arg2 => { 
                 };
                 if ('children' in v) {
                     for (const vi2 of v.children) {
                         addSubBone({ from: v, to: nodes[vi2] });
                     }
                 }
-
-                /**
-                 * 関節に球メッシュを生成する
-                 */
-                const addSubJoint = () => {
-                    let vioffset = vts.length;
-
-                    let scaleX = v._sz[0] * 0.5;
-                    let scaleY = v._sz[0] * 0.5;
-                    let scaleZ = v._sz[0] * 0.5;
-/**
- * x, y, z の倍率
- */
-                    let scale = new THREE.Vector3(scaleX, scaleY, scaleZ);
-                    if (scaleX <= 0.0) {
-                        return;
-                    }
-
-// uv はカラーチップで貼る
-                    const cindex = ((rnd >> 16) & 32767) % 216;
-                    rnd = (rnd * 214013 + 2531011) & 0xffffffff;    
-                    if ('_ci' in v) {
-                        ir = v._ci[0];
-                        ig = v._ci[1];
-                        ib = v._ci[2];
-                        index = ib + ig * 6 + ir * 36;
-                    }
-                    let ix = (cindex + 8) % 16;
-                    let iy = Math.floor((cindex + 8) / 16);
-                    let uv = new THREE.Vector2((ix * 4 + 2) / 64, (iy * 4 + 2) / 64);
-                    if (v.name.includes('EyeEnd')) {
-                        //uv.set(0.5, 0.5);
-                    }
-
-                    // Y+ 上から Y- 下まで
-                    for (let k = 0; k < belt + 1; ++k) {
-                        const vang = k * Math.PI / belt;
-                        let vcs = Math.cos(vang);
-                        let vsn = Math.sin(vang);
-                        if (belt / 2 === k) {
-                            vcs = 0; // Y軸
-                            vsn = 1; // 半径
-                        }
-                        if (belt === k) {
-                            vcs = -1; // Y軸
-                            vsn = 0; // 半径
-                        }
-
-                        for (let l = 0; l < div + 1; ++l) {
-                            const hang = l * Math.PI * 2 / div;
-
-                            let cs = Math.cos(hang);
-                            let sn = Math.sin(hang);
-                            if (div / 4 === l) {
-                                cs = 0;
-                                sn = 1;
-                            }
-                            if (div / 2 === l) {
-                                cs = -1;
-                                sn = 0;
-                            }
-                            if (div * 3 / 4 === l) {
-                                cs = 0;
-                                sn = -1;
-                            }
-                            if (div === l) {
-                                cs = 1;
-                                sn = 0;
-                            }
-
-                            // Z+ か Z- にするか
-                            let x = sn * vsn;
-                            let y = vcs;
-                            let z = cs * vsn;
-
-                            const vtx = new Vtx();
-                            vtx.p.set(x, y, z);
-                            vtx.p.multiply(scale);
-                            vtx.n.copy(vtx.p);
-                            vtx.n.normalize();
-
-                            vtx.uv.copy(uv);
-
-                            // TODO: ボーンウエイトインデックス
-                            let boi = + i;
-                            //vtx.jnt.set(boi, boi, boi, boi);
-                            vtx.jnt.set(boi, 0, 0, 0);
-
-                            vtx.p.add(new THREE.Vector3(
-                                v._global[0], v._global[1], v._global[2]));
-
-                            vts.push(vtx);
-                        }
-                    }
-
-                    // 面インデックス
-                    for (let k = 0; k < belt; ++k) {
-                        for (let l = 0; l < div; ++l) {
-                            let v0 = (div+1) * k + l + vioffset;
-                            let v1 = v0 + 1;
-                            let v2 = v0 + div + 1;
-                            let v3 = v2 + 1;
-
-                            let aindex = (k % 7) + 1;
-                            aindex = this.spMatrixIndex;
-                            if (v.name.includes('EyeEnd')) {
-                                aindex = this.eyeMatrixIndex;
-                            }
-
-                            arr[aindex].push([v0, v2, v1]);
-                            arr[aindex].push([v1, v2, v3]);
-                        }
-                    }         
-                };
-                addSubJoint();
-
             }
         });
 
@@ -1372,43 +1038,6 @@ doubleSided: true, // default false
     }
 
 /**
- * 材質面頂点の配列ごとにもし0個だったら1組の面を追加して
- * 各面頂点の配列が2つ以上面を持つ状態にする
- * @param {Vtx[]} vts 頂点
- * @param {number[][]} arr 面頂点配列の配列
- */
-    paddingFace(vts, arr) {
-        console.log(this.cl, `paddingFace called`);
-
-        const pts = [
-            { p: [-1, 1,0], uv: [0,0]},
-            { p: [ 1, 1,0], uv: [1,0]},
-            { p: [ 1,-1,0], uv: [0,1]},
-            { p: [-1,-1,0], uv: [1,1]}];
-        for (const bym of arr) {
-            if (bym.length >= 1) {
-                return;
-            }
-            let offset = vts.length;
-            for (const v of pts) {
-                const vtx = new Vtx();
-                vtx.p.set(v.p[0], v.p[1], v.p[2]);
-                vtx.p.multiplyScalar(0); // 見えないように0倍している
-                vtx.n.set(0,0,1);
-                //vtx.calcStandardTan();
-                vtx.uv.set(v.uv[0], v.uv[1]);
-                vts.push(vtx);
-            }
-            let v0 = offset; // 時計回り
-            let v1 = v0 + 1;
-            let v2 = v0 + 2;
-            let v3 = v0 + 3;
-            bym.push([v0, v3, v2]);
-            bym.push([v0, v2, v1]);
-        }
-    }
-
-/**
  * .gltf と .bin に相当するデータを生成して
  * 内部に保持する
  */
@@ -1420,30 +1049,6 @@ doubleSided: true, // default false
  */
         const modelVersion = `3.0.1`;
         const modelTitle = 'poly ccc 図形人形 VRM 1.0';
-
-        let texs = [
-            { tex: this.baseTex },
-            { tex: this.thumbTex },
-            { tex: this._tex02 },
-            { tex: this._tex03 },
-            { tex: this._tex04 },
-            { tex: this._tex05 },
-            { tex: this._tex06 },
-            { tex: this._tex07 },
-            { tex: this._tex08 },
-            { tex: this._tex09 },
-        ];
-        texs = texs.slice(0, this.texNum);
-
-        /**
-         * 全テクスチャのバイナリ領域
-         */
-        let texByte = 0;
-        for (const v of texs) {
-            v.byteLength = + v.tex.byteLength;
-            v.byteStride = Math.ceil(v.byteLength / 4) * 4;
-            texByte += v.byteStride;
-        } // テクスチャも4バイトアラインしておく
 
         /**
          * あとでセットする obj.nodes
@@ -1468,7 +1073,6 @@ doubleSided: true, // default false
         }
 
         this.makeSubMesh(vts, treenodes, arr);
-        this.paddingFace(vts, arr);
 
         /**
          * メッシュ生成後の頂点数
@@ -1559,7 +1163,7 @@ doubleSided: true, // default false
             ],
             asset: {
                 version: "2.0",
-                generator: 'usagi ECMAScript'
+                generator: 'Usagi ECMAScript'
             },
             nodes: [],
             scenes: [{ nodes: [] }],
@@ -1989,7 +1593,7 @@ doubleSided: true, // default false
     let attrByte = byteOffset;
 
 // 切り上げてちょうど確保
-    const binBufByte = Math.ceil((attrByte + texByte) / 4) * 4;
+    const binBufByte = Math.ceil(attrByte / 4) * 4;
 /**
 * バイナリ全体
 */
@@ -2083,38 +1687,6 @@ doubleSided: true, // default false
                     p.setFloat32(c, v, true);
                     c += 4;
                 }
-            }
-        }
-
-        {
-            const buf8 = new Uint8Array(buf);
-            let d = attrByte;
-            console.log(`テクスチャ開始バイト`, d, c);
-
-// テクスチャ
-            const num = texs.length;
-            console.log(`テクスチャ bufferView 開始インデックス`, bvOffset, num);
-
-            for (let i = 0; i < num; ++i) {
-                const v = texs[i];
-                obj.images.push({
-                    bufferView: bvOffset,
-                    mimeType: 'image/png'
-                });
-                bvOffset += 1;
-                obj.textures.push({
-                    sampler: 0, source: + i
-                });
-
-                const b8 = new Uint8Array(v.tex);
-                buf8.set(b8, d); // オフセットd は buf8 の中、で全体を書き込む
-
-                obj.bufferViews.push({
-                        buffer: 0,
-                        byteOffset: d,
-                        byteLength: v.byteLength
-                });
-                d += v.byteStride;
             }
         }
 

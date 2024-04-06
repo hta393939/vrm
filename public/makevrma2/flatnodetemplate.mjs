@@ -159,7 +159,6 @@ export class Flattree {
 {"parent":"antenna39", "name":"antenna43", "k": ["exc"], "roll": { "sourcename" : "antenna41" }, "pts": ["plate03"], "r":[0, 0.0, 0.16], "sz": [0.01]}
 
     ];
-
 }
 
 
