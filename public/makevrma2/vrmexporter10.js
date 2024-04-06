@@ -1,6 +1,6 @@
 /*!
- * vrmexporter10.js
- * Copyright (c) 2018- Usagi
+ * vrmexporter10.mjs
+ * Copyright (c) 2024- Usagi ウサギ
  * This software is released under the MIT License.
  */
 // 自分でバイナリ生成するタイプ
@@ -9,10 +9,6 @@
  * 
  * https://github.com/vrm-c/vrm-specification/tree/master/specification
  */
-
-(function(global_) {
-
-'use strict';
 
 /** */
 const pad = (v, n = 2) => {
@@ -94,7 +90,7 @@ class V2 {
 /**
  * .vrm 1.0 書き出し
  */
-class VrmExporter10 {
+export class VrmExporter10 {
 
 /**
  * for vertex attributes
@@ -2164,16 +2160,4 @@ doubleSided: true, // default false
     }
 
 }
-
-
-if (typeof exports !== 'undefined') {
-    if (typeof module !== 'undefined' && module.exports) {
-        exports = module.exports = VrmExporter10;
-    }
-    exports.VrmExporter10 = VrmExporter10;
-} else {
-    global_.VrmExporter10 = VrmExporter10;
-}
-
-})( (this || 0).self || typeof self !== 'undefined' ? self : global );
 
