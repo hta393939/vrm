@@ -20,16 +20,6 @@ class Threed {
 
         this.basets = Date.now();
 
-        this.baseTex = null;
-        this.normalTex = null;
-        this.emissTex = null;
-        this.occlTex = null;
-
-        this.baseTex2 = null;
-        this.normalTex2 = null;
-        this.emissTex2 = null;
-        this.occlTex2 = null;
-
 /**
  * 独立パーツ geometrysource
  * @type {Object<string, Object>}

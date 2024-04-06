@@ -158,16 +158,8 @@ class Misc {
         }
     }
     saveSetting() {
-        console.log(this.cl, `saveSetting called`);
-
-        const obj = {};
-        let str = '';
-        if (true) {
-            const cv = document.getElementById('idcanvas');
-            str = cv.toDataURL('image/png');
-        }
-        localStorage.setItem(this.STORAGE_THUMB, str);
-        console.log(this.cl, `saveSetting leave`, obj, str.length);
+        //console.log(`saveSetting called`);
+        //console.log(`saveSetting leave`);
     }
 
     async onload() {
@@ -257,31 +249,44 @@ class Misc {
                 this.threed.setVisible('axes', ev.currentTarget.checked);
             });
         }
+        {
+            document.body?.addEventListener('dragover', ev => {
+                ev.preventDefault();
+                ev.stopPropagation();
+                ev.dataTransfer.dropEffect = 'none';
+            });
+
+            const el = document.getElementById('drop');
+            el?.addEventListener('dragover', ev => {
+                ev.preventDefault();
+                ev.stopPropagation();
+                ev.dataTransfer.dropEffect = 'link';
+            });
+            el?.addEventListener('drop', ev => {
+                ev.preventDefault();
+                ev.stopPropagation();
+                this.glb(ev.dataTransfer.files[0]);
+            });
+        }
     
         this.update();
         console.log(`leave`, this);
     }
 
-    beginRec() {
-        const stream = this.stream;
-        const recordOpt = {
-            videoBitsPerSecond: 1000 * 1000 * 10,
-            //mimeType: 'video/mp4'
-        };
-        const mr = new MediaRecorder(stream, recordOpt);
-        this.mr = mr;
-        const chunks = [];
-        mr.addEventListener('dataavailable', ev => {
-            chunks.push(ev.data);
-        });
-        mr.addEventListener('stop', ev => {
-            Util.download(new Blob(chunks), `m_${Util.dtstr()}.webm`);
-        });
-        mr.start();
-    }
-
-    endRec() {
-        this.mr.stop();
+/**
+ * 
+ * @param {File} file 
+ */
+    async glb(file) {
+        const ab = await file.arrayBuffer();
+        const p = new DataView(ab);
+        let c = 0;
+        c = 12;
+        const jsonByte = p.getUint32(c, true);
+        c += 8;
+        const jsonText = new TextDecoder().decode(ab.slice(c, c + jsonByte));
+        const obj = JSON.parse(jsonText);
+        console.log('JSON', obj);
     }
 
 /**

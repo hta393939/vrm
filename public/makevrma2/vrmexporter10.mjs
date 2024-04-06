@@ -114,42 +114,10 @@ export class VrmExporter10 {
     constructor(param) {
         this.cl = this.constructor.name;
 
-/**
- * 0.0-1.0
- * @default 1.0
- */
-        this.DRAG = 1.0;
-        this.DRAG = 0.0;
-
-/**
- * 復元力
- * @default 1.0
- */
-//        this.STIFF = 5.0;
-        this.STIFF = 0.0;
-
-/**
- * gravity power
- * @default 0.01
- */
-//        this.GRAV = 1.0;
-        this.GRAV = 0.01;
-        //this.GRAV = 0.0;
-
         /**
          * 文字列
          */
         this.str = '{}';
-
-/**
- * @type {Object.<string, any>}
- */
-        this.parts = {};
-
-/**
- * @type {Object<string, Object>}
- */
-        this.isoparts = {};
 
         /**
          * ボーンのところの材質インデックス
@@ -157,69 +125,12 @@ export class VrmExporter10 {
          * @default 0
          */
         this.boneMatrixIndex = 0;
-        /**
-         * 丸いところの材質インデックス
-         * 光を受ける
-         * @default 0
-         */
-        this.spMatrixIndex = 0;
-/**
- * 目の材質
- * @default 0
- */
-        this.eyeMatrixIndex = 0;
-/**
- * アンテナの材質
- * @default 0
- */
-        this.antennaMatrixIndex = 0;
 
 /**
  * 材質数
  * @default 2
  */
-        this.materialNum = 2;
-
-
-/**
- * 外部からセットされる
- */
-        this.baseTex = null;
-        /** */
-        this.thumbTex = null;
-
-        /** */
-        this._tex2 = null;
-        /** */
-        this._tex3 = null;
-        /** */
-        this._tex4 = null;
-        /** */
-        this._tex5 = null;
-        /** */
-        this._tex6 = null;
-        /** */
-        this._tex7 = null;
-
-        this._tex8 = null;
-
-        this._tex9 = null;
-
-/**
- * テクスチャキャンバス配列
- */
-        this._texcanvass = [];
-
-/**
- * 格納テクスチャ数
- * @default 10
- */
-        this.texNum = 10;
-
-/**
- * 今回はこれを指定する必要があるみたい
- */
-        this.licenseUrl = `https://vrm.dev/licenses/1.0/`;
+        this.materialNum = 0;
 
 /**
  * @default '1.0'
@@ -243,9 +154,10 @@ export class VrmExporter10 {
          * 5125
          */
         this.UNSIGNED_INT = 5125;
-        /**
-         * 5126
-         */
+/**
+ * SCALAR
+ * @default 5126
+ */
         this.FLOAT = 5126;
 /**
  * 34962 bufferView.target 用
@@ -264,35 +176,6 @@ export class VrmExporter10 {
  * 9729 LINEAR
  */
         this.LINEAR = 9729;
-/**
- * 
- */
-        this.NEAREST_MIPMAP_NEAREST = 9984;
-/**
- * 
- */
-        this.LINEAR_MIPMAP_NEAREST = 9985;
-/**
- * 
- */
-        this.NEAREST_MIPMAP_LINEAR = 9986;
-/**
- * 9987 LL MIPMAP
- */
-        this.LINEAR_MIPMAP_LINEAR = 9987;
-
-/**
- * 33071 wrap* 用
- */
-        this.CLAMP_TO_EDGE = 33071;
-/**
- * 33648 wrap* 用
- */
-        this.MIRRORED_REPEAT = 33648;
-/**
- * 10497 wrap*用 デフォルト
- */
-        this.REPEAT = 10497;
     }
 
 
@@ -313,41 +196,6 @@ export class VrmExporter10 {
     }
 
 /**
- * パーツファイルを読み込む
- * @param {string} inpath 
- */
-    async loadPart(inpath) {
-        const res = await fetch(inpath)
-            .catch(err => {
-                console.warn(`loadPart`, err);
-            });
-        const obj = await res.json();
-        this.parts[inpath] = obj;
-
-        console.log(`loadPart succ`, obj);
-    }
-
-/**
- * .obj をパーツとして読み込みたい
- * bookmark: bookmark:
- */
-    async loadObj(inpath) {
-        const res = await fetch(inpath)
-            .catch(err => {
-                console.log(`loadObj catch`, err);
-            });
-        const text = await res.text();
-        const objparse = new ObjParse();
-        const obj = await objparse.parse(text, { mtl: false });
-        this.objpart = {};
-        for (const v of obj.os) {
-            const vertices = objparse.makeVertex(obj, v.name);
-            this.objpart[v.name] = vertices;
-        }
-        console.log(this.cl, `loadObj leave, obj`, obj, this.objpart);
-    }
-
-/**
  * ダウンロードする
  * @param {Blob} blob バイナリ
  * @param {string[]} ファイル名の配列 
@@ -357,7 +205,7 @@ export class VrmExporter10 {
             const a = document.createElement('a');
             a.download = v;
             a.href = URL.createObjectURL(blob);
-            a.dispatchEvent(new MouseEvent('click'));
+            a.click();
         }
     }
 
@@ -438,7 +286,7 @@ export class VrmExporter10 {
 
             if (indownload) {
                 this.download(blob,
-                    [`${base}.glb`, `${base}.vrm`]);
+                    [`${base}.glb`, `${base}.vrma`]);
             }
 
             if (inurl) {
@@ -450,84 +298,6 @@ export class VrmExporter10 {
             console.log(this.cl, `save leave false`);
             return null;
         }
-    }
-
-/**
- * TODO: コンストレイント
- * glTF node に VRMC_node_constraint を追加する
- * @param {{}[]} ns ノードの配列
- */
-    applyConstraints(ns) {
-        console.log(this.cl, 'applyConstraints called', 'not apply');
-        return;
-
-        for (const obj of ns) {
-            const ctrs = [
-                { name: 'leftTwist3',
-                    sourceName: "antenna6", ctr: {
-                        "roll": {
-                            "rollAxis": "Z",
-                            "weight": 1,
-                        }
-                    }
-                },
-                { name: 'leftTwist31',
-                    sourceName: "antenna5", ctr: {
-                        "roll": {
-                            "rollAxis": "X",
-                            "weight": 1,
-                        }
-                    }
-                },
-                { name: 'leftTwist2',
-                    sourceName: "antenna7", ctr: {
-                        "aim": {
-                            "aimAxis": "NegativeY",
-                            "weight": 1,
-                        }
-                    }
-                },
-                { name: 'leftTwist13',
-                    sourceName: "rightUpperArm", ctr: {
-                        "rotation": {
-                            "weight": 1,
-                        }
-                    }
-                },
-                /*{
-                    name: "",
-                    sourceName: "rightUpperArm",
-                    ctr: {
-                        "rotation": {
-                            "weight": 1,
-                        }
-                    }
-                }*/
-            ];
-            const found = ctrs.find(v => { return v.name === obj.name; });
-            if (found) {
-                // node index
-                const srcIndex = ns.findIndex(v => {
-                    return v.name === found.sourceName;
-                });
-                if (srcIndex >= 0) {
-                    const keys = Object.keys(found.ctr);
-                    for (const key of keys) {
-                        found.ctr[key].source = srcIndex;
-                        obj.extensions = {
-                            VRMC_node_constraint: {
-                                specVersion: "1.0",
-                                constraint: {
-                                    [key]: found.ctr[key]
-                                }
-                            }
-                        };
-                        console.log(key, JSON.stringify(obj.extensions.VRMC_node_constraint));
-                    }
-                }
-            }
-        }
-
     }
 
 /**
@@ -709,60 +479,6 @@ export class VrmExporter10 {
     }
 
 /**
- * bookmark: bookmark: 
- * メッシュと頂点を現状に追加する。obj パーツから
- * @param {Vtx[]} vts 点の配列
- * @param {{_global: number[], _sz: number[]}[]} nodes ノード配列 
- * @param {{}[]} arr 複数面。三段配列
- * @param {number} ji ジョイントインデックス
- * @param {string} inpath パーツパス
- * @param {number} mi 材質インデックス
- */
-    addObjPart(vts, nodes, arr, ji, inpath, mi) {
-        console.log(this.cl, `addObjPart called`);
-        //console.log(this.cl, vts.length, arr[mi].length);
-
-        /**
-         * @type {{vs: Vtx[], fs: number[]}
-         */
-        const partsource = this.objpart[inpath];
-/**
- * 開始前の vertex 数
- */
-        const vioffset = vts.length;
-
-        // vertex を追加する
-        for (const v of partsource.vs) {
-            /**
-             * バーテックスデータ
-             */
-            const vtx = v.clone();
-            let boi = + ji;
-            vtx.jnt.set(boi, boi, boi, boi);
-
-            vts.push(vtx);
-        }
-
-        // 面インデックスを追加する
-        /*
-        let fis = [];
-        for (const v of partsource.fs) {
-            fis.push(vioffset + v);
-            if (fis.length >= 3) {
-                arr[mi].push(fis);
-                fis = [];
-            }
-        }*/
-        for (const fis of partsource.faces) {
-            arr[mi].push(fis.map(v => vioffset + v));
-        }
-
-        //console.log(this.cl, partsource);
-        //console.log(this.cl, `addObjPart leave`, vts.length, arr[mi].length,
-        //    vts, arr[mi]);
-    }
-
-/**
  * メッシュと頂点を現状に追加する。ここ bookmark
  * @param {Vtx[]} vts 点の配列
  * @param {{_global: number[], _sz: number[]}[]} nodes ノード配列 
@@ -829,76 +545,6 @@ export class VrmExporter10 {
     }
 
 /**
- * 外部メッシュを，メッシュと頂点を現状に追加する
- * @param {Vtx[]} vts 点の配列
- * @param {{_global: number[], _sz: number[]}[]} nodes ノード配列 
- * @param {{}[]} arr 複数面。三段配列。
- * @param {number} ji ジョイントインデックス
- * @param {{vs:Vtx[], fs:number[], face:number[][]}} ingeosrc geometrysource
- * @param {number} mi 材質インデックス
- * @param {number} rate 位置倍率
- */
-addIsoParts(vts, nodes, arr, ji, ingeosrc, mi, rate, inopt = { fixuv: null }) {
-    console.log(this.cl, `addIsoParts called, ingeosrc`, ingeosrc);
-    //return;
-
-/**
- * モデル空間でのオフセット位置が _global
- * @type {{_global: number[]}}
- */
-    let v = nodes[ji];
-    const vioffset = vts.length; // 現在の末端
-
-    for (const vertex of ingeosrc.vs) {
-        let x = vertex.p.x;
-        let y = vertex.p.y;
-        let z = vertex.p.z;
-
-        const vtx = new Vtx();
-        vtx.p.set(x, y, z);
-        vtx.p.multiplyScalar(rate);
-        {
-//            vtx.n.set(vertex.n.x, vertex.n.y, vertex.n.z);
-            vtx.n.set(x, y, z);
-            vtx.n.normalize();
-        }
-
-        // OpenGL base を gltf base へ変換
-        vtx.uv.set(vertex.uv.x, 1 - vertex.uv.y);
-        if (inopt.fixuv) {
-            const ogluv = {
-                u: inopt.fixuv.x,
-                v: inopt.fixuv.y,
-            };
-            /*
-            const ang = vts.length * Math.PI * 2 / 65536;
-            const len = 0.0001;
-            ogluv.u += len * Math.cos(ang);
-            ogluv.v += len * Math.sin(ang);
-*/
-            vtx.uv.set(ogluv.u, 1 - ogluv.v);
-        }
-
-        let boi = + ji;
-        vtx.jnt.set(boi, boi, boi, boi);
-
-        vtx.p.add(new THREE.Vector3(
-            v._global[0], v._global[1], v._global[2]));
-
-        vts.push(vtx); // 末尾に追加していく
-    }
-
-    for (const face of ingeosrc.faces) {
-        const f3 = [];
-        for (const index of face) {
-            f3.push(vioffset + index);
-        }
-        arr[mi].push(f3);
-    }
-
-}
-
-/**
  * メッシュと頂点を現状に追加する。骨と関節追加する。
  * @param {Vtx[]} vts 点の配列
  * @param {{_global: number[], _sz: number[]}[]} nodes ノード配列 
@@ -946,109 +592,11 @@ addIsoParts(vts, nodes, arr, ji, ingeosrc, mi, rate, inopt = { fixuv: null }) {
     }
 
 /**
- * 材質8つ TODO: 材質変更
- * ms は材質配列
- * @returns {Object[]}
- */
-    createMaterials() {
-        console.log(this.cl, `createMaterials called`);
-        const ret = [];
-
-        for (let i = 0; i < this.materialNum; ++i) {
-            const name = `m${pad(i, 3)}`; // 一致させる
-
-            const mtoon = {
-                "specVersion": this.specVersion,
-                //"transparentWithZWrite": false,
-                "renderQueueOffsetNumber": 0,
-                shadeColorFactor: [0, 0, 0],
-                shadingShiftFactor: 0,
-                /*shadingShiftTexture: {
-                    index: 0, // man
-                    texCoord: 2, // opt 0
-                    scale: 1, // opt 1
-                }, */
-                shadingToonyFactor: 0.9, // ぼかしの広さ
-                giEqualizationFactor: 0.9,
-                //"matcapTexture": 0,
-                parametricRimLiftFactor: 0,
-                rimLightingMixFactor: 1,
-                // https://github.com/vrm-c/vrm-specification/blob/master/specification/VRMC_materials_mtoon-1.0/README.ja.md#outline-width
-                //"outlineWidthMode": "worldCoordinates",
-                "outlineWidthMode": "screenCoordinates",
-                "outlineWidthFactor": 0.005,
-                "outlineColorFactor": [1, 0, 0],
-                outlineLightingMixFactor: 1,
-                //uvAnimationScrollXSpeedFactor: 0.1,
-                //uvAnimationScrollYSpeedFactor: 0.2,
-                //uvAnimationRotationSpeedFactor: 0.01,
-                                        "extensions": {},
-                                        "extras": {}
-            };
-
-            const m = {
-name: name,
-// https://github.com/KhronosGroup/glTF/blob/main/specification/2.0/schema/material.pbrMetallicRoughness.schema.json
-                pbrMetallicRoughness: {
-//                    baseColorFactor: [0.6, 1, 0.5, 1],
-//                    baseColorFactor: [0.1, 0.1, 0.1, 1],
-                    // glTF の uv は左上が原点
-                    baseColorTexture: { index: 0, texCoord: 0 },
-// テクスチャにリニアで積
-                    //metallicFactor: 1.0,
-                    metallicFactor: 0.0,
-// テクスチャにリニアで積
-                    roughnessFactor: 0.2,
-//                    metallicRoughnessTexture: { index: 0, texCoord: 0 },
-// B が metalness, G が roughness, R と A は無視しなければならない undefined の場合 1.0 とする
-                },
-                /*
-                normalTexture: {
-
-                },
-                occlusionTexture: {
-// R のみ使用する(高いほどフル間接照明) GBA は無視する
-                },
-                emissiveTexture: {
-// A が存在したら無視する
-                },
-                */
-emissiveFactor: [0.0, 0.0, 0.0],
-alphaMode: 'OPAQUE', // オペイク
-//alphaCutoff: 0.5, // 以上採用するマスクとして扱うだけ ブレンドしない 'MASK' のみ
-doubleSided: true, // default false
-"extensions": {
-    "VRMC_materials_mtoon": mtoon,
-}
-            };
-            if (i === 1) {
-                mtoon.matcapFactor = [1, 1, 1];
-                mtoon.matcapTexture = {
-                    index: 8, // img08
-                    texCoord: 0,
-                    //extensions: {},
-                    //extras: {},
-                };
-            }
-
-            ret.push(m);
-        }
-        console.log(this.cl, `createMaterials leave`, ret);
-        return ret;
-    }
-
-/**
  * .gltf と .bin に相当するデータを生成して
  * 内部に保持する
  */
     makeData2() {
-        console.info(this.cl, `makeDate2 called`);
-
-/**
- * TODO: ここを変更
- */
-        const modelVersion = `3.0.1`;
-        const modelTitle = 'poly ccc 図形人形 VRM 1.0';
+        console.info(`makeDate2 called`);
 
         /**
          * あとでセットする obj.nodes
@@ -1057,7 +605,6 @@ doubleSided: true, // default false
         // TODO: 1104
         //this.makeTree(treenodes);
         this.makeTreeFromFlat(treenodes);
-        this.applyConstraints(treenodes);
 
         /**
          * 頂点オブジェクトの配列
@@ -1077,7 +624,7 @@ doubleSided: true, // default false
         /**
          * メッシュ生成後の頂点数
          */
-        const vtNum = vts.length;
+        const vtNum = 0;
 
 /**
  * ノードすべて。bone でなくてもテクスチャに影響を与えるので
@@ -1133,15 +680,6 @@ doubleSided: true, // default false
          * 面構成インデックスの先頭
          */
         const facetop = bvs.length;
-        for (let i = 0; i < arr.length; ++i) {
-            const facenum = arr[i].length;
-            bvs.push({ // 面構成頂点
-                target: VrmExporter10.TARGET_ELEMENT_ARRAY_BUFFER,
-                byteLength: facenum * 3 * 4,
-                componentType: this.UNSIGNED_INT,
-                count: facenum * 3,
-                type: 'SCALAR' });
-        }
 
         const inverseIndex = bvs.length;
         console.info(`面と逆行列(bufferViewで`, facetop, inverseIndex);
@@ -1156,10 +694,7 @@ doubleSided: true, // default false
         const obj = {
             //extensionsRequired: [],
             extensionsUsed: [
-                "VRMC_vrm",
-                "VRMC_springBone",
-                "VRMC_node_constraint",
-                "VRMC_materials_mtoon",
+                "VRMC_vrm_animation",
             ],
             asset: {
                 version: "2.0",
@@ -1171,65 +706,18 @@ doubleSided: true, // default false
             buffers: [
                 { byteLength: 0 /*binBufByte*/ }
             ],
-            bufferViews: [],
-            accessors: [],
-            images: [],
-            textures: [],
-            materials: [],
-            samplers: [
-                { // 通常テクスチャ用
-                    magFilter: this.LINEAR,
-                    minFilter: this.LINEAR_MIPMAP_LINEAR,
-                    wrapS: this.REPEAT,
-                    wrapT: this.REPEAT
-                    //wrapS: this.CLAMP_TO_EDGE,
-                    //wrapT: this.CLAMP_TO_EDGE
-                },
-                {
-                    magFilter: this.LINEAR,
-                    minFilter: this.LINEAR,
-                    wrapS: this.REPEAT,
-                    wrapT: this.REPEAT
-                    //wrapS: this.CLAMP_TO_EDGE,
-                    //wrapT: this.CLAMP_TO_EDGE
-                }
-            ],
-            meshes: [ { primitives: [] }],
-            skins: [
-                {
-                    inverseBindMatrices: inverseIndex, joints: []
-                } // bookmark
-            ],
+            bufferViews: [], // 182個とか
+            accessors: [], // 
+
+            animations: [], // 配列
 
             extensions: {
-                "VRMC_vrm": {
+                "VRMC_vrm_animation": {
                     specVersion: this.specVersion,
-                    meta: {
-                        name: modelTitle, // man
-                        version: modelVersion,
-                        authors: ['usage'], // man
-//                        copyrightInformation: '',
-//                        contactInformation: '',
-//                        references: [],
-//                        thirdPartyLicenses: [],
-                        thumbnailImage: 1,
-                        licenseUrl: this.licenseUrl, // man
-                        avatarPermission: 'everyone',
-                        allowExcessivelyViolentUsage: true,
-                        allowExcessivelySexualUsage: true,
-
-//                        allowedUserName: 'Everyone',
-                        commercialUsage: 'corporation',
-                        allowPoliticalOrReligiousUsage: true,
-                        allowAntisocialOrHateUsage: true,
-                        creditNotation: "unnecessary",
-                        allowRedistribution: true,
-                        modification: 'allowModificationRedistribution',
-//                        otherLicenseUrl: '',
-                    },
                     humanoid: {
                         humanBones: {}
                     },
+
                     firstPerson: {
                         meshAnnotations: [
                             { node: 0,
@@ -1250,30 +738,6 @@ doubleSided: true, // default false
                     },
                     extensions: {},
                     extras: {}
-                }, // VRM
-                "VRMC_springBone": {
-                    "specVersion": this.specVersion,
-                    "colliders": [
-                    ],
-                    "colliderGroups": [
-                        {
-                            "name": "body",
-                            "colliders": []
-                        },
-                        {
-                            "name": "antenna",
-                            "colliders": []
-                        },
-                        {
-                            "name": "antenna1",
-                            "colliders": []
-                        },
-                        {
-                            "name": "antenna4",
-                            "colliders": []
-                        }
-                    ],
-                    "springs": []
                 },
             } // extensions
 
@@ -1282,28 +746,7 @@ doubleSided: true, // default false
 /**
  * VRM! VRM!
  */
-        const vrm = obj.extensions.VRMC_vrm;
-
-        const colliders = obj.extensions.VRMC_springBone.colliders;
-/**
- * 体コリジョン
- * @type {number[]}
- */
-        const colligr0 = obj.extensions.VRMC_springBone.colliderGroups[0].colliders;
-/**
- * アンテナのコリジョンの方
- * @type {number[]}
- */
-        const colligr1 = obj.extensions.VRMC_springBone.colliderGroups[1].colliders;
-/**
- * アンテナもう一つ
- */
-        const colligr2 = obj.extensions.VRMC_springBone.colliderGroups[2].colliders;
-
-/**
- * アンテナさらに
- */
-        const colligr3 = obj.extensions.VRMC_springBone.colliderGroups[3].colliders;
+        const vrm = obj.extensions.VRMC_vrm_animation;
 
         const globals = [];
     { // node のツリー構造
@@ -1328,7 +771,7 @@ doubleSided: true, // default false
             }
 
             if (isbone) {
-// 1.0βで name key になった
+// 1.0 で name key になった
                 vrm.humanoid.humanBones[v.name] = b;
             }
 
@@ -1336,36 +779,6 @@ doubleSided: true, // default false
 
             // bookmark 違うけど一応ここで
             globals.push(v._global);
-            obj.skins[0].joints.push(i);
-
-//// (ノード)ボーン追従 コリジョンにするか
-            const coll = {
-                node: + i,
-                "shape": {
-                    "sphere": {
-                        offset: [0, 0, 0], // float3 だった;;
-                        radius: + v._sz[0], // fix
-                    }
-                }
-            };
-
-            const index = colliders.length;
-            const re = /antenna(?<num>\d+)/;
-            const m = re.exec(v.name);
-            if (m) {
-                const num = Number.parseFloat(m.groups.num);
-                if (num <= 9) {
-                    colligr1.push(index);
-                } else if (10 <= num && num <= 19) {
-                    colligr2.push(index);
-                } else {
-                    colligr3.push(index);
-                }
-            } else {
-                colligr0.push(index);
-            }
-
-            colliders.push(coll);
         }
 
         obj.scenes[0].nodes.push(0);
@@ -1380,9 +793,6 @@ doubleSided: true, // default false
         });
         obj.scenes[0].nodes.push(index);
     }
-
-    const ms = this.createMaterials();
-    obj.materials.push(...ms);
 
     { // モーション エクスプレッション
         for (const k of [
@@ -1416,114 +826,6 @@ doubleSided: true, // default false
         }
     }
 
-//// アンテナ スプリングボーン
-
-    if (true) { // SpringChain
-        const spring = {
-            joints: []
-        };
-        obj.extensions.VRMC_springBone.springs.push(spring);
-
-        const first = 1;
-        const last = 9;
-        const joints = spring.joints;
-        for (let i = first; i < last; ++i) {
-            const name = `antenna${i}`;
-            const index = treenodes.findIndex(v => { return v.name === name; });
-            if (index < 0) {
-                console.error('not found', name);
-            }
-            const joint = {
-                "node": index,
-                "hitRadius": 0.01,
-                //"stiffness": this.STIFF, // 0.0-1.0
-                "stiffness": 0.0,
-                "gravityPower": this.GRAV,
-                "gravityDir": [0, -1, 0],
-                //"dragForce": this.DRAG,
-                "dragForce": 0.01, // 減速させる力 0.0-1.0
-            };
-            joints.push(joint);
-        }
-        {
-            const name = `antenna${last}`;
-            const index = treenodes.findIndex(v => { return v.name === name; });
-            if (index < 0) {
-                console.error('not found leaf', name);
-            }
-            joints.push({ "node": index }); // 末尾
-        }
-    }
-
-    for (const node of treenodes) {
-        if (!Array.isArray(node._k)) {
-            continue;
-        }
-        if (!node._k.includes('onechain')) {
-            continue;
-        }
-
-        const spring = {
-            joints: []
-        };
-        obj.extensions.VRMC_springBone.springs.push(spring);
-        const joints = spring.joints;
-        {
-            const name = node._parent;
-            const index = treenodes.findIndex(v => {
-                return (name === v.name);
-            });
-
-            const joint = {
-                "node": index,
-            };
-                Object.assign(joint, {
-                    "hitRadius": 0.01,
-                    //"stiffness": this.STIFF,
-                    "stiffness": 0,
-                    "gravityPower": this.GRAV,
-                    "gravityDir": [0, -1, 0],
-                    //"dragForce": this.DRAG,
-                    "dragForce": 0.005, // 1.0 楽しいw
-                });
-            joints.push(joint);
-        }
-        {
-            const name = node.name;
-            let index = treenodes.findIndex(v => {
-                return (name === v.name);
-            });
-            if (index < 0) {
-                console.warn('not found', name);
-            }
-            joints.push({ "node": index }); // 末尾
-        }
-
-        console.log(JSON.parse(JSON.stringify(spring)));
-    }
-
-    if (false) {
-        const no = 41;
-        const joints = obj.extensions.VRMC_springBone.springs[2].joints;
-        for (let i = no; i <= no; ++i) {
-            const name = `antenna${i}`;
-            const index = treenodes.findIndex(v => { return v.name === name; });
-            const joint = {
-                "node": index,
-                "hitRadius": 0.01,
-                "stiffness": this.STIFF,
-                "gravityPower": this.GRAV,
-                "gravityDir": [0, -1, 0],
-                "dragForce": this.DRAG
-            };
-            joints.push(joint);
-        }
-        {
-            const name = `antenna${no + 1}`;
-            const index = treenodes.findIndex(v => { return v.name === name; });
-            joints.push({ "node": index }); // 末尾
-        }
-    }
 
 /**
  * bufferView の番号が1つずつ増えていく
@@ -1614,8 +916,8 @@ doubleSided: true, // default false
          * バイトオフセット
          */
         let c = 0;
-        { // position
-
+        { // key time
+            let i = 0;
             for (const v of vts) {
                 const pp = [v.p.x, v.p.y, v.p.z];
                 pp.forEach((v2, j) => {
@@ -1627,53 +929,26 @@ doubleSided: true, // default false
                 });
             }
 
-            obj.accessors[0].min = [...range.min];
-            obj.accessors[0].max = [...range.max];
-            console.log(`最大最小`, obj.accessors[0]);
+            obj.accessors[i].min = [...range.min];
+            obj.accessors[i].max = [...range.max];
+            console.log(`最大最小`, obj.accessors[i]);
         }
-        { // normal
+        { // rotation
+            let i = 0;
             for (const v of vts) {
-                p.setFloat32(c  , v.n.x, true);
-                p.setFloat32(c+4, v.n.y, true);
-                p.setFloat32(c+8, v.n.z, true);
-                c += 3 * 4;
-            }
-        }
-        { // uv ここがメイン
-            const rate = 1;
-            for (const v of vts) {
-                p.setFloat32(c  , v.uv.x * rate, true);
-                p.setFloat32(c+4, v.uv.y * rate, true);
-                c += 2 * 4;
-            }
-        }
+                const pp = [v.p.x, v.p.y, v.p.z, 1];
+                pp.forEach((v2, j) => {
+                    p.setFloat32(c, v2, true);
+                    c += 4;
 
-        { // WEIGHTS_0
-            for (const v of vts) {
-                p.setFloat32(c   , v.wei.x, true);
-                p.setFloat32(c+ 4, v.wei.y, true);
-                p.setFloat32(c+ 8, v.wei.z, true);
-                p.setFloat32(c+12, v.wei.w, true);
-                c += 4 * 4;
+                    range.min[j] = Math.min(range.min[j], v2);
+                    range.max[j] = Math.max(range.max[j], v2);
+                });
             }
-        }
-        { // JOINTS_0
-            for (const v of vts) {
-                p.setUint16(c   , v.jnt.x, true);
-                p.setUint16(c+ 2, v.jnt.y, true);
-                p.setUint16(c+ 4, v.jnt.z, true);
-                p.setUint16(c+ 6, v.jnt.w, true);
-                c += 2 * 4;
-            }
-        }
 
-        for (const v of arr) { // face indices 材質8つ
-            for (const f of v) { // 1つの面
-                p.setUint32(c  , f[0], true);
-                p.setUint32(c+4, f[1], true);
-                p.setUint32(c+8, f[2], true);
-                c += 3 * 4;
-            }
+            obj.accessors[i].min = [...range.min];
+            obj.accessors[i].max = [...range.max];
+            console.log(`最大最小`, obj.accessors[i]);
         }
 
         { // 行列
@@ -1693,15 +968,7 @@ doubleSided: true, // default false
         this.deleteExtra(obj);
 
         if (true) {
-            let facesum = 0;
-            for (const v of arr) {
-                facesum += v.length;
-            }
-
             console.info(`ノード`, obj.nodes.length);
-            console.info(`頂点`, vts.length);
-            console.info(`面数(32000)`, facesum);
-            console.info(`テクスチャ数`, obj.textures.length);
             console.info(`ボーン(128)`);
         }
 

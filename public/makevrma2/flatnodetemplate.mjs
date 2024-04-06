@@ -8,34 +8,6 @@
 // 親指書き換え済み
 
 export class Flattree {
-    static getTree() {
-        const num = Flattree._flattree.length;
-        const table = new Array(num);
-        const obj = {};
-        for (let i = 0; i < num; ++i) {
-            const item = Flattree._flattree[i];
-            item.c = [];
-            table[i] = {
-                item,
-            };
-
-            if (!item.parent) {
-                Object.assign(obj, item);
-                continue;
-            }
-            // 探す
-            const index = table.findIndex(v => {
-                return true;
-            });
-            if (index < 0) {
-                throw new Error(`invalid data, ${item.name}`);
-                continue;
-            }
-            // 追加する
-            table[index].item.c.push(item);
-        }
-        return obj;
-    }
     static _flattree = [
 {"parent": null, "name": "Armature", "k": ["exc"], "pts":[], "r": [0,0,0], "sz": [0.0] },
 {"parent": "Armature", "name": "hips", "r": [0, 0.9, 0], "sz": [0.08]},
@@ -61,17 +33,6 @@ export class Flattree {
 {"parent": "leftEye", "name":"leftEyeEnd", "pts":[], "k":["exc"], "r": [0,0, 0.1], "sz": [0.02]},
 {"parent": "head", "name":"rightEye", "pts":[], "r": [-0.04, 0, 0.01], "sz": [0.01]},
 {"parent": "rightEye", "name":"rightEyeEnd", "k": ["exc"], "pts": [], "r": [0,0, 0.1], "sz": [0.02]},
-
-{"parent":"chest",    "name":"antenna0", "k": ["exc"], "pts": [], "r":[0.0, 0.0, 0.16], "sz":[0.02]},
-{"parent":"antenna0", "name":"antenna1", "k": ["exc"], "pts": [], "r":[0, 0.0, 0.16], "sz": [0.01]},
-{"parent":"antenna1", "name":"antenna2", "k": ["exc"], "pts": [], "r":[0, 0.0, 0.16], "sz": [0.01]},
-{"parent":"antenna2", "name":"antenna3", "k": ["exc"], "pts": [], "r":[0, 0.0, 0.16], "sz": [0.01]},
-{"parent":"antenna3", "name":"antenna4", "k": ["exc"], "pts": [], "r":[0, 0.0, 0.16], "sz": [0.01]},
-{"parent":"antenna4", "name":"antenna5", "k": ["exc"], "pts": [], "r":[0, 0.0, 0.16], "sz": [0.01]},
-{"parent":"antenna5", "name":"antenna6", "k": ["exc"], "pts": [], "r":[0, 0.0, 0.16], "sz": [0.01]},
-{"parent":"antenna6", "name":"antenna7", "k": ["exc"], "pts": [], "r":[0, 0.0, 0.16], "sz": [0.01]},
-{"parent":"antenna7", "name":"antenna8", "k": ["exc"], "pts": [], "r":[0, 0.0, 0.16], "sz": [0.01]},
-{"parent":"antenna8", "name":"antenna9", "k": ["exc"], "pts": [], "r":[0, 0.0, 0.16], "sz": [0.01]},
 
 {"parent": "chest", "name": "leftShoulder", "pts":[], "r": [0.1, 0, -0.01], "sz": [0.04]},
 {"parent": "leftShoulder", "name": "leftUpperArm", "r": [0.1, 0, 0], "sz": [0.04]},
@@ -132,31 +93,6 @@ export class Flattree {
 {"parent": "rightLittleProximal", "name": "rightLittleIntermediate", "pts":[], "r": [-0.04, 0,0], "ci": [4,4,0], "sz": [0.008]},
 {"parent": "rightLittleIntermediate",  "name": "rightLittleDistal", "pts":[], "r": [-0.02, 0,0], "ci": [5,5,0], "sz": [0.007]},
 {"parent": "rightLittleDistal", "name": "rightLittleEnd", "k":["exc"], "pts":[], "r": [-0.015, 0,0], "ci":[5,5,0], "sz": [0.004]},
-
-{"parent":"rightLowerArm", "name":"antenna20", "k": ["exc"], "pts": [], "r":[0, 0.0, 0.16], "sz": [0.01]},
-{"parent":"antenna20", "name":"antenna21", "k": ["exc"], "pts": [], "r":[0, 0.0, 0], "sz": [0.01]},
-{"parent":"antenna21", "name":"antenna22", "k": ["onechain", "exc"], "pts": [], "r":[0, 0.0, 0.16], "sz": [0.01]},
-{"parent":"antenna20", "name":"antenna23", "k": ["exc"], "roll": { "sourcename" : "antenna21" }, "pts": ["plate03"], "r":[0, 0.0, 0], "sz": [0.01]},
-
-{"parent":"antenna23", "name":"antenna25", "k": ["exc"], "pts": [], "r":[0, 0.0, 0.16], "sz": [0.01]},
-{"parent":"antenna25", "name":"antenna26", "k": ["onechain", "exc"], "pts": [], "r":[0, 0.0, 0.16], "sz": [0.01]},
-{"parent":"antenna23", "name":"antenna27", "k": ["exc"], "roll": { "sourcename" : "antenna25" }, "pts": ["plate03"], "r":[0, 0.0, 0.16], "sz": [0.01]},
-
-{"parent":"antenna27", "name":"antenna29", "k": ["exc"], "pts": [], "r":[0, 0.0, 0.16], "sz": [0.01]},
-{"parent":"antenna29", "name":"antenna30", "k": ["onechain", "exc"], "pts": [], "r":[0, 0.0, 0.16], "sz": [0.01]},
-{"parent":"antenna27", "name":"antenna31", "k": ["exc"], "roll": { "sourcename" : "antenna29" }, "pts": ["plate03"], "r":[0, 0.0, 0.16], "sz": [0.01]},
-
-{"parent":"antenna31", "name":"antenna33", "k": ["exc"], "pts": [], "r":[0, 0.0, 0.16], "sz": [0.01]},
-{"parent":"antenna33", "name":"antenna34", "k": ["onechain", "exc"], "pts": [], "r":[0, 0.0, 0.16], "sz": [0.01]},
-{"parent":"antenna31", "name":"antenna35", "k": ["exc"], "roll": { "sourcename" : "antenna33" }, "pts": ["plate03"], "r":[0, 0.0, 0.16], "sz": [0.01]},
-
-{"parent":"antenna35", "name":"antenna37", "k": ["exc"], "pts": [], "r":[0, 0.0, 0.16], "sz": [0.01]},
-{"parent":"antenna37", "name":"antenna38", "k": ["onechain", "exc"], "pts": [], "r":[0, 0.0, 0.16], "sz": [0.01]},
-{"parent":"antenna35", "name":"antenna39", "k": ["exc"], "roll": { "sourcename" : "antenna37" }, "pts": ["plate03"], "r":[0, 0.0, 0.16], "sz": [0.01]},
-
-{"parent":"antenna39", "name":"antenna41", "k": ["exc"], "pts": [], "r":[0, 0.0, 0.16], "sz": [0.01]},
-{"parent":"antenna41", "name":"antenna42", "k": ["onechain", "exc"], "pts": [], "r":[0, 0.0, 0.16], "sz": [0.01]},
-{"parent":"antenna39", "name":"antenna43", "k": ["exc"], "roll": { "sourcename" : "antenna41" }, "pts": ["plate03"], "r":[0, 0.0, 0.16], "sz": [0.01]}
 
     ];
 }

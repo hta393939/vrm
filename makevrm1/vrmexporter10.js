@@ -177,39 +177,45 @@ class VrmExporter10 {
 
 /**
  * 材質数
- * @default 1
+ * @default 2
  */
-        this.materialNum = 1;
+        this.materialNum = 2;
 
 
 /**
- * 
+ * 外部からセットされる
  */
         this.baseTex = null;
         /** */
         this.thumbTex = null;
 
-        this.tex0 = null;
+        /** */
+        this._tex2 = null;
+        /** */
+        this._tex3 = null;
+        /** */
+        this._tex4 = null;
+        /** */
+        this._tex5 = null;
+        /** */
+        this._tex6 = null;
+        /** */
+        this._tex7 = null;
 
-        this.tex1 = null;
-        /** */
-        this.tex2 = null;
-        /** */
-        this.tex3 = null;
-        /** */
-        this.tex4 = null;
-        /** */
-        this.tex5 = null;
-        /** */
-        this.tex6 = null;
-        /** */
-        this.tex7 = null;
+        this._tex8 = null;
+
+        this._tex9 = null;
+
+/**
+ * テクスチャキャンバス配列
+ */
+        this._texcanvass = [];
 
 /**
  * 格納テクスチャ数
- * @default 2
+ * @default 10
  */
-        this.texNum = 2;
+        this.texNum = 10;
 
 /**
  * 今回はこれを指定する必要があるみたい
@@ -851,13 +857,26 @@ addIsoParts(vts, nodes, arr, ji, ingeosrc, mi, rate, inopt = { fixuv: null }) {
         const vtx = new Vtx();
         vtx.p.set(x, y, z);
         vtx.p.multiplyScalar(rate);
-        vtx.n.set(vertex.n.x, vertex.n.y, vertex.n.z);
-        vtx.n.normalize();
+        {
+//            vtx.n.set(vertex.n.x, vertex.n.y, vertex.n.z);
+            vtx.n.set(x, y, z);
+            vtx.n.normalize();
+        }
 
         // OpenGL base を gltf base へ変換
         vtx.uv.set(vertex.uv.x, 1 - vertex.uv.y);
         if (inopt.fixuv) {
-            vtx.uv.set(inopt.fixuv.x, 1 - inopt.fixuv.y);
+            const ogluv = {
+                u: inopt.fixuv.x,
+                v: inopt.fixuv.y,
+            };
+            /*
+            const ang = vts.length * Math.PI * 2 / 65536;
+            const len = 0.0001;
+            ogluv.u += len * Math.cos(ang);
+            ogluv.v += len * Math.sin(ang);
+*/
+            vtx.uv.set(ogluv.u, 1 - ogluv.v);
         }
 
         let boi = + ji;
@@ -921,19 +940,19 @@ addIsoParts(vts, nodes, arr, ji, ingeosrc, mi, rate, inopt = { fixuv: null }) {
                     const opt = {
                         fixuv: Util.chipuv(r, g, b),
                     };
-                    let ok = false;
+                    let mtlidx = -1;
                     if (0 <= num && num <= 9) {
-                        ok = true;
+                        mtlidx = 1;
                     }
                     if (node?._pts?.includes('plate03')) {
-                        ok = true;
+                        mtlidx = 1;
                     }
-                    if (ok) {
+                    if (mtlidx >= 0) {
                         this.addIsoParts(vts, nodes,
                             arr,
                             i,
                             this.isoparts['plate03'],
-                            0, // material index
+                            mtlidx, // material index
                             0.02, // rate
                             opt);
                     }
@@ -1275,6 +1294,36 @@ addIsoParts(vts, nodes, arr, ji, ingeosrc, mi, rate, inopt = { fixuv: null }) {
 
         for (let i = 0; i < this.materialNum; ++i) {
             const name = `m${pad(i, 3)}`; // 一致させる
+
+            const mtoon = {
+                "specVersion": this.specVersion,
+                //"transparentWithZWrite": false,
+                "renderQueueOffsetNumber": 0,
+                shadeColorFactor: [0, 0, 0],
+                shadingShiftFactor: 0,
+                /*shadingShiftTexture: {
+                    index: 0, // man
+                    texCoord: 2, // opt 0
+                    scale: 1, // opt 1
+                }, */
+                shadingToonyFactor: 0.9, // ぼかしの広さ
+                giEqualizationFactor: 0.9,
+                //"matcapTexture": 0,
+                parametricRimLiftFactor: 0,
+                rimLightingMixFactor: 1,
+                // https://github.com/vrm-c/vrm-specification/blob/master/specification/VRMC_materials_mtoon-1.0/README.ja.md#outline-width
+                //"outlineWidthMode": "worldCoordinates",
+                "outlineWidthMode": "screenCoordinates",
+                "outlineWidthFactor": 0.005,
+                "outlineColorFactor": [1, 0, 0],
+                outlineLightingMixFactor: 1,
+                //uvAnimationScrollXSpeedFactor: 0.1,
+                //uvAnimationScrollYSpeedFactor: 0.2,
+                //uvAnimationRotationSpeedFactor: 0.01,
+                                        "extensions": {},
+                                        "extras": {}
+            };
+
             const m = {
 name: name,
 // https://github.com/KhronosGroup/glTF/blob/main/specification/2.0/schema/material.pbrMetallicRoughness.schema.json
@@ -1302,261 +1351,25 @@ name: name,
 // A が存在したら無視する
                 },
                 */
-                emissiveFactor: [0.0, 0.0, 0.0],
+emissiveFactor: [0.0, 0.0, 0.0],
 alphaMode: 'OPAQUE', // オペイク
 //alphaCutoff: 0.5, // 以上採用するマスクとして扱うだけ ブレンドしない 'MASK' のみ
 doubleSided: true, // default false
-                "extensions": {
-                    "VRMC_materials_mtoon": {
-"specVersion": this.specVersion,
-//"transparentWithZWrite": false,
-"renderQueueOffsetNumber": 0,
-shadeColorFactor: [0, 0, 0],
-shadingShiftFactor: 0,
-/*shadingShiftTexture: {
-    index: 0, // man
-    texCoord: 2, // opt 0
-    scale: 1, // opt 1
-}, */
-shadingToonyFactor: 0.9, // ぼかしの広さ
-giEqualizationFactor: 0.9,
-//"matcapTexture": 0,
-parametricRimLiftFactor: 0,
-rimLightingMixFactor: 1,
-// https://github.com/vrm-c/vrm-specification/blob/master/specification/VRMC_materials_mtoon-1.0/README.ja.md#outline-width
-//"outlineWidthMode": "worldCoordinates",
-"outlineWidthMode": "screenCoordinates",
-"outlineWidthFactor": 0.005,
-"outlineColorFactor": [1, 0, 0],
-outlineLightingMixFactor: 1,
-//uvAnimationScrollXSpeedFactor: 0.1,
-//uvAnimationScrollYSpeedFactor: 0.2,
-//uvAnimationRotationSpeedFactor: 0.01,
-                        "extensions": {},
-                        "extras": {}
-                    }
-                }
+"extensions": {
+    "VRMC_materials_mtoon": mtoon,
+}
             };
-            ret.push(m);
-
-            let prop = {};
-            switch(i) {
-                case 0: // 骨のところ 面貼り
-                case 7:
-                    prop = { // VRM/MToon シェーダー
-                    };
-                break;
-
-                case 1: // 丸いところ 色 uv 指定
-                    prop = { // VRM/MToon シェーダー
-                    };
-                break;
-
-                case 2: // VRM/MToon シェーダー 目のところ予定
-                    prop = {
-"_UvAnimScrollX": 0.25,
-//"_ReceiveShadowRate":1,
-//"_ShadeShift":0,
-//"_ShadeToony": 0.9,
-"_LightColorAttenuation": 1, // 光の影響を受けない
-//"_OutlineWidth": 0.5,
-//"_OutlineScaledMaxDistance": 1,
-//"_OutlineLightingMix": 1,
-//"_DebugMode": 0,
-"_BlendMode": 0,
-//"_OutlineWidthMode": 0,
-//"_OutlineColorMode": 0,
-"_CullMode": 2,
-//"_OutlineCullMode": 1,
-//textureProperties: { _MainTex: 7 },
-"_Color": [1,1,1, 1],
-//"_ShadeColor": [0.1, 0.9, 0.1, 1], // cluster で効いてる
-//_MainTex: [0, 0, 0.5, 0.5], // オフセットと比率 効く 3tene
-//_BumpMap: [0,0, 1,1],
-//_EmissionColor: [0.1, 0.1, 0.1, 1]
-                };
-                break;
-
-                case 3: // VRM/MToon シェーダー アンテナのところ予定
-                    prop = {
-//"_UvAnimScrollX": 0.01,
-//"_UvAnimScrollY": 0.01,
-//"_UvAnimRotation": 0.01,
-//"_ReceiveShadowRate":1,
-//"_ShadeShift":0,
-//"_ShadeToony": 0.9,
-//"_LightColorAttenuation": 0.5,
-"_OutlineWidth": 0.5,
-"_OutlineScaledMaxDistance": 1,
-"_OutlineLightingMix": 1,
-//"_DebugMode": 0,
-"_BlendMode": 0,
-//"_OutlineWidthMode": 0,
-//"_OutlineColorMode": 0,
-"_CullMode": 2,
-"_OutlineCullMode": 1,
-
-_MainTex: 0,
-                            //_BumpMap: 2,
-                            //_SphereAdd: 3
-"_Color": [1,1,1, 1],
-//"_ShadeColor": [0.1, 0.9, 0.1, 1], // cluster で効いてる
-//_MainTex: [0, 0, 0.5, 0.5], // オフセットと比率 効く 3tene
-//_BumpMap: [0,0, 1,1],
-//_EmissionColor: [0.1, 0.1, 0.1, 1]
-                };
-                break;
-
-                case 4: // VRM/ シェーダー
-                    prop = {
-"_UvAnimScrollX": 0.01,
-"_UvAnimScrollY": 0.01,
-"_UvAnimRotation": 0.01,
-"_Cutoff": 0.5,
-"_BumpScale": 1,
-"_ReceiveShadowRate":1, "_ShadeShift":0,
-"_ShadeToony": 0.9,
-"_LightColorAttenuation": 0.5,
-"_OutlineWidth": 0.5,
-"_OutlineScaledMaxDistance": 1,
-"_OutlineLightingMix": 1, "_DebugMode": 0,
-"_BlendMode": 0, "_OutlineWidthMode": 0,
-"_OutlineColorMode": 0, "_CullMode": 2,
-"_OutlineCullMode": 1,
-_MainTex: 0,
-                            //_BumpMap: 2,
-                            //_SphereAdd: 3
-    "_Color": [1,1,1, 1],
-//"_ShadeColor": [0.1, 0.9, 0.1, 1], // cluster で効いてる
-_MainTex: [0, 0, 0.5, 0.5], // オフセットと比率 効く 3tene
-//_BumpMap: [0,0, 1,1],
-//_EmissionColor: [0.1, 0.1, 0.1, 1]
-                };
-                    break;
-
-                    case 5: // VRM/ シェーダー
-                        prop = {
-    "_UvAnimScrollX": 0.01,
-    "_UvAnimScrollY": 0.01,
-    "_UvAnimRotation": 0.01,
-    "_Cutoff": 0.5,
-    "_BumpScale": 1,
-    "_ReceiveShadowRate":1, "_ShadeShift":0,
-    "_ShadeToony": 0.9,
-"_LightColorAttenuation": 0.5,
-    "_OutlineWidth": 0.5,
-    "_OutlineScaledMaxDistance": 1,
-    "_OutlineLightingMix": 1, "_DebugMode": 0,
-    "_BlendMode": 0, "_OutlineWidthMode": 0,
-    "_OutlineColorMode": 0, "_CullMode": 2,
-    "_OutlineCullMode": 1,
-    "_MToonVersion": 32,
-    "_Mode": 0,
-    "_SrcBlend": 1.0,
-    "_DstBlend": 0.0,
-    "_ZWrite": 1,
-    "_IsFirstSetup": 0,
-_MainTex: 1, _BumpMap: 2, _SphereAdd: 3,
-    "_Color": [1,1,1, 1],
-    "_ShadeColor": [0.1, 0.9, 0.1, 1], // cluster で効いてる
-//_MainTex: [0, 0, 0.5, 0.5], // オフセットと比率 効く 3tene
-//_BumpMap: [0,0, 1,1],
-//_EmissionColor: [0.1, 0.1, 0.1, 1]
-                    };
-                        break;
-
-                        case 6: // VRM/ シェーダー パーティクルとか
-                            prop = {
-        "_UvAnimScrollX": 0.01,
-        "_UvAnimScrollY": 0.01,
-        "_UvAnimRotation": 0.01,
-        "_Cutoff": 0.5,
-        "_BumpScale": 1,
-        "_ReceiveShadowRate":1, "_ShadeShift":0,
-        "_ShadeToony": 0.9,
-"_LightColorAttenuation": 0.5,
-        "_OutlineWidth": 0.5,
-        "_OutlineScaledMaxDistance": 1,
-        "_OutlineLightingMix": 1, "_DebugMode": 0,
-        "_BlendMode": 0, "_OutlineWidthMode": 0,
-        "_OutlineColorMode": 0, "_CullMode": 2,
-        "_OutlineCullMode": 1,
-        "_MToonVersion": 32,
-        "_Mode": 0,
-        "_SrcBlend": 1.0,
-        "_DstBlend": 0.0,
-        "_ZWrite": 1,
-_MainTex: 1,
-    "_Color": [1,1,1, 1],
-"_ShadeColor": [0.1, 0.9, 0.1, 1], // cluster で効いてる
-//_MainTex: [0, 0, 0.5, 0.5], // オフセットと比率 効く 3tene
-    _EmissionColor: [0.1, 0.1, 0.1, 1]
-                        };
-                            break;
-
-            case 888:
-                prop = {
-"_Cutoff": 0.5,
-            "_ReceiveShadowRate":1, "_ShadeShift":0,
-            "_ShadeToony": 0.9, "_LightColorAttenuation": 0,
-            "_OutlineWidth": 0.5, "_OutlineScaledMaxDistance": 1,
-            "_OutlineLightingMix": 1, "_DebugMode": 0,
-            "_BlendMode": 0, "_OutlineWidthMode": 0,
-            "_OutlineColorMode": 0, "_CullMode": 2,
-            "_OutlineCullMode": 1,
-            "_BumpScale": 1,
-            "_Mode": 0,
-            "_SrcBlend": 1.0,
-            "_DstBlend": 0.0,
-            "_ZWrite": 1,
-            "_IsFirstSetup": 0,
-            _MainTex: 1,
-                            _BumpMap: 2,
-                            _SphereAdd: 3,
-                            _MainTex: [0, 0, 0.5, 0.5], // オフセットと比率 効く 3tene
-                            _BumpMap: [0,0, 1,1],
-                            "_ShadeColor": [0.1, 0.9, 0.1, 1], // cluster で効いてる
-                            _Color: [1,1,1, 1],
-                            _EmissionColor: [0.1, 0.1, 0.1, 1]
-                };
-                break;
-
-                default:
-                    prop = {
-//"_UvAnimScrollX": 0.0,
-//"_UvAnimScrollY": 0.0,
-//"_UvAnimRotation": 0.01,
-//"_Cutoff": 0.5,
-//"_BumpScale": 1,
-//"_ReceiveShadowRate":1,
-//"_ShadeShift":0,
-//"_ShadeToony": 0.9,
-///"_LightColorAttenuation": 0.5,
-//"_OutlineWidth": 0.5,
-//"_OutlineScaledMaxDistance": 1,
-//"_OutlineLightingMix": 1,
-//"_DebugMode": 0,
-//"_BlendMode": 0,
-//"_OutlineWidthMode": 0,
-//"_OutlineColorMode": 0,
-//"_CullMode": 2,
-//"_OutlineCullMode": 1,
-//"_MToonVersion": 32,
-//"_Mode": 0,
-//"_SrcBlend": 1.0,
-//"_DstBlend": 0.0,
-//"_ZWrite": 1,
-//"_IsFirstSetup": 0
-_MainTex: 0,
-//"_Color": [1,1,1, 1],
-//"_ShadeColor": [0.1, 0.9, 0.1, 1], // cluster で効いてる
-//_MainTex: [0, 0, 0.5, 0.5], // オフセットと比率
-//_EmissionColor: [0.1, 0.1, 0.1, 1]
+            if (i === 1) {
+                mtoon.matcapFactor = [1, 1, 1];
+                mtoon.matcapTexture = {
+                    index: 8, // img08
+                    texCoord: 0,
+                    //extensions: {},
+                    //extras: {},
                 };
             }
 
-            // prop を反映していない
-            //Object.assign(m.expressions.VRMC_materials_mtoon, prop);
+            ret.push(m);
         }
         console.log(this.cl, `createMaterials leave`, ret);
         return ret;
@@ -1609,7 +1422,7 @@ _MainTex: 0,
 /**
  * TODO: ここを変更
  */
-        const modelVersion = `3.0.0`;
+        const modelVersion = `3.0.1`;
         const modelTitle = 'poly ccc 図形人形 VRM 1.0';
 
         let texs = [
@@ -1620,7 +1433,9 @@ _MainTex: 0,
             { tex: this._tex04 },
             { tex: this._tex05 },
             { tex: this._tex06 },
-            { tex: this._tex07 }
+            { tex: this._tex07 },
+            { tex: this._tex08 },
+            { tex: this._tex09 },
         ];
         texs = texs.slice(0, this.texNum);
 
@@ -1672,7 +1487,6 @@ _MainTex: 0,
 
         let found = this.searchNode(treenodes,
             /head/i);
-        const headNodeIndex = found.index;
         console.log(`head search`, found);
 
         const bvs = [
@@ -2282,8 +2096,9 @@ _MainTex: 0,
             console.log(`テクスチャ開始バイト`, d, c);
 
 // テクスチャ
-            console.log(`テクスチャ bufferView 開始インデックス`, bvOffset);
             const num = texs.length;
+            console.log(`テクスチャ bufferView 開始インデックス`, bvOffset, num);
+
             for (let i = 0; i < num; ++i) {
                 const v = texs[i];
                 obj.images.push({
