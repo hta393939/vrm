@@ -7,7 +7,7 @@
 import { VrmExporter10 } from "./vrmexporter10.js";
 import { Threed } from './threed.js';
 import { ObjParse } from "./objparse.js";
-//import * as THREE from 'three';
+import * as THREE from 'three';
 
 /**
  * メインクラス
