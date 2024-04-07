@@ -804,7 +804,7 @@ export class VrmaExporter {
                 let mink =  9999;
                 for (let j = 0; j < frameNum; ++j) {
                     const val = track.keys[j];
-                    p.setFloat32(j * 4, val);
+                    p.setFloat32(j * 4, val, true);
                     maxk = Math.max(maxk, val);
                     mink = Math.min(mink, val);
                 }
@@ -835,7 +835,7 @@ export class VrmaExporter {
                 const buf = new ArrayBuffer(arr.length * 4);
                 const p = new DataView(buf);
                 for (let j = 0; j < arr.length; ++j) {
-                    p.setFloat32(j * 4, arr[j]);
+                    p.setFloat32(j * 4, arr[j], true);
                 }
                 const bv = {
                     componentType: this.FLOAT,
@@ -861,9 +861,9 @@ export class VrmaExporter {
  */
     makeAnimation(nodes) {
         const frameNum = 709;
-        const key = new Float32Array(frameNum);
+        const keys = new Array(frameNum);
         for (let i = 0; i < frameNum; ++i) {
-            key[i] = i / 30;
+            keys[i] = i / 30;
         }
 
         {
@@ -872,7 +872,7 @@ export class VrmaExporter {
 
             track.target.nodeName = 'hips';
             track.target.path = 'translation';
-            track.keys = key.slice(0);
+            track.keys = [...keys];
             track.values = new Array(frameNum);
             for (let j = 0; j < frameNum; ++j) {
                 track.values[j] = [0, 0, 0];
@@ -886,13 +886,13 @@ export class VrmaExporter {
             const frameNum = key.length;
             track.target.nodeName = nodes[i].name;
             track.target.path = 'rotation';
-            track.keys = key.slice(0);
+            track.keys = [...keys];
             track.values = new Array(frameNum);
             for (let j = 0; j < frameNum; ++j) {
                 track.values[j] = [0, 0, 0, 1];
                 if (i >= 2 && ((i & 1) == 0)) {
                     track.values[j] = [
-                        0, 0.707, 0, 0.707,
+                        0, -0.707, 0, 0.707,
                     ];
                 }
             }

@@ -22,17 +22,6 @@ class Misc {
  * @default 'gvrmn'
  */
         this.STORAGE = 'gvrmn';
-/**
- * 
- */
-        this.STORAGE_THUMB = 'gvrmthumb';
-
-        this.baseTex = null;
-        this.thumbTex = null;
-        this._tex02 = null;
-        this._tex03 = null;
-
-        this.texs = [];
     }
 
 /**
@@ -274,7 +263,7 @@ class Misc {
     }
 
 /**
- * 
+ * ドロップしたファイルの JSON だけ取り出す
  * @param {File} file 
  */
     async glb(file) {
