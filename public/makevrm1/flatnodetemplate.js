@@ -7,9 +7,7 @@
 // for vrm 1.0 -x に右手、+x に左手がいくタイプ
 // 親指書き換え済み
 
-'use strict';
-
-const _flattree = [
+export const _flattree = [
 {"parent": null, "name": "Armature", "k": ["exc"], "pts":[], "r": [0,0,0], "sz": [0.0] },
 {"parent": "Armature", "name": "hips", "r": [0, 0.9, 0], "sz": [0.08]},
 

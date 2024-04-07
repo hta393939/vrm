@@ -1,11 +1,14 @@
 /*!
  * vrmexporter10.js
- * Copyright (c) 2018- Usagi
+ * Copyright (c) 2024- Usagi ウサギ
  * This software is released under the MIT License.
  */
 // 自分でバイナリ生成するタイプ
 
 import * as THREE from 'three';
+import { _flattree } from './flatnodetemplate.js';
+import { Vtx } from './vtx.js';
+import { Util } from './util.js';
 
 /**
  * 

@@ -6,6 +6,8 @@
 
 import * as THREE from 'three';
 import { OrbitControls } from 'three/jsm/controls/OrbitControls.js';
+import { GLTFLoader } from 'three/jsm/loaders/GLTFLoader.js';
+import { VRMLoaderPlugin } from '@pixiv/three-vrm';
 
 /**
  * 可視化クラス
@@ -298,10 +300,10 @@ export class Threed {
     setModel(inurl) {
         console.log(this.cl, `setModel called, for VRM1.0`);
 
-        const loader = new THREE.GLTFLoader();
+        const loader = new GLTFLoader();
 
         loader.register( ( parser ) => {
-            return new THREE_VRM.VRMLoaderPlugin( parser );
+            return new VRMLoaderPlugin( parser );
         } );
 
         loader.load(inurl,
