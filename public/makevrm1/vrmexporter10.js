@@ -1665,14 +1665,15 @@ doubleSided: true, // default false
                             "name": "antenna",
                             "colliders": []
                         },
-                        {
+                        /*
+                        { // 空でエラーって言われた
                             "name": "antenna1",
                             "colliders": []
                         },
                         {
                             "name": "antenna4",
                             "colliders": []
-                        }
+                        } */
                     ],
                     "springs": []
                 },
@@ -1699,12 +1700,12 @@ doubleSided: true, // default false
 /**
  * アンテナもう一つ
  */
-        const colligr2 = obj.extensions.VRMC_springBone.colliderGroups[2].colliders;
+        const colligr2 = obj.extensions.VRMC_springBone.colliderGroups[2]?.colliders || [];
 
 /**
  * アンテナさらに
  */
-        const colligr3 = obj.extensions.VRMC_springBone.colliderGroups[3].colliders;
+        const colligr3 = obj.extensions.VRMC_springBone.colliderGroups[3]?.colliders || [];
 
         const globals = [];
     { // node のツリー構造
@@ -1758,9 +1759,9 @@ doubleSided: true, // default false
                 if (num <= 9) {
                     colligr1.push(index);
                 } else if (10 <= num && num <= 19) {
-                    colligr2.push(index);
+                    colligr2?.push(index);
                 } else {
-                    colligr3.push(index);
+                    colligr3?.push(index);
                 }
             } else {
                 colligr0.push(index);
