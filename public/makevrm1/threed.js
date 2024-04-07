@@ -1,17 +1,16 @@
 /*!
  * threed.js
- * Copyright (c) 2022- usagi
+ * Copyright (c) 2024- Usagi ウサギ
  * This software is released under the MIT License.
  */
 
-(function(_global) {
-
-'use strict';
+import * as THREE from 'three';
+import { OrbitControls } from 'jsm/controls/OrbitControls.js';
 
 /**
  * 可視化クラス
  */
-class Threed {
+export class Threed {
 /**
  * コンストラクタ
  */
@@ -28,7 +27,7 @@ class Threed {
     }
 
     makeControl(dom) {
-        const control = new THREE.OrbitControls(this.camera, dom);
+        const control = new OrbitControls(this.camera, dom);
 
         this.control = control;
     }
@@ -360,17 +359,5 @@ class Threed {
     }
 
 }
-
-
-if (typeof exports !== 'undefined') {
-    if (typeof module !== 'undefined' && module.exports) {
-        exports = module.exports = Threed;
-    }
-    exports.Threed = Threed;
-} else {
-    _global.Threed = Threed;
-}
-
-})( (this || 0).self || (typeof self !== 'undefined' ? self : global) );
 
 

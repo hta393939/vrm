@@ -1,15 +1,13 @@
 /*!
  * util.js
- * Copyright (c) 2018- Usagi
+ * Copyright (c) 2024- Usagi ウサギ
  * This software is released under the MIT License.
  */
-
-'use strict';
 
 /**
  * メインクラス
  */
-class Util {
+export class Util {
 
 /**
  * 色からカラーチップの threejs uv を得る

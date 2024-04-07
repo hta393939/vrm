@@ -2,8 +2,9 @@
  * @file objparse.js
  */
 
+import { Vtx } from './vtx.js';
 
-class ObjParse {
+export class ObjParse {
     constructor() {
     }
 

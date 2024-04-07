@@ -4,11 +4,9 @@
  * This software is released under the MIT License.
  */
 
-(function(global_) {
+import * as THREE from 'three';
 
-'use strict';
-
-class Vtx {
+export class Vtx {
     /**
      * 頂点1個分
      */
@@ -46,15 +44,4 @@ class Vtx {
     }
 
 } // class Vtx
-
-if (typeof exports !== 'undefined') {
-    if (typeof module !== 'undefined' && module.exports) {
-        exports = module.exports = Vtx;
-    }
-    exports.Vtx = Vtx;
-} else {
-    global_.Vtx = Vtx;
-}
-
-})( (this || 0).self || typeof self !== 'undefined' ? self : global );
 

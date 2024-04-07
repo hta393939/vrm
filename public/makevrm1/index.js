@@ -1,10 +1,13 @@
 /*!
  * index.js
- * Copyright (c) 2018- Usagi
+ * Copyright (c) 2024- Usagi ウサギ
  * This software is released under the MIT License.
  */
 
-'use strict';
+import { VrmExporter10 } from "./vrmexporter10.js";
+import { Threed } from './threed.js';
+import { ObjParse } from "./objparse.js";
+//import * as THREE from 'three';
 
 /**
  * メインクラス
