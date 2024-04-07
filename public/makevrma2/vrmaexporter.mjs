@@ -612,6 +612,11 @@ export class VrmaExporter {
             }
             obj.nodes[info.index].children.push(i);
         }
+        for (let node of obj.nodes) {
+            if (node.children.length === 0) {
+                delete node.children;
+            }
+        }
 
         this.makeAnimation(obj.nodes);
 
@@ -866,7 +871,7 @@ export class VrmaExporter {
             keys[i] = i / 30;
         }
 
-        {
+        { // hips だけ移動成分
             const track = new AnimationTrack();
             this.tracks.push(track);
 
@@ -883,7 +888,6 @@ export class VrmaExporter {
             const track = new AnimationTrack();
             this.tracks.push(track);
 
-            const frameNum = key.length;
             track.target.nodeName = nodes[i].name;
             track.target.path = 'rotation';
             track.keys = [...keys];
