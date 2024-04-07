@@ -5,7 +5,7 @@
  */
 
 import { Threed } from './threed.mjs';
-import { VrmExporter10 } from './vrmexporter10.mjs';
+import { VrmaExporter } from './vrmaexporter.mjs';
 
 /**
  * メインクラス
@@ -181,8 +181,8 @@ class Misc {
         }
 
         {
-            const vrmexporter = new VrmExporter10();
-            this.vrmexporter = vrmexporter;
+            const vrmaexporter = new VrmaExporter();
+            this.vrmexporter = vrmaexporter;
         }
     
         {

@@ -111,30 +111,25 @@ const _flattree = [
 {"parent":"antenna21", "name":"antenna22", "k": ["onechain", "exc"], "pts": [], "r":[0, 0.0, 0.16], "sz": [0.01]},
 {"parent":"antenna20", "name":"antenna23", "k": ["exc"], "roll": { "sourcename" : "antenna21" }, "pts": ["plate03"], "r":[0, 0.0, 0], "sz": [0.01]},
 
-{"parent":"antenna23", "name":"antenna24", "k": ["exc"], "pts": [], "r":[0, 0.0, 0.16], "sz": [0.01]},
-{"parent":"antenna24", "name":"antenna25", "k": ["exc"], "pts": [], "r":[0, 0.0, 0], "sz": [0.01]},
+{"parent":"antenna23", "name":"antenna25", "k": ["exc"], "pts": [], "r":[0, 0.0, 0.16], "sz": [0.01]},
 {"parent":"antenna25", "name":"antenna26", "k": ["onechain", "exc"], "pts": [], "r":[0, 0.0, 0.16], "sz": [0.01]},
-{"parent":"antenna24", "name":"antenna27", "k": ["exc"], "roll": { "sourcename" : "antenna25" }, "pts": ["plate03"], "r":[0, 0.0, 0], "sz": [0.01]},
+{"parent":"antenna23", "name":"antenna27", "k": ["exc"], "roll": { "sourcename" : "antenna25" }, "pts": ["plate03"], "r":[0, 0.0, 0.16], "sz": [0.01]},
 
-{"parent":"antenna27", "name":"antenna28", "k": ["exc"], "pts": [], "r":[0, 0.0, 0.16], "sz": [0.01]},
-{"parent":"antenna28", "name":"antenna29", "k": ["exc"], "pts": [], "r":[0, 0.0, 0], "sz": [0.01]},
+{"parent":"antenna27", "name":"antenna29", "k": ["exc"], "pts": [], "r":[0, 0.0, 0.16], "sz": [0.01]},
 {"parent":"antenna29", "name":"antenna30", "k": ["onechain", "exc"], "pts": [], "r":[0, 0.0, 0.16], "sz": [0.01]},
-{"parent":"antenna28", "name":"antenna31", "k": ["exc"], "roll": { "sourcename" : "antenna29" }, "pts": ["plate03"], "r":[0, 0.0, 0], "sz": [0.01]},
+{"parent":"antenna27", "name":"antenna31", "k": ["exc"], "roll": { "sourcename" : "antenna29" }, "pts": ["plate03"], "r":[0, 0.0, 0.16], "sz": [0.01]},
 
-{"parent":"antenna31", "name":"antenna32", "k": ["exc"], "pts": [], "r":[0, 0.0, 0.16], "sz": [0.01]},
-{"parent":"antenna32", "name":"antenna33", "k": ["exc"], "pts": [], "r":[0, 0.0, 0], "sz": [0.01]},
+{"parent":"antenna31", "name":"antenna33", "k": ["exc"], "pts": [], "r":[0, 0.0, 0.16], "sz": [0.01]},
 {"parent":"antenna33", "name":"antenna34", "k": ["onechain", "exc"], "pts": [], "r":[0, 0.0, 0.16], "sz": [0.01]},
-{"parent":"antenna32", "name":"antenna35", "k": ["exc"], "roll": { "sourcename" : "antenna33" }, "pts": ["plate03"], "r":[0, 0.0, 0], "sz": [0.01]},
+{"parent":"antenna31", "name":"antenna35", "k": ["exc"], "roll": { "sourcename" : "antenna33" }, "pts": ["plate03"], "r":[0, 0.0, 0.16], "sz": [0.01]},
 
-{"parent":"antenna35", "name":"antenna36", "k": ["exc"], "pts": [], "r":[0, 0.0, 0.16], "sz": [0.01]},
-{"parent":"antenna36", "name":"antenna37", "k": ["exc"], "pts": [], "r":[0, 0.0, 0], "sz": [0.01]},
+{"parent":"antenna35", "name":"antenna37", "k": ["exc"], "pts": [], "r":[0, 0.0, 0.16], "sz": [0.01]},
 {"parent":"antenna37", "name":"antenna38", "k": ["onechain", "exc"], "pts": [], "r":[0, 0.0, 0.16], "sz": [0.01]},
-{"parent":"antenna36", "name":"antenna39", "k": ["exc"], "roll": { "sourcename" : "antenna37" }, "pts": ["plate03"], "r":[0, 0.0, 0], "sz": [0.01]},
+{"parent":"antenna35", "name":"antenna39", "k": ["exc"], "roll": { "sourcename" : "antenna37" }, "pts": ["plate03"], "r":[0, 0.0, 0.16], "sz": [0.01]},
 
-{"parent":"antenna39", "name":"antenna40", "k": ["exc"], "pts": [], "r":[0, 0.0, 0.16], "sz": [0.01]},
-{"parent":"antenna40", "name":"antenna41", "k": ["exc"], "pts": [], "r":[0, 0.0, 0], "sz": [0.01]},
+{"parent":"antenna39", "name":"antenna41", "k": ["exc"], "pts": [], "r":[0, 0.0, 0.16], "sz": [0.01]},
 {"parent":"antenna41", "name":"antenna42", "k": ["onechain", "exc"], "pts": [], "r":[0, 0.0, 0.16], "sz": [0.01]},
-{"parent":"antenna40", "name":"antenna43", "k": ["exc"], "roll": { "sourcename" : "antenna41" }, "pts": ["plate03"], "r":[0, 0.0, 0], "sz": [0.01]}
+{"parent":"antenna39", "name":"antenna43", "k": ["exc"], "roll": { "sourcename" : "antenna41" }, "pts": ["plate03"], "r":[0, 0.0, 0.16], "sz": [0.01]}
 
 ];
 

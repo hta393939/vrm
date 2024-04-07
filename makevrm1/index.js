@@ -70,6 +70,21 @@ class Misc {
     }
 
 /**
+ * 
+ * @param {number} num 
+ */
+    drawCopy(num) {
+        const img = document.getElementById(`img0${num}`);
+        const w = img.naturalWidth;
+        const h = img.naturalHeight;
+        const cv = document.getElementById(`cv0${num}`);
+        cv.width = w;
+        cv.height = h;
+        const c = cv.getContext('2d');
+        c.drawImage(img, 0, 0);
+    }
+
+/**
  * 初期化する
  */
     init() {
@@ -87,7 +102,9 @@ class Misc {
             { cv: cv04, name: '_tex04' },
             { cv: cv05, name: '_tex05' },
             { cv: cv06, name: '_tex06' },
-            { cv: cv07, name: '_tex07' }
+            { cv: cv07, name: '_tex07' },
+            { cv: cv08, name: '_tex08' },
+            { cv: cv09, name: '_tex09' },
         ];
 
         this.draw(cv00);
@@ -135,6 +152,8 @@ class Misc {
         this.draw5(cv05);
         this.draw6(cv06);
         this.draw7(cv07);
+        this.drawCopy(8);
+        this.drawCopy(9);
 
         for (const v of tex) {
             v.cv.toBlob(async blob => {

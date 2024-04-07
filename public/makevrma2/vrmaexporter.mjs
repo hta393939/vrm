@@ -1,5 +1,5 @@
 /*!
- * vrmexporter10.mjs
+ * vrmaexporter.mjs
  * Copyright (c) 2024- Usagi ウサギ
  * This software is released under the MIT License.
  */
@@ -131,9 +131,9 @@ class AnimationTrack {
 }
 
 /**
- * .vrm 1.0 書き出し
+ * .vrma 書き出し
  */
-export class VrmExporter10 {
+export class VrmaExporter {
 
 /**
  * for vertex attributes
@@ -158,7 +158,7 @@ export class VrmExporter10 {
  * @type {AnimationTrack[]}
  */
         this.tracks = [];
-
+        this.bvs = [];
         this.animations = [];
 
         /**
@@ -189,7 +189,7 @@ export class VrmExporter10 {
          */
         this.UNSIGNED_INT = 5125;
 /**
- * SCALAR
+ * FLOAT
  * @default 5126
  */
         this.FLOAT = 5126;
@@ -279,7 +279,10 @@ export class VrmExporter10 {
         strBinLen = Math.floor(strBinLen / 4) * 4;
         strBin = strBin.slice(0, strBinLen);
 
-        const binLen = this.bin.byteLength;
+// バイナリ
+        const binLen = this.bins.reduce((p, c) => {
+            return p + c.byteLength;
+        }, 0);
 
         const whole = 12 + 8 + strBinLen + 8 + binLen;
 
@@ -293,7 +296,9 @@ export class VrmExporter10 {
 
         ret.push(new Blob([this.u32(binLen)]));
         ret.push(new Blob([this.fourcc('BIN\0')]));
-        ret.push(new Blob([this.bin]));
+        for (let bin of this.bins) {
+            ret.push(new Blob([bin]));
+        }
 
         console.log(this.cl, `wholeBlob leave`);
         return new Blob([...ret]);
@@ -365,7 +370,7 @@ export class VrmExporter10 {
             scale: [1,1,1],
         };
         if ('r' in cur) {
-            obj.translation = cur.r;
+            obj.translation = cur.r; // 相対
             for (let i = 0; i < 3; ++i) {
                 glopos[i] += cur.r[i];
             }
@@ -531,51 +536,7 @@ export class VrmExporter10 {
  * 内部に保持する
  */
     makeData2() {
-        console.info(`makeDate2 called`);
-
-        /**
-         * あとでセットする obj.nodes
-         */
-        const treenodes = [];
-
-        this.makeAnimation();
-
-/**
- * キー個数
- */
-        const keynum = 61;
-
-/**
- * ノードすべて。bone でなくてもテクスチャに影響を与えるので
- */
-        const jointNum = treenodes.length;
-        console.info(`ジョイント数(treenodes)`, jointNum);
-
-        let found = this.searchNode(treenodes,
-            /head/i);
-        console.log(`head search`, found);
-
-        const bvs = [];
-        /*
-            {
-                target: VrmExporter10.TARGET_ARRAY_BUFFER,
-                byteLength: 1 * 4 * keynum,
-                componentType: this.FLOAT,
-                count: keymum,
-                max: [1],
-                min: [0], // 範囲
-                type: 'SCALAR'
-            },
-            {
-                target: VrmExporter10.TARGET_ARRAY_BUFFER,
-                byteLength: 4 * 4 * keynum,
-                componentType: this.FLOAT,
-                count: keynum,
-                max: [1, 1, 1, 1],
-                min: [-1, -1, -1, -1],
-                type: 'VEC4'
-            },
-        ];*/
+        console.info(`makeData2 called`);
 
         const obj = {
             //extensionsRequired: [],
@@ -630,16 +591,36 @@ export class VrmExporter10 {
 
         }; // obj
 
+        for (const tnode of Flattree._flattree) {
+            const node = {
+                name: tnode.name,
+                translation: tnode.r,
+                children: [],
+                _parent: tnode.parent,
+            };
+            obj.nodes.push(node);
+        }
+
+// _parent を使って children 構造を生成する
+        for (let i = 0; i < obj.nodes.length; ++i) {
+            const node = obj.nodes[i];
+            const info = this.searchNode(obj.nodes,
+                new RegExp(node._parent));
+            delete node._parent;
+            if (!info) {
+                continue;
+            }
+            obj.nodes[info.index].children.push(i);
+        }
+
+        this.makeAnimation(obj.nodes);
+
 /**
  * VRM! VRM!
  */
         const vrm = obj.extensions.VRMC_vrm_animation;
 
-    { // node のツリー構造
-        obj.nodes = treenodes;
-
-        // 統一されているものとしてコピー
-
+    { // human.humanoidBone
         const num = obj.nodes.length;
         for (let i = 0; i < num; ++i) {
             const v = obj.nodes[i];
@@ -650,7 +631,7 @@ export class VrmExporter10 {
             };
 
             let isbone = true;
-            if ('_k' in v) {
+            if ('_k' in v) { // TODO: 
                 if (v._k.includes('exc')) {
                     isbone = false;
                 }
@@ -697,7 +678,7 @@ export class VrmExporter10 {
         }
     }
 
-        this.applyAnimation();
+        this.applyAnimation(obj.nodes, this.bvs);
         obj.animations = this.animations;
 
 /**
@@ -708,20 +689,21 @@ export class VrmExporter10 {
      * buffer のバイトオフセットがバイト単位で増えていく
      */
     let byteOffset = 0;
+        let bins = [];
     { // バッファビューとアクセッサ
-        for (const bv of bvs) {
+        for (const bv of this.bvs) {
+            bins.push(bv._buf);
+            delete bv._buf;
+
             const onebv = {
                 buffer: 0,
                 byteLength: bv.byteLength,
                 byteOffset: byteOffset
             };
-            if ('target' in bv) {
-                onebv.target = + bv.target;
-            }
+
             obj.bufferViews.push(onebv);
 
             bv.bufferView = bvOffset;
-            //bv.byteOffset = + byteOffset; // TODO: これ間違い
 
             byteOffset += bv.byteLength;
             delete bv.byteLength;
@@ -733,9 +715,6 @@ export class VrmExporter10 {
         }
     }
 
-
-//// バイナリここから ////
-
 /**
  * テクスチャ以外の buffer 内でのバイトオフセット
  */
@@ -746,74 +725,26 @@ export class VrmExporter10 {
  * bin[sp] のバイト数
  */
     const binBufByte = Math.ceil(attrByte / 4) * 4;
-/**
-* バイナリ全体
-*/
-    const buf = new ArrayBuffer(binBufByte);
-    const p = new DataView(buf);
 
     obj.buffers[0].byteLength = binBufByte;
 
-
-    /**
-     * POSITION の範囲取得用
-     */
-        const range = {
-            min: [9999, 9999, 9999, 9999], max: [-9999,-9999,-9999,-9999]
-        };
-
-        /**
-         * バイトオフセット
-         */
-        let c = 0;
-        { // key time
-            let i = 0;
-            for (const v of vts) {
-                const pp = [v.p.x, v.p.y, v.p.z];
-                pp.forEach((v2, j) => {
-                    p.setFloat32(c, v2, true);
-                    c += 4;
-
-                    range.min[j] = Math.min(range.min[j], v2);
-                    range.max[j] = Math.max(range.max[j], v2);
-                });
-            }
-
-            obj.accessors[i].min = [...range.min];
-            obj.accessors[i].max = [...range.max];
-            console.log(`最大最小`, obj.accessors[i]);
-        }
-        { // rotation
-            let i = 0;
-            for (const v of vts) {
-                const pp = [v.p.x, v.p.y, v.p.z, 1];
-                pp.forEach((v2, j) => {
-                    p.setFloat32(c, v2, true);
-                    c += 4;
-
-                    range.min[j] = Math.min(range.min[j], v2);
-                    range.max[j] = Math.max(range.max[j], v2);
-                });
-            }
-
-            obj.accessors[i].min = [...range.min];
-            obj.accessors[i].max = [...range.max];
-            console.log(`最大最小`, obj.accessors[i]);
-        }
-
         this.deleteExtra(obj);
 
-        if (true) {
+        {
             console.info(`ノード`, obj.nodes.length);
-            console.info(`ボーン(128)`);
         }
 
 // 多めにとった String
         this.str = JSON.stringify(obj) + ' '.repeat(4);
-// ちょうどパディング済み Uint8Array
-        this.bin = new Uint8Array(buf);
+
+        this.bins = bins;
+
+        console.log('obj', obj);
+
         console.log(this.cl, `makeData2 leave`,
-            this.str.length, this.bin.length);
+            this.str.length);
+
+        console.log('bvs', this.bvs);
     }
 
 /**
@@ -837,7 +768,9 @@ export class VrmExporter10 {
 /**
  * tracks から展開する
  */
-    applyAnimation() {
+    applyAnimation(nodes, bvs) {
+        console.log('applyAnimation', nodes);
+
         const trackNum = this.tracks.length;
         const anim = new Animation();
         this.animations = [anim];
@@ -854,13 +787,67 @@ export class VrmExporter10 {
             sampler.output = i * 2 + 1;
             sampler.interpolation = 'LINEAR';
 
+            const nodeInfo = this.searchNode(
+                nodes,
+                new RegExp(track.target.nodeName));
             channel.target = {
-                node: 0, // ここをなんとかする
+                node: nodeInfo.index,
                 path: track.target.path,
             };
             channel.sampler = samplerIndex;
 
-            // バイナリ生成するかも
+            const frameNum = track.keys.length;
+            { // キー
+                const buf = new ArrayBuffer(frameNum * 4);
+                const p = new DataView(buf);
+                let maxk = -9999;
+                let mink =  9999;
+                for (let j = 0; j < frameNum; ++j) {
+                    const val = track.keys[j];
+                    p.setFloat32(j * 4, val);
+                    maxk = Math.max(maxk, val);
+                    mink = Math.min(mink, val);
+                }
+                const bv = {
+                    componentType: this.FLOAT,
+                    type: 'SCALAR',
+                    count: frameNum, 
+                    max: [maxk],
+                    min: [mink], // for accessor
+                    _buf: buf,
+                    byteLength: buf.byteLength,
+                };
+                bvs.push(bv);
+            }
+            { // バリュー
+                const elementNum = track.type === 'VEC4' ? 4 : 3;
+                let maxv = [-9999, -9999, -9999, -9999];
+                let minv = [ 9999,  9999,  9999,  9999];
+                for (let j = 0; j < track.values.length; ++j) {
+                    const val = track.values[j];
+                    for (let k = 0; k < elementNum; ++k) {
+                        maxv[k] = Math.max(maxv[k], val[k]);
+                        minv[k] = Math.min(minv[k], val[k]);
+                    }
+                }
+
+                const arr = track.values.flat();
+                const buf = new ArrayBuffer(arr.length * 4);
+                const p = new DataView(buf);
+                for (let j = 0; j < arr.length; ++j) {
+                    p.setFloat32(j * 4, arr[j]);
+                }
+                const bv = {
+                    componentType: this.FLOAT,
+                    type: track.type,
+                    count: frameNum,
+                    max: maxv.slice(0, elementNum),
+                    min: minv.slice(0, elementNum), // for accessor
+                    _buf: buf,
+                    byteLength: buf.byteLength,
+                };
+                bvs.push(bv);
+            }
 
             anim.samplers.push(sampler);
             anim.channels.push(channel);
@@ -869,26 +856,49 @@ export class VrmExporter10 {
         }
     }
 
-    makeAnimation() {
-        const num = 61;
-        const key = new Float32Array(num);
-        for (let i = 0; i < num; ++i) {
-            key[i] = num * i / 30;
+/**
+ * アニメーション生成
+ */
+    makeAnimation(nodes) {
+        const frameNum = 709;
+        const key = new Float32Array(frameNum);
+        for (let i = 0; i < frameNum; ++i) {
+            key[i] = i / 30;
         }
 
-        for (let i = 0; i < 91; ++i) {
+        {
             const track = new AnimationTrack();
             this.tracks.push(track);
 
             track.target.nodeName = 'hips';
+            track.target.path = 'translation';
+            track.keys = key.slice(0);
+            track.values = new Array(frameNum);
+            for (let j = 0; j < frameNum; ++j) {
+                track.values[j] = [0, 0, 0];
+            }
+            track.type = 'VEC3';
+        }
+        for (let i = 0; i < nodes.length; ++i) {
+            const track = new AnimationTrack();
+            this.tracks.push(track);
+
+            const frameNum = key.length;
+            track.target.nodeName = nodes[i].name;
             track.target.path = 'rotation';
             track.keys = key.slice(0);
-            track.values = [0, 0, 0, 1];
+            track.values = new Array(frameNum);
+            for (let j = 0; j < frameNum; ++j) {
+                track.values[j] = [0, 0, 0, 1];
+                if (i >= 2 && ((i & 1) == 0)) {
+                    track.values[j] = [
+                        0, 0.707, 0, 0.707,
+                    ];
+                }
+            }
             track.type = 'VEC4';
         }
-        {
 
-        }
     }
 
 }

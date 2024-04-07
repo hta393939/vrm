@@ -9,7 +9,7 @@
 
 export class Flattree {
     static _flattree = [
-{"parent": null, "name": "Armature", "k": ["exc"], "pts":[], "r": [0,0,0], "sz": [0.0] },
+//{"parent": null, "name": "Armature", "k": ["exc"], "pts":[], "r": [0,0,0], "sz": [0.0] },
 {"parent": "Armature", "name": "hips", "r": [0, 0.9, 0], "sz": [0.08]},
 
 {"parent": "hips", "name": "leftUpperLeg" , "r": [0.1, -0.11, 0.01]},
