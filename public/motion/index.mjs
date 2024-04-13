@@ -6,7 +6,6 @@
 
 import { Threed } from './threed.mjs';
 import { VrmaExporter } from './vrmaexporter.mjs';
-import {} from '../thirdparty/threejs/three-vrm.module.min.2.1.1.js';
 
 /**
  * メインクラス
@@ -85,7 +84,8 @@ class Misc {
             const w = 512;
             const h = 512;
             const opt = {
-                canvas: window.idcanvas
+                canvas: window.idcanvas,
+                model: `モブ.vrm`,
             };
             threed.init(opt, w,h, 50);
             threed.makeControl(opt.canvas);
@@ -97,7 +97,8 @@ class Misc {
             const w = 512;
             const h = 512;
             const opt = {
-                canvas: window.idcanvas2
+                canvas: window.idcanvas2,
+                model: `スカウターキャラ.vrm`,
             };
             threed.init(opt, w,h, 50);
             threed.makeControl(opt.canvas);

@@ -6,6 +6,8 @@
 
 import * as THREE from 'three';
 import { OrbitControls } from 'jsm/controls/OrbitControls.js';
+import { GLTFLoader } from 'jsm/loaders/GLTFLoader.js';
+import { VRMLoaderPlugin } from 'jsm/three-vrm.module.min.2.1.1.js';
 
 /**
  * 可視化クラス
@@ -231,6 +233,7 @@ export class Threed {
             }
         }
 
+        this.setModel(`./${inopt.model}`);
     }
 
 /**
@@ -295,12 +298,12 @@ export class Threed {
  */
     setModel(inurl) {
         console.log(`!!! setModel called, for VRM1.0`);
-        return;
+        //return;
 
-        const loader = new THREE.GLTFLoader();
+        const loader = new GLTFLoader();
 
         loader.register( ( parser ) => {
-            return new THREE_VRM.VRMLoaderPlugin( parser );
+            return new VRMLoaderPlugin( parser );
         } );
 
         loader.load(inurl,
@@ -313,9 +316,6 @@ export class Threed {
                 this.scene.add(vrm.scene);
                 vrm.scene.name = 'model';
 
-                {
-                    window.idthumbnail.src = vrm.meta.thumbnailImage.src;
-                }
                 {
                     const lookAt = vrm?.lookAt;
                     if (lookAt) {
@@ -343,7 +343,7 @@ export class Threed {
                     //     scene に足す
 
                     this.scene.updateMatrixWorld();
-                    arg.userData.vrmNodeConstraintManager.setInitState();
+                    arg.userData.vrmNodeConstraintManager?.setInitState();
                 }
 
 
@@ -355,21 +355,6 @@ export class Threed {
             error => {
                 console.log(`vrm load err`, error);
             });
-    }
-
-    loadGLB() {
-        return new Promise((resolve, reject) => {
-            let url = ``;
-            const loader = new THREE.GLTFLoader();
-        // 
-            loader.load(url, () => {
-
-            }, () => {
-
-            }, () => {
-
-            });
-        });
     }
 
 }
