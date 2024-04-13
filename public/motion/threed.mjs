@@ -101,7 +101,8 @@ export class Threed {
                 }
 
                 const humanoid = core?.humanoid;
-                if (humanoid) {
+                if (humanoid && false) {
+                    
                     const s = 0.25 * Math.PI * Math.sin(Math.PI * this.clock.elapsedTime);
 //                    humanoid.getBoneNode('head').rotation.x = s;
                     humanoid.getRawBoneNode('rightUpperArm').rotation.z = s * 0.02;
@@ -137,30 +138,6 @@ export class Threed {
     }
 
 /**
- * 
- * @param {boolean} b 
- */
-    toggleLayer(b) {
-        if (typeof b === 'boolean') {
-            this.isFirstPerson = b;
-        } else {
-            this.isFirstPerson = !this.isFirstPerson;
-        }
-        if (this.gltf) {
-            const firstPerson = this.gltf?.userData?.vrm?.firstPerson;
-
-            console.log('firstPerson', firstPerson);
-            if (this.isFirstPerson) {
-                this.camera.layers.enable(firstPerson.firstPersonOnlyLayer);
-                this.camera.layers.disable(firstPerson.thirdPersonOnlyLayer);
-            } else {
-                this.camera.layers.disable(firstPerson.firstPersonOnlyLayer);
-                this.camera.layers.enable(firstPerson.thirdPersonOnlyLayer);
-            }
-        }
-    }
-
-/**
  * 初期化する
  * @param {{canvas:HTMLCanvasElement}} inopt 
  */
@@ -187,7 +164,7 @@ export class Threed {
 
             const camera = new THREE.PerspectiveCamera(viewfov, vieww/viewh,
                 0.01, 10000);
-            camera.position.set(0.1, 1.6, 5);
+            camera.position.set(0.1, 1.6, 2);
             camera.up.set(0,1,0);
             camera.lookAt(new THREE.Vector3(0, 1.7, 0));
             this.camera = camera;
@@ -196,12 +173,14 @@ export class Threed {
             this.scene = scene;
 
             {
-                const light = new THREE.DirectionalLight(0x999999);
+                const color = 0xffffff;
+                const light = new THREE.DirectionalLight(color);
                 light.position.set(-1, 1, 1);
                 scene.add(light);
             }
             {
-                const light = new THREE.AmbientLight(0x333333);
+                const color = 0xffffff;
+                const light = new THREE.AmbientLight(color);
                 scene.add(light);
             }
             if (false) {
@@ -225,12 +204,6 @@ export class Threed {
             }
 
             this.renderer = renderer;
-
-            {
-                window.addEventListener('keydown', () => {
-                    this.toggleLayer();
-                });
-            }
         }
 
         this.setModel(`./${inopt.model}`);
@@ -327,7 +300,6 @@ export class Threed {
                     firstPerson.setup();
 
                     this.isFirstPerson = false;
-                    this.toggleLayer(true);
                 }
 
                 { // constraint
