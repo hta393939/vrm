@@ -152,8 +152,10 @@ class Misc {
         {
             window.addEventListener('message', ev => {
                 switch(ev.data.type) {
-                case 'setmotion':
+                case 'sendmotion':
                     console.log(ev.data.type, ev.data);
+
+                    this.threed?.setOneJoint(data);
                     break;
 
                 case 'opened':
@@ -181,7 +183,7 @@ class Misc {
     openPanel() {
         {
             const width = 512;
-            const height = 256;
+            const height = 432;
             const panel = window.open(`./panel.html`,
                 '_blank', `popup,width=${width}px,height=${height}px`);
             this.panel = panel;

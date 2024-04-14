@@ -374,6 +374,14 @@ export class Threed {
             });
     }
 
+/**
+ * 
+ * @param {{targetname: string, erot: [number,number,number]}} data 
+ */
+    setOneJoint(data) {
+        // 
+    }
+
 }
 
 

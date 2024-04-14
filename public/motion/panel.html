@@ -3,11 +3,43 @@
     <head>
         <meta charset="UTF-8" />
         <title>パネル</title>
+        <link rel="stylesheet" href="./index.css" />
     </head>
     <body>
         パネル
         <div>
-            <div></div>
+            <div class="toright">
+                <div>center</div>
+                <select class="pt" id="centernames">
+                    <option class="pt" selected value="head">head</option>
+                    <option class="pt" value="neck">neck</option>
+                    <option class="pt" value="chest">chest</option>
+                    <option class="pt" value="hips">hips</option>
+                </select>
+            </div>
+            <div>left</div>
+            <div>right</div>
+            <div>left hand</div>
+            <div>right hand</div>
+            <input id="targetname" type="text" value="head" />
+            <div class="tobottom">
+                <div class="toright">
+                    <input class="grab" id="erotx" type="range" min="-180" max="180" />
+                    <div id="erotxview"></div>
+                </div>
+                <div class="toright">
+                    <input class="grab" id="eroty" type="range" min="-180" max="180" />
+                    <div id="erotyview"></div>
+                </div>
+                <div class="toright">
+                    <input class="grab" id="erotz" type="range" min="-180" max="180" />
+                    <div id="erotzview"></div>
+                </div>
+            </div>
+        </div>
+        <div>
+            <button class="pt" id="sendonejoint">モーション送信セット</button>
+            <button class="pt" disabled>モーション送信</button>
         </div>
 
         <script type="module" src="./panel.mjs"></script>
