@@ -108,6 +108,10 @@ class Misc {
         return blob;
     }
 
+    static origin() {
+        return `${location.protocol}/${location.host}`;
+    }
+
 /**
  * 初期化する
  */
@@ -143,6 +147,46 @@ class Misc {
             threed.makeControl(opt.canvas);
 
             this.threed2 = threed; 
+        }
+
+        {
+            window.addEventListener('message', ev => {
+                switch(ev.data.type) {
+                case 'setmotion':
+                    console.log(ev.data.type, ev.data);
+                    break;
+
+                case 'opened':
+                    console.log('panel opened');
+                    {
+                        const obj = {
+                            type: 'ping',
+                            erot: [0, 15, 0],
+                        };
+                        this.panel?.postMessage(obj, Misc.origin());
+                        break;
+                    }
+                }
+            });
+        }
+
+        {
+            const el = document.getElementById('openpanel');
+            el?.addEventListener('click', () => {
+                this.openPanel();
+            });
+        }
+    }
+
+    openPanel() {
+        {
+            const width = 512;
+            const height = 256;
+            const panel = window.open(`./panel.html`,
+                '_blank', `popup,width=${width}px,height=${height}px`);
+            this.panel = panel;
+
+            console.log('openPanel', panel);
         }
     }
 
