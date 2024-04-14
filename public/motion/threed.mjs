@@ -7,7 +7,9 @@
 import * as THREE from 'three';
 import { OrbitControls } from 'jsm/controls/OrbitControls.js';
 import { GLTFLoader } from 'jsm/loaders/GLTFLoader.js';
-import { VRMLoaderPlugin } from 'jsm/three-vrm.module.min.2.1.1.js';
+import { VRMLoaderPlugin, VRMUtils } from 'jsm/three-vrm.module.min.2.1.1.js';
+import { createVRMAnimationClip, VRMAnimationLoaderPlugin, VRMLookAtQuaternionProxy }
+    from 'jsm/three-vrm-animation.module.min.2.1.1.js';
 
 /**
  * 可視化クラス
@@ -24,12 +26,14 @@ export class Threed {
         this.renderer = null;
         this.scene = null;
         this.camera = null;
+        this.vrm = null;
     }
 
     makeControl(dom) {
         const control = new OrbitControls(this.camera, dom);
-
         this.control = control;
+
+        control.target = new THREE.Vector3(0, 1, 0);
     }
 
     /**
@@ -90,6 +94,10 @@ export class Threed {
 
         const delta = this.clock.getDelta();
 
+        if (this.control) {
+            this.control.update();
+        }
+
         { // 
             const core = this.gltf?.userData?.vrm;
             if (core) {        
@@ -123,16 +131,17 @@ export class Threed {
                     window.idspringview.textContent = `exist`;
                 }
 
-                const ctrMgr = this?.gltf?.userData?.vrmNodeConstraintManager;
+                const ctrMgr = this.gltf?.userData?.vrmNodeConstraintManager;
                 if (ctrMgr) {
                     ctrMgr?.update(delta);
                 }
             }
+
+            this.mixer?.update(delta);
+            this.vrm?.update(delta);
         }
 
-        if (this.control) {
-            this.control.update();
-        }
+
 
         this.renderer.render(this.scene, this.camera);
     }
@@ -164,7 +173,7 @@ export class Threed {
 
             const camera = new THREE.PerspectiveCamera(viewfov, vieww/viewh,
                 0.01, 10000);
-            camera.position.set(0.1, 1.6, 2);
+            camera.position.set(0.1, 1.6, 2.5);
             camera.up.set(0,1,0);
             camera.lookAt(new THREE.Vector3(0, 1.7, 0));
             this.camera = camera;
@@ -206,7 +215,7 @@ export class Threed {
             this.renderer = renderer;
         }
 
-        this.setModel(`./${inopt.model}`);
+        this.setModel(inopt.model);
     }
 
 /**
@@ -234,6 +243,23 @@ export class Threed {
         if (obj) {
             obj.visible = visible;
         }
+    }
+
+/**
+ * 
+ * @see https://github.com/pixiv/three-vrm/blob/dev/packages/three-vrm-animation/examples/loader-plugin.html
+ * @param {string} inurl 
+ */
+    async setAnimation(inurl) {
+        const vrm = this.vrm;
+
+        const gltfVrma = await this.loader.loadAsync(inurl);
+        const vrmAnimation = gltfVrma.userData.vrmAnimations[0];
+
+        const clip = createVRMAnimationClip(vrmAnimation, vrm);
+        const mixer = new THREE.AnimationMixer(vrm.scene);
+        this.mixer = mixer;
+        mixer.clipAction(clip).play();
     }
 
 /**
@@ -267,6 +293,7 @@ export class Threed {
 
 /**
  * モデルファイルを読み取ってセットする
+ * @see https://github.com/pixiv/three-vrm/blob/dev/packages/three-vrm-animation/examples/loader-plugin.html
  * @param {string} inurl blob url など
  */
     setModel(inurl) {
@@ -274,18 +301,36 @@ export class Threed {
         //return;
 
         const loader = new GLTFLoader();
+        this.loader = loader;
 
         loader.register( ( parser ) => {
             return new VRMLoaderPlugin( parser );
         } );
+        loader.register( ( parser ) => {
+            return new VRMAnimationLoaderPlugin( parser );
+        } );
 
+        //loader.setPath('');
+        //loader.setResourcePath('');
         loader.load(inurl,
             arg => {
                 console.log(`VRM load done`, arg);
 
+
                 this.gltf = arg;
 
                 const vrm = arg.userData.vrm;
+                this.vrm = vrm;
+                VRMUtils.removeUnnecessaryVertices(vrm.scene);
+                VRMUtils.removeUnnecessaryJoints(vrm.scene);
+				vrm.scene.traverse(obj => {
+					obj.frustumCulled = false;
+				});
+
+				const lookAtQuatProxy = new VRMLookAtQuaternionProxy(vrm.lookAt);
+				lookAtQuatProxy.name = 'lookAtQuaternionProxy';
+				vrm.scene.add(lookAtQuatProxy);
+
                 this.scene.add(vrm.scene);
                 vrm.scene.name = 'model';
 

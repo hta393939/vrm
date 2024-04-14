@@ -75,17 +75,56 @@ class Misc {
     }
 
 /**
+ * 
+ * @param {string} url 
+ * @param {HTMLProgressElement} progress 
+ * @returns 
+ */
+    async loadFile(url, progress) {
+        const res = await fetch(url);
+        let length = Number.parseInt(res.headers['content-length']);
+        if (!Number.isFinite(length)) {
+            length = 18776268;
+        }
+        progress.max = length;
+
+        let sum = 0;
+        const reader = res.body.getReader();
+        const chunks = [];
+        while(true) {
+            const result = await reader.read();
+            if (result.value) {
+                chunks.push(result.value);
+                sum += result.value.byteLength;
+                progress.value = sum;
+                //console.log(sum, length, (sum / length).toFixed(2));
+            }
+            if (result.done) {
+                break;
+            }
+        }
+        progress.value = progress.max;
+        const blob = new Blob(chunks);
+        return blob;
+    }
+
+/**
  * 初期化する
  */
-    init() {
+    async init() {
         console.log(this.cl, `init called`);
+
+        const modelBlob = await this.loadFile('モブ.vrm',
+            window.progressbar);
+        const bloburl = URL.createObjectURL(modelBlob);
+        //const bloburl2 = URL.createObjectURL(modelBlob);
         {
             const threed = new Threed();
             const w = 512;
             const h = 512;
             const opt = {
                 canvas: window.idcanvas,
-                model: `モブ.vrm`,
+                model: bloburl,
             };
             threed.init(opt, w,h, 50);
             threed.makeControl(opt.canvas);
@@ -98,7 +137,7 @@ class Misc {
             const h = 512;
             const opt = {
                 canvas: window.idcanvas2,
-                model: `スカウターキャラ.vrm`,
+                model: bloburl,
             };
             threed.init(opt, w,h, 50);
             threed.makeControl(opt.canvas);
@@ -267,28 +306,14 @@ class Misc {
             el?.addEventListener('drop', ev => {
                 ev.preventDefault();
                 ev.stopPropagation();
-                this.glb(ev.dataTransfer.files[0]);
+
+                const url = URL.createObjectURL(ev.dataTransfer.files[0]);
+                this.threed2.setAnimation(url);
             });
         }
     
         this.update();
         console.log(`leave`, this);
-    }
-
-/**
- * ドロップしたファイルの JSON だけ取り出す
- * @param {File} file 
- */
-    async glb(file) {
-        const ab = await file.arrayBuffer();
-        const p = new DataView(ab);
-        let c = 0;
-        c = 12;
-        const jsonByte = p.getUint32(c, true);
-        c += 8;
-        const jsonText = new TextDecoder().decode(ab.slice(c, c + jsonByte));
-        const obj = JSON.parse(jsonText);
-        console.log('JSON', obj);
     }
 
 /**
@@ -299,8 +324,8 @@ class Misc {
             this.update();
         });
 
-        this.threed.update();
-        this.threed2.update();
+        this.threed?.update();
+        this.threed2?.update();
     }
 
 }
