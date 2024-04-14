@@ -54,12 +54,12 @@ class Panel {
             }
         }
 
-        {
+        for (const k of ['centernames', 'armnames']) {
             const el = document.getElementById('targetname');
-            const selCenter = document.getElementById('centernames');
-            selCenter?.addEventListener('change', () => {
+            const sel = document.getElementById(k);
+            sel?.addEventListener('change', () => {
                 if (el) {
-                    el.value = selCenter.value;
+                    el.value = sel.value;
                 }
             });
         }

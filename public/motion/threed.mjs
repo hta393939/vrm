@@ -11,6 +11,8 @@ import { VRMLoaderPlugin, VRMUtils } from 'jsm/three-vrm.module.min.2.1.1.js';
 import { createVRMAnimationClip, VRMAnimationLoaderPlugin, VRMLookAtQuaternionProxy }
     from 'jsm/three-vrm-animation.module.min.2.1.1.js';
 
+const _torad = v => v * Math.PI / 180;
+
 /**
  * 可視化クラス
  */
@@ -103,13 +105,13 @@ export class Threed {
             if (core) {        
                 const exprMgr = core?.expressionManager;
                 if (exprMgr) {
-                    exprMgr.setValue('aa', 0.5);
+                    exprMgr.setValue('aa', 1);
 
                     exprMgr?.update(delta);
                 }
 
                 const humanoid = core?.humanoid;
-                if (humanoid && false) {
+                if (humanoid && true) {
                     
                     const s = 0.25 * Math.PI * Math.sin(Math.PI * this.clock.elapsedTime);
 //                    humanoid.getBoneNode('head').rotation.x = s;
@@ -359,7 +361,7 @@ export class Threed {
                     //     helper 作る
                     //     scene に足す
 
-                    this.scene.updateMatrixWorld();
+                    //this.scene.updateMatrixWorld();
                     arg.userData.vrmNodeConstraintManager?.setInitState();
                 }
 
@@ -379,7 +381,14 @@ export class Threed {
  * @param {{targetname: string, erot: [number,number,number]}} data 
  */
     setOneJoint(data) {
-        // 
+        const humanoid = this.vrm?.humanoid;
+        if (!humanoid) {
+            return;
+        }
+        const rawbone = humanoid.getNormalizedBone(data.targetname);
+        rawbone.node.rotation.set(
+            ...(data.erot.map(v => v * Math.PI / 180)),
+            'YXZ');
     }
 
 }

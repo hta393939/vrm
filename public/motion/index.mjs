@@ -155,7 +155,7 @@ class Misc {
                 case 'sendmotion':
                     console.log(ev.data.type, ev.data);
 
-                    this.threed?.setOneJoint(data);
+                    this.threed?.setOneJoint(ev.data);
                     break;
 
                 case 'opened':
@@ -163,7 +163,6 @@ class Misc {
                     {
                         const obj = {
                             type: 'ping',
-                            erot: [0, 15, 0],
                         };
                         this.panel?.postMessage(obj, Misc.origin());
                         break;
