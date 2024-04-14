@@ -391,6 +391,18 @@ export class Threed {
             'YXZ');
     }
 
+    geterot(targetname) {
+        console.log('geterot called', targetname);
+        const humanoid = this.vrm?.humanoid;
+        if (!humanoid) {
+            return null;
+        }
+        const rawbone = humanoid.getNormalizedBone(targetname);
+        const rot = rawbone.node.rotation.clone();
+        rot.order = 'YXZ'; // 変換されるのか???
+        return rot.toArray();
+    }
+
 }
 
 

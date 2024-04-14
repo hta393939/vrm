@@ -13,6 +13,17 @@ class Panel {
         return `${location.protocol}/${location.host}`;
     }
 
+    reserot(data) {
+        for (let i = 0; i < 3; ++i) {
+            const id = `erot${Panel.els[i]}`;
+            const el = document.getElementById(id);
+            if (!el) {
+                continue;
+            }
+            el.value = data.erot[i] * Math.PI / 180; // degree
+        }
+    }
+
     init() {
 
         const sp = new URLSearchParams(location.search);
@@ -22,6 +33,9 @@ class Panel {
             switch(ev.data.type) {
             case 'ping':
                 console.log(ev.data.type, ev.data);
+                break;
+            case 'reserot':
+                this.reserot(ev.data);
                 break;
             }
         });
@@ -60,9 +74,23 @@ class Panel {
             sel?.addEventListener('change', () => {
                 if (el) {
                     el.value = sel.value;
+
+                    this.getRotation(sel.value);
                 }
             });
         }
+    }
+
+/**
+ * 親に euler rotation を要求する
+ * @param {string} targetname 
+ */
+    getRotation(targetname) {
+        const obj = {
+            type: 'geterot',
+            targetname,
+        };
+        window.opener?.postMessage(obj);
     }
 
     sendMotion() {

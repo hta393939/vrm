@@ -158,6 +158,17 @@ class Misc {
                     this.threed?.setOneJoint(ev.data);
                     break;
 
+                case 'geterot':
+                    {
+                        const erot = this.threed?.geterot(ev.data.targetname);
+                        const obj = {
+                            type: 'reserot',
+                            erot,
+                        };
+                        ev.source.postMessage(obj);
+                    }
+                    break;
+
                 case 'opened':
                     console.log('panel opened');
                     {
