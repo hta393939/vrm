@@ -1,0 +1,47 @@
+@charset "UTF-8";
+
+body {
+    margin: 0;
+    padding: 0;
+}
+
+.pt {
+    cursor: pointer;
+}
+
+.grab:hover {
+    cursor: grab;
+}
+
+.grab:active {
+    cursor: grabbing;
+}
+
+.toright {
+    flex-wrap: wrap;
+
+    display: flex;
+    flex-direction: row;
+}
+
+.tobottom {
+    display: flex;
+    flex-direction: column;
+}
+
+.drop {
+    border: dashed 4px black;
+    border-radius: 2rem;
+    text-align: center;
+    margin: 1rem;
+    padding: 1rem;
+    font-weight: bold;
+    user-select: none;
+}
+
+.canvas {
+    width: 320px;
+    aspect-ratio: calc(16 / 9);
+    border: solid 1px black;
+}
+

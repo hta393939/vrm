@@ -26,6 +26,9 @@ export class Threed {
         this.basets = Date.now();
 
         this.renderer = null;
+/**
+ * @type {THREE.Scene}
+ */
         this.scene = null;
         this.camera = null;
         this.vrm = null;
@@ -155,6 +158,34 @@ export class Threed {
         this.renderer.render(this.scene, this.camera);
     }
 
+    clearSec() {
+        console.log('clearSec called');
+
+        { // 軸
+            this.renderer.setClearColor(new THREE.Color(0, 0, 0),
+                0);
+            this.setVisible('axes', false);
+            this.setVisible('grid', false);
+        }
+    }
+
+    updateSec(insec) {
+        console.log('updateSec called', insec);
+        let index = -1;
+        for (let i = 0; i < 0; ++i) {
+            const sec = 0.5;
+            if (sec >= insec) {
+                index = i;
+                break;
+            }
+        }
+        if (index < 0) { // 最初か最後を得る
+    
+        }
+        // 
+        // 
+    }
+
 /**
  * 初期化する
  * @param {{canvas:HTMLCanvasElement}} inopt 
@@ -193,7 +224,8 @@ export class Threed {
             {
                 const color = 0xffffff;
                 const light = new THREE.DirectionalLight(color);
-                light.position.set(-1, 1, 1);
+                //light.position.set(-1, 1, 1);
+                //light.position.set(0, 1, 1);
                 scene.add(light);
             }
             {
@@ -207,10 +239,12 @@ export class Threed {
             }
             {
                 const axes = new THREE.AxesHelper(20);
+                axes.name = 'axes';
                 axes.position.set(0, 0.004, 0);
                 scene.add(axes);
 
                 const grid = new THREE.GridHelper(10, 10);
+                grid.name = 'grid';
                 grid.position.set(0, 0.0, 0);
                 scene.add(grid);
             }
@@ -330,8 +364,8 @@ export class Threed {
 
                 const vrm = arg.userData.vrm;
                 this.vrm = vrm;
-                VRMUtils.removeUnnecessaryVertices(vrm.scene);
-                VRMUtils.removeUnnecessaryJoints(vrm.scene);
+                //VRMUtils.removeUnnecessaryVertices(vrm.scene);
+                //VRMUtils.removeUnnecessaryJoints(vrm.scene);
 				vrm.scene.traverse(obj => {
 					obj.frustumCulled = false;
 				});
@@ -349,7 +383,7 @@ export class Threed {
                         lookAt.target = this.lookTarget;
                     }
                 }
-                {
+                if (false) { // こいつのせいっぽい??
                     const firstPerson = vrm?.firstPerson;
                     firstPerson.setup();
 
@@ -369,6 +403,7 @@ export class Threed {
                     //     scene に足す
 
                     //this.scene.updateMatrixWorld();
+
                     arg.userData.vrmNodeConstraintManager?.setInitState();
                 }
 
