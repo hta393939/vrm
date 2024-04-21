@@ -24,6 +24,10 @@ class Misc {
         this.STORAGE = 'gvrmn';
     }
 
+    static pad(v, n = 2) {
+        return String(v).padStart(n, '0');
+    }
+
 /**
  * ダウンロードする
  * @param {Blob} blob バイナリ
@@ -265,6 +269,18 @@ class Misc {
         //console.log(`saveSetting leave`);
     }
 
+/**
+ * ディレクトリを指定する
+ */
+    async selectDir() {
+        let dirHandle = await window.showDirectoryPicker({
+            mode: 'readwrite'
+        });
+        this.dirHandle = dirHandle;
+        // kind, name
+        console.log('selectDir leave', dirHandle);
+    }
+
     async onload() {
         console.log('onload called');
         this.loadSetting();
@@ -289,8 +305,9 @@ class Misc {
         }
     
         {
-            window.idsave3?.addEventListener('click', ev => {
-                this.makeFile();
+            const el = document.getElementById('selectdir');
+            el?.addEventListener('click', async () => {
+                this.selectDir();
             });
         }
 
@@ -397,7 +414,13 @@ class Misc {
         let fps = 30;
         const canvas = document.getElementById('idcanvas2');
         this.threed2.clearSec();
+/**
+ * @type {FileSystemDirectoryHandle}
+ */
+        const dirHandle = this.dirHandle;
+
         for (let i = 0; i <= fps * durationSec; ++i) {
+            const name = `a${Misc.pad(i, 5)}.png`;
             // 更新する
             let sec = i / fps;
             // アップデートする
@@ -405,7 +428,15 @@ class Misc {
             // 画像を作成する
             const blob = await this.getImage(canvas);
             // フォルダに書き出す
-            console.log('blob', blob.size);
+            console.log('blob', blob.size, name);
+
+            const fileHandle = await dirHandle.getFileHandle(name,
+                { create: true });
+            console.log('fileHandle', fileHandle);
+            const writer = await fileHandle.createWritable();
+            const ab = await blob.arrayBuffer();
+            await writer.write(ab);
+            await writer.close();
         }
     }
 

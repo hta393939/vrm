@@ -25,6 +25,9 @@ export class Threed {
 
         this.basets = Date.now();
 
+        this.cpos = new THREE.Vector3(0.104, 1.155, 0.783);
+        this.ctarget = new THREE.Vector3(-0.257, 1.050, 0.064);
+
         this.renderer = null;
 /**
  * @type {THREE.Scene}
@@ -45,7 +48,7 @@ export class Threed {
         const control = new OrbitControls(this.camera, dom);
         this.control = control;
 
-        control.target = new THREE.Vector3(0, 1, 0);
+        control.target = this.ctarget.clone();
     }
 
     /**
@@ -158,14 +161,18 @@ export class Threed {
         this.renderer.render(this.scene, this.camera);
     }
 
+/**
+ * クリアする
+ */
     clearSec() {
         console.log('clearSec called');
 
         { // 軸
-            this.renderer.setClearColor(new THREE.Color(0, 0, 0),
+            this.renderer?.setClearColor(new THREE.Color(0, 0, 0),
                 0);
             this.setVisible('axes', false);
             this.setVisible('grid', false);
+            this.renderer?.update(this.scene, this.camera);
         }
     }
 
@@ -213,9 +220,9 @@ export class Threed {
 
             const camera = new THREE.PerspectiveCamera(viewfov, vieww/viewh,
                 0.01, 10000);
-            camera.position.set(0.1, 1.6, 2.5);
+            camera.position.copy(this.cpos);
             camera.up.set(0,1,0);
-            camera.lookAt(new THREE.Vector3(0, 1.7, 0));
+            camera.lookAt(this.ctarget);
             this.camera = camera;
 
             const scene = new THREE.Scene();
