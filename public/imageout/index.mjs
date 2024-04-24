@@ -201,13 +201,13 @@ class Misc {
       }
 
       const ms = this.threed2?.ms || [];
-      const data = ev.data;
+      const data = JSON.parse(ev.data);
       switch(data.type) {
       case 'motion':
         { // 時刻が正しいところに追加する
           const num = ms.length;
           if (num === 0) {
-            ms.push(ev.data);
+            ms.push(data);
             this.applyMotion();
             return;
           }
@@ -228,7 +228,7 @@ class Misc {
             return;
           }
           // 最後に追加する
-          ms.push(m);
+          ms.push(data);
           this.applyMotion();
         }
         break;
@@ -422,6 +422,12 @@ class Misc {
         this.ws?.send(JSON.stringify(obj));
       });
     }
+    {
+      const el = document.getElementById('logged');
+      el?.addEventListener('click', () => {
+        console.log('threed2.ms', this.threed2?.ms);
+      });
+    }
 
     this.initWS();
 
@@ -434,7 +440,7 @@ class Misc {
       const el = document.getElementById('multiview');
       if (el) {
         const ms = this.threed2?.ms || [];
-        el.textContent = `${ms?.length}, ${ms?.[0]?.ts}, ${ms?.[ms?.length - 1]?.ts}`;
+        el.textContent = `${ms.length}, ${ms[0]?.ts}, ${ms[ms.length - 1]?.ts}`;
       }
     }
   }
