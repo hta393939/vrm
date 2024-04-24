@@ -1,58 +1,58 @@
 <!DOCTYPE html>
 <html lang="ja">
-    <head>
-        <meta charset="UTF-8" />
-        <title>imageout</title>
-        <link rel="stylesheet" href="./index.css" />
-    </head>
-    <body>
-        <!--
+  <head>
+    <meta charset="UTF-8" />
+    <title>imageout</title>
+    <link rel="stylesheet" href="./index.css" />
+  </head>
+  <body>
+    <!--
 https://github.khronos.org/glTF-Validator/
-        -->
-        <div>
-            <progress id="progressbar"></progress>
-        </div>
-        <div class="toright">
-            <canvas id="idcanvas" class="canvas"></canvas>
-            <canvas id="idcanvas2" class="canvas"></canvas>
-        </div>
+    -->
+    <div>
+      <progress id="progressbar"></progress>
+    </div>
+    <div class="toright">
+      <canvas id="idcanvas" class="canvas"></canvas>
+      <canvas id="idcanvas2" class="canvas"></canvas>
+    </div>
 
-        <div>
-            <div>
-                <div id="drop" class="drop">Drop vrma file here.</div>
-            </div>
-        </div>
+    <div>
+      <div>
+        <div id="drop" class="drop">Drop vrma file here.</div>
+      </div>
+    </div>
 
-        <div id="info0"></div>
+    <div id="info0"></div>
 
-        <label class="pt"><input class="pt" type="checkbox" id="idvis" checked="checked" />表示</label>
-        <label class="pt"><input class="pt" type="checkbox" id="idwire" checked="checked" />ワイヤー</label>
-        <label class="pt"><input class="pt" type="checkbox" id="idaxes" />軸</label>        
+    <label class="pt"><input class="pt" type="checkbox" id="idvis" checked="checked" />表示</label>
+    <label class="pt"><input class="pt" type="checkbox" id="idwire" checked="checked" />ワイヤー</label>
+    <label class="pt"><input class="pt" type="checkbox" id="idaxes" />軸</label>        
 
-        <input type="button" id="idPre2" value="ぷり" /><br />
+    <input type="button" id="idPre2" value="ぷり" /><br />
 
-        <label class="pt"><input class="pt" type="checkbox" id="idwithdownload" />ダウンロードする</label>
-        <input type="button" class="pt" id="selectdir" value="フォルダ指定" />
-        <button class="pt" id="idbeginrec">収録開始</button>
-        <button class="pt" disabled id="idendrec">収録終了</button>
-        <button class="pt" id="openpanel">パネル</button>
+    <label class="pt"><input class="pt" type="checkbox" id="idwithdownload" />ダウンロードする</label>
+    <input type="button" class="pt" id="selectdir" value="フォルダ指定" />
+    <button class="pt" id="idbeginrec">収録開始</button>
+    <button class="pt" disabled id="idendrec">収録終了</button>
+    <button class="pt" id="openpanel">パネル</button>
 
-        <div>
-            <div id="idspringview"></div>
-        </div>
+    <div>
+      <div id="idspringview"></div>
+    </div>
 
-        <hr />
+    <hr />
 
-        <script type="importmap">
-            {
-                "imports": {
-                    "three": "../thirdparty/threejs/three.module.min.js",
-                    "jsm/": "../thirdparty/threejs/jsm/"
-                }
-            }    
-        </script>
-        <script type="module" src="./index.mjs"></script>
-    </body>
+    <script type="importmap">
+      {
+        "imports": {
+          "three": "../thirdparty/threejs/three.module.min.js",
+          "jsm/": "../thirdparty/threejs/jsm/"
+        }
+      }    
+    </script>
+    <script type="module" src="./index.mjs"></script>
+  </body>
 </html>
 
 
