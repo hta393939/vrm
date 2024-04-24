@@ -44,7 +44,7 @@ export class Threed {
     };
 
 /**
- * 上書きするか..
+ * 扱う
  */
     this.ms = [];
   }

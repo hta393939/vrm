@@ -16,7 +16,6 @@ class Misc {
   constructor() {
     this.cl = this.constructor.name;
 
-    this.ms = [];
 /**
  * 共通名
  * @default 'gvrmn'
@@ -186,7 +185,8 @@ class Misc {
   setHandler(ws) {
     ws.addEventListener('open', () => {
       console.log('open fire');
-      this.ms = [];
+      this.threed2?.ms?.splice(0);
+      this.applyMotion();
     });
     ws.addEventListener('error', ev => {
       console.log('error fire', ev);
@@ -195,20 +195,26 @@ class Misc {
       console.log('close fire', ev);
     });
     ws.addEventListener('message', ev => {
+      const el = document.getElementById('isws');
+      if (!(el?.checked)) {
+        return;
+      }
+
+      const ms = this.threed2?.ms || [];
       const data = ev.data;
       switch(data.type) {
       case 'motion':
         { // 時刻が正しいところに追加する
-          const num = this.ms.length;
+          const num = ms.length;
           if (num === 0) {
-            this.ms.push(ev.data);
+            ms.push(ev.data);
             this.applyMotion();
             return;
           }
           for (let i = 0; i < num; ++i) {
-            const m = this.ms[i];
+            const m = ms[i];
             if (m.ts === data.ts) {
-              this.ms[i] = data;
+              ms[i] = data;
               this.applyMotion();
               return;
             }
@@ -217,12 +223,12 @@ class Misc {
             }
             // data.ts < ms[i].ts
             // i-1 と i の間に挿入。i === 0 のときも ok
-            this.ms.splice(i, 0, data);
+            ms.splice(i, 0, data);
             this.applyMotion();
             return;
           }
           // 最後に追加する
-          this.ms.push(m);
+          ms.push(m);
           this.applyMotion();
         }
         break;
@@ -373,6 +379,13 @@ class Misc {
         ev.preventDefault();
         ev.stopPropagation();
 
+        const isws = document.getElementById('isws');
+        if (isws) {
+          isws.checked = false;
+          this.threed2?.ms?.splice(0);
+          this.applyMotion();
+        }
+
         const file = ev.dataTransfer.files[0];
         const url = URL.createObjectURL(file);
         this.threed2.setAnimation(url, file);
@@ -384,16 +397,29 @@ class Misc {
       el?.addEventListener('click', () => {
         console.log('download');
         Misc.download(new Blob([JSON.stringify({
-          ms: this.ms,
+          ms: this.threed2.ms,
         })]), `a.json`);
       });
     }
     {
       const el = document.getElementById('clearmulti');
       el?.addEventListener('click', () => {
-        console.log('clear');
-        this.ms = [];
+        console.log('clearmulti');
+        this.threed2?.ms?.splice(0);
         this.applyMotion();
+      });
+    }
+    {
+      const el = document.getElementById('pseudosend');
+      el?.addEventListener('click', () => {
+        console.log('pseudosend');
+        const obj = {
+          type: 'motion',
+          b: {},
+          e: {},
+          ts: 123,
+        };
+        this.ws?.send(JSON.stringify(obj));
       });
     }
 
@@ -404,11 +430,11 @@ class Misc {
   }
 
   applyMotion() {
-    this.threed2.ms = this.ms;
     {
       const el = document.getElementById('multiview');
       if (el) {
-        el.textContent = `${this.ms.length}, ${this.ms?.[0]?.ts}, ${this.ms?.[this.ms.length - 1]?.ts}`;
+        const ms = this.threed2?.ms || [];
+        el.textContent = `${ms?.length}, ${ms?.[0]?.ts}, ${ms?.[ms?.length - 1]?.ts}`;
       }
     }
   }
