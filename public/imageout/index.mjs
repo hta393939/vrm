@@ -16,6 +16,7 @@ class Misc {
   constructor() {
     this.cl = this.constructor.name;
 
+    this.ms = [];
 /**
  * 共通名
  * @default 'gvrmn'
@@ -170,6 +171,65 @@ class Misc {
 
   }
 
+  initWS() {
+    const port = 40080;
+    let url = `ws://localhost:${port}/ws`;
+    const ws = new WebSocket(url);
+    this.ws = ws;
+    this.setHandler(ws);
+  }
+
+/**
+ * 
+ * @param {WebSocket} ws 
+ */
+  setHandler(ws) {
+    ws.addEventListener('open', () => {
+      console.log('open fire');
+      this.ms = [];
+    });
+    ws.addEventListener('error', ev => {
+      console.log('error fire', ev);
+    });
+    ws.addEventListener('close', ev => {
+      console.log('close fire', ev);
+    });
+    ws.addEventListener('message', ev => {
+      const data = ev.data;
+      switch(data.type) {
+      case 'motion':
+        { // 時刻が正しいところに追加する
+          const num = this.ms.length;
+          if (num === 0) {
+            this.ms.push(ev.data);
+            this.applyMotion();
+            return;
+          }
+          for (let i = 0; i < num; ++i) {
+            const m = this.ms[i];
+            if (m.ts === data.ts) {
+              this.ms[i] = data;
+              this.applyMotion();
+              return;
+            }
+            if (m.ts < data.ts) {
+              continue;
+            }
+            // data.ts < ms[i].ts
+            // i-1 と i の間に挿入。i === 0 のときも ok
+            this.ms.splice(i, 0, data);
+            this.applyMotion();
+            return;
+          }
+          // 最後に追加する
+          this.ms.push(m);
+          this.applyMotion();
+        }
+        break;
+      }
+    });
+  }
+
 /**
  * 
  * @param {*} x 
@@ -318,9 +378,51 @@ class Misc {
         this.threed2.setAnimation(url, file);
       });
     }
-  
+
+    {
+      const el = document.getElementById('downloadmulti');
+      el?.addEventListener('click', () => {
+        console.log('download');
+        Misc.download(new Blob([JSON.stringify({
+          ms: this.ms,
+        })]), `a.json`);
+      });
+    }
+    {
+      const el = document.getElementById('clearmulti');
+      el?.addEventListener('click', () => {
+        console.log('clear');
+        this.ms = [];
+        this.applyMotion();
+      });
+    }
+
+    this.initWS();
+
     this.update();
     console.log(`leave`, this);
+  }
+
+  applyMotion() {
+    this.threed2.ms = this.ms;
+    {
+      const el = document.getElementById('multiview');
+      if (el) {
+        el.textContent = `${this.ms.length}, ${this.ms?.[0]?.ts}, ${this.ms?.[this.ms.length - 1]?.ts}`;
+      }
+    }
+  }
+
+/**
+ * 
+ * @param {Blob} blob 
+ * @param {string} name 
+ */
+  static download(blob, name) {
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = name;
+    a.click();
   }
 
 /**

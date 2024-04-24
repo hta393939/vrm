@@ -43,62 +43,10 @@ export class Threed {
       }
     };
 
-    this.ms = [];
-  }
-
-  initWS() {
-    const port = 40080;
-    let url = `ws://localhost:${port}/ws`;
-    const ws = new WebSocket(url);
-    this.ws = ws;
-    this.setHandler(ws);
-  }
-
 /**
- * 
- * @param {WebSocket} ws 
+ * 上書きするか..
  */
-  setHandler(ws) {
-    ws.addEventListener('open', () => {
-      console.log('open fire');
-      this.ms = [];
-    });
-    ws.addEventListener('error', ev => {
-      console.log('error fire', ev);
-    });
-    ws.addEventListener('close', ev => {
-      console.log('close fire', ev);
-    });
-    ws.addEventListener('message', ev => {
-      const data = ev.data;
-      switch(data.type) {
-      case 'motion':
-        { // 時刻が正しいところに追加する
-          const num = this.ms.length;
-          if (num === 0) {
-            this.ms.push(ev.data);
-            return;
-          }
-          for (let i = 0; i < num; ++i) {
-            const m = this.ms[i];
-            if (m.ts === data.ts) {
-              this.ms[i] = data;
-              return;
-            }
-            if (m.ts < data.ts) {
-              continue;
-            }
-            // data.ts < ms[i].ts
-            // i-1 と i の間に挿入。i === 0 のときも ok
-            this.ms.splice(i, 0, data);
-            return;
-          }
-          // 最後に追加する
-          this.ms.push(m);
-        }
-        break;
-      }
-    });
+    this.ms = [];
   }
 
   makeControl(dom) {
