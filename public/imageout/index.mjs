@@ -388,7 +388,11 @@ class Misc {
 
         const file = ev.dataTransfer.files[0];
         const url = URL.createObjectURL(file);
-        this.threed2.setAnimation(url, file);
+        if (file.name.endsWith('.json')) {
+          this.record(file);
+          return;
+        }
+        this.threed2.setAnimation(url);
       });
     }
 
@@ -472,9 +476,21 @@ class Misc {
 
 /**
  * オフライン録画を開始したい
+ * @param {File?}
  */
-  async record() {
-    let durationSec = 1;
+  async record(file) {
+
+    if (file) {
+      const text = await file.text();
+      const obj = JSON.parse(text);
+      console.log('record obj', obj);
+
+      const ms = obj.ms;
+      ms.sort((a, b) => a.ts100 - b.ts100);
+      this.threed2.ms = ms;
+    }
+
+    let durationSec = 2 * 60 + 39;
     let fps = 30;
     const canvas = document.getElementById('idcanvas2');
     this.threed2.clearSec();

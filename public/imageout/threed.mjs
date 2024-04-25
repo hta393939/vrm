@@ -395,53 +395,12 @@ export class Threed {
   }
 
 /**
- * API. 
- * @param {File} file 
- */
-  async setJsonAnimation(file) {
-    const text = await file.text();
-    const obj = JSON.parse(text);
-    console.log('obj', obj);
-
-    const ms = [];
-    for (const k in obj.motions) {
-      const m = obj.motions[k];
-      ms.push(m);
-    }
-    ms.sort((a, b) => a.ts100 - b.ts100);
-
-    {
-      this.clearSec();
-
-      for (let i = 0; i < 2; ++i) {
-        const m = ms[0];
-        this.setMotion(m);
-        this.update();
-      }
-    }
-
-    // そのまま作るか...
-    const fps = 30;
-    const num = ms.length;
-    for (let i = 0; i < num; ++i) {
-      const sec = i / fps;
-      this.updateSec(sec);
-      this.update();
-    }
-
-  }
-
-/**
  * 
  * @see https://github.com/pixiv/three-vrm/blob/dev/packages/three-vrm-animation/examples/loader-plugin.html
  * @param {string} inurl 
  * @param {File} file 
  */
-  async setAnimation(inurl, file) {
-    if (file.name.endsWith('.json')) {
-      return this.setJsonAnimation(file);
-    }
-
+  async setAnimation(inurl) {
     const vrm = this.vrm;
 
     const gltfVrma = await this.loader.loadAsync(inurl);
