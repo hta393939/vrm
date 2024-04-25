@@ -13,6 +13,18 @@ import { createVRMAnimationClip, VRMAnimationLoaderPlugin, VRMLookAtQuaternionPr
 
 const _torad = v => v * Math.PI / 180;
 
+class Motion {
+  constructor() {
+    this.type = 'motion';
+/**
+ * tick の 100倍
+ */
+    this.ts100 = 0;
+    this.b = {};
+    this.e = {};
+  }
+}
+
 /**
  * 可視化クラス
  */
@@ -25,8 +37,25 @@ export class Threed {
 
     this.basets = Date.now();
 
+/**
+ * 目で見て補正
+ */
     this.cpos = new THREE.Vector3(0.104, 1.155, 0.783);
+/**
+ * 目で見て補正
+ */
     this.ctarget = new THREE.Vector3(-0.257, 1.050, 0.064);
+
+    let y = 1.15;
+/**
+ * 
+ */
+    this.cpos = new THREE.Vector3(0, y, 0.5);
+/**
+ * 
+ */
+    this.ctarget = new THREE.Vector3(0, y, 0);
+
 
     this.renderer = null;
 /**
@@ -45,6 +74,7 @@ export class Threed {
 
 /**
  * 扱う
+ * @type {Motion[]}
  */
     this.ms = [];
   }
@@ -185,21 +215,42 @@ export class Threed {
     }
   }
 
+/**
+ * 
+ * @param {number} insec 秒
+ */
   updateSec(insec) {
+    const tempoQuater = 90;
+    const quarterTick = 1920 / 4; // 480
+    const _tickToSec = (tick) => {
+      return tick * 60 / (tempoQuater * quarterTick);
+    };
     console.log('updateSec called', insec);
+    const num = this.ms.length;
+    if (num === 0) {
+      return;
+    }
     let index = -1;
-    for (let i = 0; i < 0; ++i) {
-      const sec = 0.5;
-      if (sec >= insec) {
-        index = i;
-        break;
+    for (let i = 0; i < num; ++i) {
+      const m = this.ms[i];
+      const sec = _tickToSec(m.ts100 / 100);
+      if (sec < insec) { // ms[i].sec < 現在
+        continue;
       }
+      if (insec === sec) {
+        index = i;
+        this.setMotion(m);
+        return m;
+      }
+      // 現在 < ms[i].sec
+      index = i - 1;
+      if (index < 0) {
+        index = 0;
+      }
+      this.setMotion(this.ms[index]);
+      return m;
     }
-    if (index < 0) { // 最初か最後を得る
-  
-    }
-    // 
-    // 
+
   }
 
 /**
@@ -230,7 +281,7 @@ export class Threed {
       const camera = new THREE.PerspectiveCamera(viewfov, vieww/viewh,
         0.01, 10000);
       camera.position.copy(this.cpos);
-      camera.up.set(0,1,0);
+      camera.up.set(0, 1, 0);
       camera.lookAt(this.ctarget);
       this.camera = camera;
 
@@ -305,7 +356,8 @@ export class Threed {
   }
 
 /**
- * 1モーション反映
+ * 1モーション反映．
+ * ts や ts100 は使用していない
  * @param {Object} m 
  */
   setMotion(m) {
@@ -356,17 +408,26 @@ export class Threed {
       const m = obj.motions[k];
       ms.push(m);
     }
-    ms.sort((a, b) => a.ts - b.ts);
+    ms.sort((a, b) => a.ts100 - b.ts100);
 
     {
       this.clearSec();
 
-      const m = ms[0];
-      this.setMotion(m);
-      this.update();
+      for (let i = 0; i < 2; ++i) {
+        const m = ms[0];
+        this.setMotion(m);
+        this.update();
+      }
     }
 
     // そのまま作るか...
+    const fps = 30;
+    const num = ms.length;
+    for (let i = 0; i < num; ++i) {
+      const sec = i / fps;
+      this.updateSec(sec);
+      this.update();
+    }
 
   }
 

@@ -213,12 +213,12 @@ class Misc {
           }
           for (let i = 0; i < num; ++i) {
             const m = ms[i];
-            if (m.ts === data.ts) {
+            if (m.ts100 === data.ts100) {
               ms[i] = data;
               this.applyMotion();
               return;
             }
-            if (m.ts < data.ts) {
+            if (m.ts100 < data.ts100) {
               continue;
             }
             // data.ts < ms[i].ts
@@ -440,7 +440,7 @@ class Misc {
       const el = document.getElementById('multiview');
       if (el) {
         const ms = this.threed2?.ms || [];
-        el.textContent = `${ms.length}, ${ms[0]?.ts}, ${ms[ms.length - 1]?.ts}`;
+        el.textContent = `${ms.length}, ${ms[0]?.ts100}, ${ms[ms.length - 1]?.ts100}`;
       }
     }
   }
